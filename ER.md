@@ -3,10 +3,8 @@ erDiagram
     %% ユーザー管理
     USERS {
         int user_id PK
-        string username UK
+        string name UK
         string password_hash
-        string full_name
-        string email
         enum role "manager,member,coach,director"
         int grade "学年(部員のみ)"
         boolean is_active

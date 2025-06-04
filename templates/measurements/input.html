@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}測定記録入力{% endblock %}
+
+{% block content %}
+<h2>測定記録入力</h2>
+<form action="/submit_record" method="post">
+    <label for="member_name">部員名:</label>
+    <input type="text" id="member_name" name="member_name" required><br>
+
+    <label for="measurement_date">測定日:</label>
+    <input type="date" id="measurement_date" name="measurement_date" required><br>
+
+    <label for="run_50m">50m走タイム（秒）:</label>
+    <input type="text" id="run_50m" name="run_50m"><br>
+
+    <label for="base_running">ベースランニング（秒）:</label>
+    <input type="text" id="base_running" name="base_running"><br>
+
+    <button type="submit">記録を保存</button>
+</form>
+{% endblock %}

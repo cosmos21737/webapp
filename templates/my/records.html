@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}私の測定記録{% endblock %}
+
+{% block content %}
+<h2>{{ session['username'] }} さんの測定記録</h2>
+<table class="member-table">
+    <thead>
+        <tr>
+            <th>測定日</th>
+            <th>50m走 (秒)</th>
+            <th>ベースランニング (秒)</th>
+            <th>遠投距離 (m)</th>
+            <th>ストレート球速 (km/h)</th>
+            <th>打球速度 (km/h)</th>
+            <th>スイング速度 (km/h)</th>
+            <th>ベンチプレス (kg)</th>
+            <th>スクワット (kg)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in records %}
+        <tr>
+            <td>{{ record.measurement_date }}</td>
+            <td>{{ record.run_50m }}</td>
+            <td>{{ record.base_running }}</td>
+            <td>{{ record.long_throw }}</td>
+            <td>{{ record.straight_speed }}</td>
+            <td>{{ record.hit_speed }}</td>
+            <td>{{ record.swing_speed }}</td>
+            <td>{{ record.bench_press }}</td>
+            <td>{{ record.squat }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

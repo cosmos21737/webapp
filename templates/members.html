@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}部員一覧{% endblock %}
+
+{% block content %}
+<h2>部員一覧</h2>
+<table class="member-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>氏名</th>
+      <th>役割</th>
+      <th>学年</th>
+      <th>活動状況</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for member in members %}
+    <tr>
+      <td>{{ member.user_id }}</td>
+      <td>{{ member.name }}</td>
+      <td>{{ member.role }}</td>
+      <td>{{ member.grade }}</td>
+      <td>{% if member.is_active %}現役{% else %}引退{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

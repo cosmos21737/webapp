@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}野球部タレントマネジメントシステム{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>野球部タレントマネジメントシステム</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dashboard') }}">ダッシュボード</a></li>
+                <li><a href="{{ url_for('measurements_input') }}">測定記録入力</a></li>
+                <li><a href="{{ url_for('my_records') }}">記録閲覧</a></li>
+                <li><a href="{{ url_for('members') }}">部員一覧</a></li>
+                <li><a href="{{ url_for('logout') }}">ログアウト</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 JPT高校野球部</p>
+    </footer>
+</body>
+</html>
