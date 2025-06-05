@@ -1,0 +1,65 @@
+氏名,パスワード,役割,学年,活動
+テスト部員,password123,member,1,1
+テストマネージャー,password123,manager,,1
+テストコーチ,password123,coach,,1
+テスト監督,password123,director,,1
+渡辺 蒼,password123,member,1,1
+吉田 翔太,password123,member,1,1
+清水 悠人,password123,member,1,1
+高橋 颯太,password123,member,1,1
+小林 湊,password123,member,1,1
+吉田 陽斗,password123,member,1,1
+加藤 悠人,password123,member,1,1
+佐々木 樹,password123,member,1,1
+中村 大翔,password123,member,1,1
+中村 蓮,password123,member,1,1
+木村 悠人,password123,member,1,1
+高橋 陽,password123,member,1,1
+吉田 颯,password123,member,1,1
+山本 悠,password123,member,1,1
+井上 蓮,password123,member,1,1
+高橋 大和,password123,member,1,1
+渡辺 蒼太,password123,member,1,1
+松本 蓮,password123,member,1,1
+佐藤 健太,password123,member,1,1
+佐藤 翔太,password123,member,1,1
+渡辺 樹,password123,member,2,1
+渡辺 陽翔,password123,member,2,1
+山本 翔太,password123,member,2,1
+木村 陽翔,password123,member,2,1
+渡辺 健太,password123,member,2,1
+加藤 樹,password123,member,2,1
+山本 颯真,password123,member,2,1
+斎藤 陽,password123,member,2,1
+山口 蒼太,password123,member,2,1
+鈴木 陽翔,password123,member,2,1
+木村 陽斗,password123,member,2,1
+林 湊,password123,member,2,1
+林 陽,password123,member,2,1
+伊藤 颯真,password123,member,2,1
+井上 颯,password123,member,2,1
+清水 颯太,password123,member,2,1
+井上 悠斗,password123,member,2,1
+山本 大和,password123,member,2,1
+中村 颯,password123,member,2,1
+佐藤 悠,password123,member,2,1
+田中 湊,password123,member,3,1
+松本 陽太,password123,member,3,1
+松本 陽翔,password123,member,3,1
+渡辺 陽太,password123,member,3,1
+田中 陽斗,password123,member,3,1
+伊藤 大和,password123,member,3,1
+井上 悠真,password123,member,3,1
+小林 蓮,password123,member,3,1
+田中 蒼,password123,member,3,1
+松本 大翔,password123,member,3,1
+吉田 蓮,password123,member,3,1
+木村 颯,password123,member,3,1
+斎藤 悠真,password123,member,3,1
+清水 樹,password123,member,3,1
+田中 颯真,password123,member,3,1
+山口 大翔,password123,member,3,1
+木村 陽,password123,member,3,1
+鈴木 悠人,password123,member,3,1
+鈴木 颯太,password123,member,3,1
+中村 颯太,password123,member,3,1
