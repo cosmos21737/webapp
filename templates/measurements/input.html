@@ -6,6 +6,7 @@
 <h2>測定記録入力</h2>
 <form action="/submit_record" method="post">
     <label for="member_name">部員名:</label>
+    <label for="member_name">部員名:</label>
     <input type="text" id="member_name" name="member_name" required><br>
 
     <label for="measurement_date">測定日:</label>
@@ -17,6 +18,26 @@
     <label for="base_running">ベースランニング（秒）:</label>
     <input type="text" id="base_running" name="base_running"><br>
 
+    <label for="long_throw">遠投距離（m）:</label>
+    <input type="text" id="long_throw" name="long_throw"><br>
+
+    <label for="straight_speed">ストレート球速（km/h）:</label>
+    <input type="text" id="straight_speed" name="straight_speed"><br>
+
+    <label for="hit_speed">打球速度（km/h）:</label>
+    <input type="text" id="hit_speed" name="hit_speed"><br>
+
+    <label for="swing_speed">スイング速度（km/h）:</label>
+    <input type="text" id="swing_speed" name="swing_speed"><br>
+
+    <label for="bench_press">ベンチプレス（kg）:</label>
+    <input type="text" id="bench_press" name="bench_press"><br>
+
+    <label for="squat">スクワット（kg）:</label>
+    <input type="text" id="squat" name="squat"><br>
+
     <button type="submit">記録を保存</button>
 </form>
+
 {% endblock %}
+

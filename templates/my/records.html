@@ -3,7 +3,7 @@
 {% block title %}私の測定記録{% endblock %}
 
 {% block content %}
-<h2>{{ session['username'] }} さんの測定記録</h2>
+<h2>{{ user.name }} さんの測定記録</h2>
 <table class="member-table">
     <thead>
         <tr>
@@ -34,4 +34,6 @@
         {% endfor %}
     </tbody>
 </table>
+
+
 {% endblock %}
