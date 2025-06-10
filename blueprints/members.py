@@ -1,22 +1,26 @@
 from flask import Blueprint, request, render_template, redirect, url_for, session
+from flask_login import login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from db_models import db, User
 
 members_bp = Blueprint('members', __name__, url_prefix='/members')
 
-@members_bp.route('/')
-def members():
-    if 'user_id' not in session:
-        return redirect(url_for('auth.login'))
 
+@members_bp.route('/')
+@login_required
+def members():
     members_list = User.query.filter_by(role='member', is_active=True).all()
     return render_template('members.html', members=members_list)
 
+
 @members_bp.route('/new')
+@login_required
 def new_member():
     return render_template('new_member.html')  # 部員登録ページへ
 
+
 @members_bp.route('/register', methods=['POST'])
+@login_required
 def register_member():
     name = request.form.get('name')
     grade = request.form.get('grade')

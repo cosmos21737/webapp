@@ -1,4 +1,5 @@
 from flask import Blueprint, request, redirect, url_for, render_template, session
+from flask_login import login_required, current_user
 from db_models import db, User,MeasurementRecord
 from datetime import datetime
 
@@ -6,16 +7,16 @@ measurements_bp = Blueprint('measurements', __name__)
 
 
 @measurements_bp.route('input', methods=['GET', 'POST'])
+@login_required
 def records_input():
-    if 'user_id' not in session:
-        return redirect(url_for('auth.login'))
-    user = User.query.get(session['user_id'])
+    user = User.query.get(current_user.get_id())
     return render_template('/measurements/input.html', user=user)
 
 
 @measurements_bp.route('/submit_record', methods=['POST'])
+@login_required
 def submit_record():
-    created_by = session.get('user_id')  # 記入者（ログインしているユーザー）
+    created_by = current_user.get_id() # 記入者（ログインしているユーザー）
     member_name = request.form.get('member_name')  # 記録を保存する対象の部員名
     measurement_date = request.form.get('measurement_date')
 
