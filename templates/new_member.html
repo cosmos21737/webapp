@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}部員登録{% endblock %}
+
+{% block content %}
+<h2>新しい部員を登録</h2>
+<form action="{{ url_for('members.register_member') }}" method="post">
+    <label for="name">氏名:</label>
+    <input type="text" id="name" name="name" required><br>
+
+    <label for="grade">学年:</label>
+    <input type="number" id="grade" name="grade" required><br>
+
+    <label for="is_active">活動状況:</label>
+    <select id="is_active" name="is_active">
+        <option value="true">現役</option>
+        <option value="false">引退</option>
+    </select><br>
+
+    <button type="submit">登録</button>
+</form>
+
+<a href="{{ url_for('members.members') }}">部員一覧に戻る</a>  <!-- 部員一覧に戻るリンク -->
+{% endblock %}

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ログイン</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>野球部タレントマネジメントシステム</h1>
+    <h2>ログイン</h2>
+    <form method="POST" action="{{ url_for('auth.login') }}">
+        <label for="username">ユーザー名:</label>
+        <input type="text" id="username" name="username" required><br>
+
+        <label for="password">パスワード:</label>
+        <input type="password" id="password" name="password" required><br>
+
+        <button type="submit">ログイン</button>
+    </form>
+</body>
+</html>
