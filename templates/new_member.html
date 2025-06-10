@@ -4,7 +4,7 @@
 
 {% block content %}
 <h2>新しい部員を登録</h2>
-<form action="{{ url_for('register_member') }}" method="post">
+<form action="{{ url_for('members.register_member') }}" method="post">
     <label for="name">氏名:</label>
     <input type="text" id="name" name="name" required><br>
 
@@ -20,11 +20,5 @@
     <button type="submit">登録</button>
 </form>
 
-<a href="{{ url_for('my_records') }}">戻る</a>
-
-
-
-
-
-<a href="{{ url_for('members') }}">戻る</a>  <!-- 部員一覧に戻るリンク -->
+<a href="{{ url_for('members.members') }}">部員一覧に戻る</a>  <!-- 部員一覧に戻るリンク -->
 {% endblock %}

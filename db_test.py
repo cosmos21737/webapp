@@ -1,5 +1,6 @@
 import pandas as pd
 from flask import Flask
+from werkzeug.security import generate_password_hash, check_password_hash
 from db_models import db, User , MeasurementRecord # ここで引用
 
 app = Flask(__name__)
@@ -11,13 +12,15 @@ db.init_app(app)
 def add_user_interactive():
     """ ユーザーの入力を受け取り、データベースへ登録 """
     name = input("氏名を入力してください: ")
-    password_hash = input("パスワードを入力してください（ハッシュ化推奨）: ")
+    password = input("パスワードを入力してください: ")
     role = input("役割を入力してください (member, manager, coach, director): ")
     grade_input = input("学年を入力してください（部員のみ、未入力なら空白）: ")
     grade = int(grade_input) if grade_input.isdigit() else None
     is_active = input("活動中ですか？ (True/False): ").lower() == 'true'
 
-    new_user = User(name=name, password_hash=password_hash, role=role, grade=grade, is_active=is_active)
+    hashed_password = generate_password_hash(password)
+
+    new_user = User(name=name, password_hash=hashed_password, role=role, grade=grade, is_active=is_active)
 
     with app.app_context():
         db.session.add(new_user)
@@ -31,9 +34,11 @@ def import_user_csv(filename):
 
     with app.app_context():
         for _, row in df.iterrows():
+            password = row['パスワード']
+            hashed_password = generate_password_hash(password)  # 🔥 ハッシュ化
             new_user = User(
                 name=row['氏名'],
-                password_hash=row['パスワード'],
+                password_hash=hashed_password,
                 role=row['役割'],
                 grade=int(row['学年']) if pd.notna(row['学年']) else None,
                 is_active=row['活動']

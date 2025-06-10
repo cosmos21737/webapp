@@ -3,7 +3,6 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 
-
 db = SQLAlchemy()
 
 class User(db.Model):
@@ -39,4 +38,3 @@ class MeasurementRecord(db.Model):
 
     user = db.relationship('User', foreign_keys=[user_id])  # 部員とのリレーション
     creator = db.relationship('User', foreign_keys=[created_by])  # 記録作成者とのリレーション
-

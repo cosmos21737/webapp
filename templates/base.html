@@ -11,11 +11,11 @@
         <h1>野球部タレントマネジメントシステム</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('dashboard') }}">ダッシュボード</a></li>
-                <li><a href="{{ url_for('measurements_input') }}">測定記録入力</a></li>
-                <li><a href="{{ url_for('my_records') }}">記録閲覧</a></li>
-                <li><a href="{{ url_for('members') }}">部員一覧</a></li>
-                <li><a href="{{ url_for('logout') }}">ログアウト</a></li>
+                <li><a href="{{ url_for('main.dashboard') }}">ダッシュボード</a></li>
+                <li><a href="{{ url_for('measurements.records_input') }}">測定記録入力</a></li>
+                <li><a href="{{ url_for('main.my_records') }}">記録閲覧</a></li>
+                <li><a href="{{ url_for('members.members') }}">部員一覧</a></li>
+                <li><a href="{{ url_for('auth.logout') }}">ログアウト</a></li>
             </ul>
         </nav>
     </header>

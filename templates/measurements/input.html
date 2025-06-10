@@ -4,7 +4,7 @@
 
 {% block content %}
 <h2>測定記録入力</h2>
-<form action="/submit_record" method="post">
+<form method="POST" action="{{ url_for('measurements.submit_record') }}">
     <label for="member_name">部員名:</label>
     <label for="member_name">部員名:</label>
     <input type="text" id="member_name" name="member_name" required><br>
