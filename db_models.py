@@ -1,11 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-
 db = SQLAlchemy()
 
-class User(db.Model):
+class User(db.Model, UserMixin):  # UserMixin を追加
     __tablename__ = 'users'
 
     user_id = db.Column(db.Integer, primary_key=True)
@@ -15,7 +15,10 @@ class User(db.Model):
     grade = db.Column(db.Integer, nullable=True)
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')), onupdate=datetime.now)
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')), onupdate=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))  # 修正
+
+    def get_id(self):
+        return str(self.user_id)  # Flask-Login用のget_id()メソッド
 
 class MeasurementRecord(db.Model):
     __tablename__ = 'measurement_records'
@@ -34,7 +37,7 @@ class MeasurementRecord(db.Model):
     status = db.Column(db.Enum('draft', 'pending_member', 'pending_coach', 'approved', name='status_enum'), nullable=False)  # 承認ステータス
     created_by = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)  # 記録作成者のユーザーID
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')), onupdate=datetime.now)
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')), onupdate=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))  # 修正
 
     user = db.relationship('User', foreign_keys=[user_id])  # 部員とのリレーション
     creator = db.relationship('User', foreign_keys=[created_by])  # 記録作成者とのリレーション
