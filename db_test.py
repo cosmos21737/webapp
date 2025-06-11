@@ -1,12 +1,24 @@
 import pandas as pd
 from flask import Flask
+from flask_security import current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from db_models import db, User , MeasurementRecord # ここで引用
+from db_models import db, User, Role, MeasurementRecord # ここで引用
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///baseball_team.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+
+def create_default_roles():
+    roles = ["member", "manager", "coach", "director"]
+    for role_name in roles:
+        existing_role = Role.query.filter_by(name=role_name).first()
+        if not existing_role:
+            new_role = Role(name=role_name)
+            db.session.add(new_role)
+    db.session.commit()
+    print("デフォルトのロールを登録しました！")
+
 
 
 def add_user_interactive():
@@ -39,10 +51,18 @@ def import_user_csv(filename):
             new_user = User(
                 name=row['氏名'],
                 password_hash=hashed_password,
-                role=row['役割'],
                 grade=int(row['学年']) if pd.notna(row['学年']) else None,
                 is_active=row['活動']
             )
+            role_name = row['役割']  # CSV の "役割" カラム
+            role = Role.query.filter_by(name=role_name).first()
+
+            if role is None:
+                print(f"ロール '{role_name}' がデータベースに存在しません")
+
+            if role:
+                new_user.roles.append(role)  # roles に追加
+
             db.session.add(new_user)
         db.session.commit()
         print(f"{len(df)} 件のユーザーを追加しました！")
@@ -54,7 +74,7 @@ def get_users():
         users = User.query.all()
         for user in users:
             print(
-                f"ID: {user.user_id}, 氏名: {user.name}, 役割: {user.role}, 学年: {user.grade}, 活動中: {user.is_active}")
+                f"ID: {user.user_id}, 氏名: {user.name}, 役割: {[role.name for role in user.roles]}, 学年: {user.grade}, 活動中: {user.is_active}")
 
 def import_measurements_csv(filename):
     """ CSVファイルから測定記録データをインポート（名前と学年で検索） """
@@ -85,7 +105,7 @@ def import_measurements_csv(filename):
                 )
                 db.session.add(new_record)
             else:
-                print(f"⚠ ユーザーが見つかりません: {row['名前']} (学年: {row['学年']})")
+                print(f"⚠ ユーザーが見つかりません: {row['氏名']} (学年: {row['学年']})")
 
         db.session.commit()
         print(f"{len(df)} 件の測定記録データを追加しました！")
@@ -105,6 +125,7 @@ def get_measurements():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # データベース作成（初回のみ）
+        create_default_roles()
 
         while True:
             print("\n=== ユーザー管理システム ===")

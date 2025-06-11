@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_login import LoginManager
-from db_models import db, User
+from flask_security import Security, SQLAlchemyUserDatastore
+from flask_migrate import Migrate
+from db_models import User, Role, db
 from blueprints.main import main_bp
 from blueprints.auth import auth_bp
 from blueprints.members import members_bp
@@ -10,8 +12,15 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # セッション用の秘密キー
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///baseball_team.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECURITY_REGISTERABLE'] = True  # ユーザー登録を有効化
+app.config['SECURITY_PASSWORD_SALT'] = 'random_salt'
+app.config['SECURITY_ROLE_TABLE'] = 'roles'
+
 
 db.init_app(app)
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
+migrate = Migrate(app, db)
 
 # Flask-Login のセットアップ
 login_manager = LoginManager()
