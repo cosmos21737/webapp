@@ -12,9 +12,15 @@
         <nav>
             <ul>
                 <li><a href="{{ url_for('main.dashboard') }}">ダッシュボード</a></li>
+                {% if 'manager' in current_user.roles %}
                 <li><a href="{{ url_for('measurements.records_input') }}">測定記録入力</a></li>
+                {% endif %}
+                {% if 'member' in current_user.roles %}
                 <li><a href="{{ url_for('main.my_records') }}">記録閲覧</a></li>
+                {% endif %}
+                {% if 'coach' in current_user.roles or 'director' in current_user.roles%}
                 <li><a href="{{ url_for('members.members') }}">部員一覧</a></li>
+                {% endif %}
                 <li><a href="{{ url_for('auth.logout') }}">ログアウト</a></li>
             </ul>
         </nav>
