@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.name }}さんのプロフィール{% endblock %}
+
+{% block content %}
+<div class="user-profile-container">
+    <!-- ユーザー基本情報セクション -->
+    <div class="user-info-section">
+        <h2>{{ user.name }}さんのプロフィール</h2>
+        
+        <div class="user-details">
+            <div class="detail-row">
+                <span class="detail-label">ユーザーID:</span>
+                <span class="detail-value">{{ user.user_id }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">学年:</span>
+                <span class="detail-value">{{ user.grade }}年生</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">登録日:</span>
+                <span class="detail-value">{{ user.created_at.strftime('%Y/%m/%d') }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">権限:</span>
+                <span class="detail-value">
+                    {% for role in user.roles %}
+                        {{ role.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- パスワード変更セクション -->
+    <div class="password-change-section">
+        <h3>パスワード変更</h3>
+
+        <!-- フラッシュメッセージの表示 -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('main.change_password') }}" class="password-form">
+
+            <div class="form-group">
+                <label for="current_password">現在のパスワード:</label>
+                <input type="password" id="current_password" name="current_password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="new_password">新しいパスワード:</label>
+                <input type="password" id="new_password" name="new_password" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">新しいパスワード（確認）:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required minlength="6">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">パスワードを変更</button>
+                <a href="{{ url_for('main.my_records') }}" class="btn btn-secondary">キャンセル</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.password-form');
+    const newPassword = document.getElementById('new_password');
+    const confirmPassword = document.getElementById('confirm_password');
+
+    form.addEventListener('submit', function(e) {
+        if (newPassword.value !== confirmPassword.value) {
+            e.preventDefault();
+            alert('新しいパスワードと確認用パスワードが一致しません。');
+            confirmPassword.focus();
+        }
+    });
+
+    confirmPassword.addEventListener('input', function() {
+        if (newPassword.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('パスワードが一致しません');
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    });
+});
+</script>
+
+{% endblock %}

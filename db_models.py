@@ -40,6 +40,18 @@ class User(db.Model, UserMixin):
     def get_id(self):
         return str(self.user_id)  # Flask-Login 用の get_id()
 
+    # ユーザーの役割名リストを取得する便利メソッド
+    def get_role_names(self):
+        return [role.name for role in self.roles]
+
+    # フォーマットされた登録日を取得
+    def get_formatted_created_at(self):
+        return self.created_at.strftime('%Y/%m/%d') if self.created_at else "不明"
+
+    # ユーザーの学年表示用
+    def get_grade_display(self):
+        return f"{self.grade}年生" if self.grade else "未設定"
+
 # **測定記録モデル**
 class MeasurementRecord(db.Model):
     __tablename__ = 'measurement_records'

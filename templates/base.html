@@ -21,6 +21,7 @@
                 {% if 'coach' in current_user.roles or 'director' in current_user.roles%}
                 <li><a href="{{ url_for('members.members') }}">部員一覧</a></li>
                 {% endif %}
+                <li><a href="{{ url_for('main.profile') }}">プロフィール</a></li>
                 <li><a href="{{ url_for('auth.logout') }}">ログアウト</a></li>
             </ul>
         </nav>
