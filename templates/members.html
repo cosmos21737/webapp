@@ -18,7 +18,7 @@
   <tbody>
     {% for member in members %}
     <tr>
-      <td><a href="{{ url_for('main.member_records', member_id=member.user_id) }}">{{ member.name }}</a></td>
+      <td><a href="{{ url_for('members.member_records', member_id=member.user_id) }}">{{ member.name }}</a></td>
       <td>{{ member.grade }}</td>
       <td>{% if member.is_active %}現役{% else %}引退{% endif %}</td>
     </tr>
