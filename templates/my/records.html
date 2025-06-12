@@ -3,6 +3,14 @@
 {% block title %}私の測定記録{% endblock %}
 
 {% block content %}
+
+{% if 'coach' in current_user.roles or 'director' in current_user.roles%}
+<form method="POST" action="{{ url_for('members.delete_member', member_id=user.user_id) }}"
+      onsubmit="return confirm('本当に削除しますか？');">
+    <button type="submit" class="delete-btn">削除</button>
+</form>
+{% endif %}
+
 <h2>{{ user.name }} さんの測定記録</h2>
 <table class="member-table">
     <thead>

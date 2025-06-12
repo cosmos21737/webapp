@@ -28,13 +28,3 @@ def my_records():
     return render_template('/my/records.html', user=user, records=records)
 
 
-@main_bp.route('/records/<int:member_id>')
-@login_required
-@roles_accepted("coach", "director")
-def member_records(member_id):
-    user = User.query.get(member_id)  # 指定された部員の情報を取得
-    if not user:
-        return "部員が見つかりません", 404
-
-    records = MeasurementRecord.query.filter_by(user_id=member_id).all()
-    return render_template('my/records.html', user=user, records=records)

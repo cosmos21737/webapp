@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, redirect, url_for, session
-from db_models import User, Role, db
+from db_models import User, Role, db, MeasurementRecord
 from flask_security import login_required, current_user, roles_required, roles_accepted
 from sqlalchemy.orm import joinedload
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -57,3 +57,35 @@ def register_member():
     db.session.commit()
 
     return redirect(url_for('members.members'))
+
+
+@members_bp.route('/records/<int:member_id>')
+@login_required
+@roles_accepted("coach", "director")
+def member_records(member_id):
+    user = User.query.get(member_id)  # 指定された部員の情報を取得
+    if not user:
+        return "部員が見つかりません", 404
+
+    records = MeasurementRecord.query.filter_by(user_id=member_id).all()
+    return render_template('my/records.html', user=user, records=records)
+
+
+@members_bp.route('/delete/<int:member_id>', methods=['POST'])
+@login_required
+@roles_accepted("coach", "director")
+def delete_member(member_id):
+    user = User.query.get(member_id)
+    if not user:
+        return "部員が見つかりません", 404
+
+    try:
+        db.session.delete(user)
+        db.session.commit()
+    except Exception as e:
+        print(f"削除エラー: {e}")
+        db.session.rollback()
+        return "削除に失敗しました", 500
+
+    return redirect(url_for('members.members'))
+
