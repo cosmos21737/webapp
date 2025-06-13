@@ -3,6 +3,7 @@
 {% block title %}部員登録{% endblock %}
 
 {% block content %}
+<a href="{{ url_for('members.csv_import') }}">CSVで登録</a>
 <h2>新しい部員を登録</h2>
 <form action="{{ url_for('members.register_member') }}" method="post">
     <label for="name">氏名:</label>

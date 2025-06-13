@@ -218,3 +218,172 @@ table.member-table th {
   background-color: #545b62;
 }
 
+/* ======================
+   CSV一括読み込みページ用スタイル
+   ====================== */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.container h1 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #007bff;
+}
+
+/* 情報セクション */
+.info-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  border-left: 4px solid #17a2b8;
+}
+
+.info-section h2 {
+  color: #495057;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-list li {
+  padding: 8px 0;
+  position: relative;
+  padding-left: 20px;
+  color: #495057;
+}
+
+.info-list li:before {
+  content: "●";
+  color: #17a2b8;
+  position: absolute;
+  left: 0;
+}
+
+/* CSV例示セクション */
+.example-section {
+  margin-bottom: 25px;
+}
+
+.example-section h3 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.csv-example {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 15px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.4;
+  color: #495057;
+}
+
+/* ダウンロードセクション */
+.download-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.download-section .btn {
+  display: inline-block;
+}
+
+/* アップロードフォーム */
+.upload-form {
+  background: #fff;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 30px;
+  margin-bottom: 25px;
+  transition: border-color 0.3s;
+}
+
+.upload-form:hover {
+  border-color: #007bff;
+}
+
+.upload-form .form-group input[type="file"] {
+  border: none;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 480px) {
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .form-buttons .btn {
+    width: 100%;
+  }
+}
+
+/* ナビゲーション */
+.navigation {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+}
+
+.back-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .container {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .info-section {
+    padding: 15px;
+  }
+
+  .upload-form {
+    padding: 20px;
+  }
+
+  .csv-example {
+    font-size: 11px;
+    padding: 10px;
+  }
+}
