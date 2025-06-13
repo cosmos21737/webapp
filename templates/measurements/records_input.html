@@ -3,6 +3,8 @@
 {% block title %}測定記録入力{% endblock %}
 
 {% block content %}
+<a href="{{ url_for('measurements.csv_import') }}">CSVで登録</a>
+
 <h2>測定記録入力</h2>
 <form method="POST" action="{{ url_for('measurements.submit_record') }}">
     <label for="member_name">部員名:</label>
