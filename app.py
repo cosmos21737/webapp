@@ -10,6 +10,7 @@ from blueprints.measurements import measurements_bp
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # セッション用の秘密キー
+app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///baseball_team.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECURITY_REGISTERABLE'] = True  # ユーザー登録を有効化
