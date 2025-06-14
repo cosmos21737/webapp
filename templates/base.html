@@ -28,10 +28,13 @@
                 {% if 'member' in current_user.roles %}
                 <li><a href="{{ url_for('main.my_records') }}">記録閲覧</a></li>
                 {% endif %}
-                {% if 'coach' in current_user.roles or 'director' in current_user.roles%}
+                {% if current_user.has_any_role('coach', 'director') %}
                 <li><a href="{{ url_for('members.members') }}">部員一覧</a></li>
                 {% endif %}
                 <li><a href="{{ url_for('main.profile') }}">プロフィール</a></li>
+                {% if current_user.has_any_role('member', 'manager', 'coach') %}
+                <li><a href="{{ url_for('main.notice') }}">通知</a></li>
+                {% endif %}
                 <li><a href="{{ url_for('auth.logout') }}">ログアウト</a></li>
             </ul>
         </nav>

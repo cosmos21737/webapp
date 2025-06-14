@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}通知{% endblock %}
+
+{% block content %}
+<h2>{{ user.name }} さんの承認待ち測定記録</h2>
+
+<form method="POST" action="{{ url_for('main.approve_records') }}">
+    <table class="member-table">
+        <thead>
+            <tr>
+                <th>選択</th>
+                <th>測定日</th>
+                <th>50m走 (秒)</th>
+                <th>ベースランニング (秒)</th>
+                <th>遠投距離 (m)</th>
+                <th>ストレート球速 (km/h)</th>
+                <th>打球速度 (km/h)</th>
+                <th>スイング速度 (km/h)</th>
+                <th>ベンチプレス (kg)</th>
+                <th>スクワット (kg)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td><input type="checkbox" name="record_ids" value="{{ record.record_id }}"></td>
+                <td>{{ record.measurement_date }}</td>
+                <td>{{ record.run_50m }}</td>
+                <td>{{ record.base_running }}</td>
+                <td>{{ record.long_throw }}</td>
+                <td>{{ record.straight_speed }}</td>
+                <td>{{ record.hit_speed }}</td>
+                <td>{{ record.swing_speed }}</td>
+                <td>{{ record.bench_press }}</td>
+                <td>{{ record.squat }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <button type="submit" name="action" value="approve">承認する</button>
+    {% if current_user.has_any_role('member', 'coach') %}
+    <button type="submit" name="action" value="reject">否認する</button>
+    {% endif %}
+</form>
+{% endblock %}
