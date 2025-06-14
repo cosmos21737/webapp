@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, render_template
+from flask import Blueprint, request, redirect, url_for, render_template, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from db_models import db, User
 from werkzeug.security import check_password_hash
@@ -26,7 +26,7 @@ def login():
             login_user(user)
             return redirect(url_for('main.dashboard'))
         else:
-            return "ログイン失敗！"
+            flash('ログイン失敗')
 
     return render_template('login.html')
 

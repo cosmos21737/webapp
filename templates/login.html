@@ -6,6 +6,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    {# ページの上部など、目立つ場所に配置 #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+
     <h1>野球部タレントマネジメントシステム</h1>
     <h2>ログイン</h2>
     <form method="POST" action="{{ url_for('auth.login') }}">

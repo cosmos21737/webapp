@@ -6,12 +6,14 @@ from zoneinfo import ZoneInfo
 
 db = SQLAlchemy()
 
+
 # **ロールモデル (Flask-Security 用)**
 class Role(db.Model, RoleMixin):
     __tablename__ = 'roles'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
+
 
 # **ユーザーロールの中間テーブル (多対多)**
 class UserRoles(db.Model):
@@ -20,6 +22,7 @@ class UserRoles(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+
 
 # **ユーザーモデル (Flask-Security 用)**
 class User(db.Model, UserMixin):
@@ -32,7 +35,8 @@ class User(db.Model, UserMixin):
     grade = db.Column(db.Integer, nullable=True)
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')), onupdate=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')),
+                           onupdate=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
 
     # **Flask-Security のロール管理**
     roles = db.relationship('Role', secondary='user_roles', backref=db.backref('users', lazy='dynamic'))
@@ -52,6 +56,10 @@ class User(db.Model, UserMixin):
     def get_grade_display(self):
         return f"{self.grade}年生" if self.grade else "未設定"
 
+    def has_any_role(self, *roles):
+        return any(role.name in roles for role in self.roles)
+
+
 # **測定記録モデル**
 class MeasurementRecord(db.Model):
     __tablename__ = 'measurement_records'
@@ -67,12 +75,13 @@ class MeasurementRecord(db.Model):
     swing_speed = db.Column(db.Float)  # スイング速度
     bench_press = db.Column(db.Float)  # ベンチプレス
     squat = db.Column(db.Float)  # スクワット
-    status = db.Column(db.Enum('draft', 'pending_member', 'pending_coach', 'approved', name='status_enum'), nullable=False)  # 承認ステータス
+    status = db.Column(db.Enum('draft', 'pending_coach', 'approved', 'rejected', name='status_enum'),
+                       nullable=False)  # 承認ステータス
     created_by = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)  # 記録作成者のユーザーID
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')), onupdate=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')),
+                           onupdate=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
 
     # **リレーション (Flask-Security に適合)**
     user = db.relationship('User', foreign_keys=[user_id])  # 部員とのリレーション
     creator = db.relationship('User', foreign_keys=[created_by])  # 記録作成者とのリレーション
-
