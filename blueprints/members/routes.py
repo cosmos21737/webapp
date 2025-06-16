@@ -1,8 +1,10 @@
 import io
 import csv
+from datetime import datetime
 
-from flask import Blueprint, request, render_template, redirect, url_for, flash, Response
+from flask import Blueprint, request, render_template, redirect, url_for, flash, Response, send_file
 from flask_security import login_required, current_user, roles_required, roles_accepted
+from db_models import db, User, MeasurementRecord
 
 # service をインポート
 from . import members_bp
@@ -107,4 +109,57 @@ def download_csv_template():
         template_content,
         mimetype="text/csv",
         headers={"Content-disposition": "attachment; filename=member_template.csv"}
+    )
+
+
+@members_bp.route('/export_csv')  # Blueprintを使用している場合
+@login_required
+def export_csv():
+    # 部員一覧を取得（必要に応じて権限チェックを追加）
+
+    members_list = services.get_members_list()
+
+    # CSVデータを作成
+    output = io.BytesIO()
+    wrapper = io.TextIOWrapper(output, encoding='utf-8', newline='')
+    writer = csv.writer(wrapper)
+
+    # ヘッダー行
+    headers = [
+        '氏名',
+        '学年',
+        '活動状況',
+        '登録日',
+        'ユーザーID'
+    ]
+    writer.writerow(headers)
+
+    # データ行
+    for member in members_list:
+        row = [
+            member.name,
+            f"{member.grade}年" if member.grade else '',
+            '現役' if member.is_active else '引退',
+            member.created_at.strftime('%Y-%m-%d'),
+            member.user_id
+        ]
+        writer.writerow(row)
+
+    # レスポンスを作成
+
+    wrapper.flush()
+    output.seek(0)
+    wrapper.detach()
+
+    # ファイル名を生成
+    date_str = datetime.now().strftime('%Y%m%d')
+    filename = f"部員一覧_{date_str}.csv"
+
+    # レスポンスヘッダーを設定
+    return send_file(
+        output,
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=filename,
+        etag=False
     )

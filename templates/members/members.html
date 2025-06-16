@@ -5,7 +5,12 @@
 {% block content %}
 <h2>部員一覧</h2>
 
-<a href="{{ url_for('members.new_member') }}">新しい部員を登録</a>
+<nav>
+    <ul>
+        <li><a href="{{ url_for('members.new_member') }}" style="color: black;">新しい部員を登録</a></li>
+        <li><a href="{{ url_for('members.export_csv') }}" style="color: black;">CSV出力</a></li>
+    </ul>
+</nav>
 
 <table class="member-table">
   <thead>
