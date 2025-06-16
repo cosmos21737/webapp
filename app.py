@@ -7,6 +7,7 @@ from blueprints.main import main_bp
 from blueprints.auth import auth_bp
 from blueprints.members import members_bp
 from blueprints.measurements import measurements_bp
+from blueprints.profile import profile_bp
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # セッション用の秘密キー
@@ -39,6 +40,7 @@ app.register_blueprint(main_bp)
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(members_bp, url_prefix='/members')
 app.register_blueprint(measurements_bp, url_prefix='/measurements')
+app.register_blueprint(profile_bp, url_prefix='/profile')
 
 if __name__ == '__main__':
     app.run(debug=True)
