@@ -127,3 +127,4 @@ def download_csv_template():
         mimetype="text/csv",
         headers={"Content-disposition": "attachment; filename=measurement_template.csv"}
     )
+
