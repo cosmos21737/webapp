@@ -5,7 +5,7 @@
 {% block content %}
 <h2>{{ user.name }} さんの承認待ち測定記録</h2>
 
-<form method="POST" action="{{ url_for('main.approve_records') }}">
+<form method="POST" action="{{ url_for('notice.approve_records') }}">
     <table class="member-table">
         <thead>
             <tr>

@@ -3,6 +3,8 @@ from flask_login import login_required, current_user
 from db_models import db, User
 
 profile_bp = Blueprint('profile', __name__)
+
+
 @profile_bp.route('/profile')
 @login_required
 def profile():
