@@ -12,6 +12,9 @@
 {% endif %}
 
 <h2>{{ user.name }} さんの測定記録</h2>
+    <div class="export_records_csv">
+        <a href="{{ url_for('main.export_csv') }}">CSV出力</a>
+    </div>
 <table class="member-table">
     <thead>
         <tr>

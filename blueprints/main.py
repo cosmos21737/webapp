@@ -1,4 +1,10 @@
-from flask import request, Blueprint, render_template, redirect, url_for, session
+import codecs
+import csv
+import io
+from datetime import datetime
+from io import StringIO
+
+from flask import request, Blueprint, render_template, redirect, url_for, session, Response, send_file
 from flask_login import login_required, current_user
 from flask_security import roles_required, roles_accepted
 from db_models import db, User, MeasurementRecord
@@ -26,6 +32,67 @@ def my_records():
     user = User.query.get(user_id)
 
     return render_template('/my/records.html', user=user, records=records)
+
+
+@main_bp.route('/my/records/export_csv')
+@login_required
+def export_csv():
+    # ユーザーと記録データを取得
+    user_id = current_user.get_id()
+    records = MeasurementRecord.query.filter_by(user_id=user_id, status='approved').all()
+    user = User.query.get(user_id)
+
+    # CSVデータをメモリに生成
+    output = io.BytesIO()
+    wrapper = io.TextIOWrapper(output, encoding='utf-8', newline='')
+    writer = csv.writer(wrapper)
+
+    # ヘッダー行 (テンプレートと一致させる)
+    headers = [
+        '測定日',
+        '50m走 (秒)',
+        'ベースランニング (秒)',
+        '遠投距離 (m)',
+        'ストレート球速 (km/h)',
+        '打球速度 (km/h)',
+        'スイング速度 (km/h)',
+        'ベンチプレス (kg)',
+        'スクワット (kg)'
+    ]
+    writer.writerow(headers)
+
+    # データ行
+    for record in records:
+        row = [
+            record.measurement_date.strftime('%Y-%m-%d') if record.measurement_date else '',
+            record.run_50m if record.run_50m is not None else '',
+            record.base_running if record.base_running is not None else '',
+            record.long_throw if record.long_throw is not None else '',
+            record.straight_speed if record.straight_speed is not None else '',
+            record.hit_speed if record.hit_speed is not None else '',
+            record.swing_speed if record.swing_speed is not None else '',
+            record.bench_press if record.bench_press is not None else '',
+            record.squat if record.squat is not None else ''
+        ]
+        writer.writerow(row)
+
+    # バッファを準備
+    wrapper.flush()
+    output.seek(0)
+    wrapper.detach()  # BytesIOを閉じないようにする
+
+    # ファイル名生成 (テンプレートのユーザー名と一致)
+    date_str = datetime.now().strftime('%Y%m%d')
+    filename = f"{user.name}_測定記録_{date_str}.csv"
+
+    # レスポンス返却
+    return send_file(
+        output,
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=filename,
+        etag=False
+    )
 
 
 @main_bp.route('/my/notice')
@@ -66,63 +133,3 @@ def approve_records():
         db.session.commit()
 
     return redirect(url_for("main.notice"))
-
-
-@main_bp.route('/profile')
-@login_required
-def profile():
-    user_id = current_user.get_id()
-    user = User.query.get(user_id)
-
-    return render_template('profile.html',
-                           user=user,
-                           current_user=current_user)
-
-
-@main_bp.route('/profile/change_password', methods=['GET', 'POST'])
-@login_required
-def change_password():
-    if request.method == 'POST':
-        from werkzeug.security import generate_password_hash, check_password_hash
-        from flask import flash
-
-        current_password = request.form.get('current_password')
-        new_password = request.form.get('new_password')
-        confirm_password = request.form.get('confirm_password')
-
-        user = User.query.get(current_user.get_id())
-
-        # 現在のパスワードの確認
-        password_verified = False
-
-        if check_password_hash(user.password_hash, current_password):
-            password_verified = True
-
-        if not password_verified:
-            flash('現在のパスワードが正しくありません。', 'error')
-            return render_template('profile.html', user=user)
-
-        # 新しいパスワードの確認
-        if new_password != confirm_password:
-            flash('新しいパスワードと確認用パスワードが一致しません。', 'error')
-            return render_template('profile.html', user=user)
-
-        # パスワードの長さチェック
-        if len(new_password) < 6:
-            flash('パスワードは6文字以上で入力してください。', 'error')
-            return render_template('profile.html', user=user)
-
-        # パスワードの更新（password_hashフィールドを使用）
-        try:
-            user.password_hash = generate_password_hash(new_password)
-            db.session.commit()
-            flash('パスワードが正常に変更されました。', 'success')
-            return render_template('profile.html', user=user)
-        except Exception as e:
-            flash('パスワードの変更中にエラーが発生しました。', 'error')
-            print(f"Error: {e}")
-            db.session.rollback()
-            return render_template('profile.html', user=user)
-
-    user = User.query.get(current_user.get_id())
-    return render_template('profile.html', user=user)
