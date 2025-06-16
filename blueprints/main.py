@@ -13,3 +13,8 @@ def home():
 @login_required
 def dashboard():
     return render_template('dashboard.html')
+
+@main_bp.route('/help')
+@login_required
+def help():
+    return render_template('help.html')

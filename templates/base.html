@@ -35,6 +35,7 @@
                 {% if current_user.has_any_role('member', 'manager', 'coach') %}
                 <li><a href="{{ url_for('notice.notice') }}">通知</a></li>
                 {% endif %}
+                <li><a href="{{ url_for('main.help') }}">ヘルプ</a></li>
                 <li><a href="{{ url_for('auth.logout') }}">ログアウト</a></li>
             </ul>
         </nav>
