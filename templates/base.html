@@ -26,7 +26,7 @@
                 <li><a href="{{ url_for('measurements.records_input') }}">測定記録入力</a></li>
                 {% endif %}
                 {% if 'member' in current_user.roles %}
-                <li><a href="{{ url_for('main.my_records') }}">記録閲覧</a></li>
+                <li><a href="{{ url_for('records.my_records') }}">記録閲覧</a></li>
                 {% endif %}
                 {% if current_user.has_any_role('coach', 'director') %}
                 <li><a href="{{ url_for('members.members') }}">部員一覧</a></li>
