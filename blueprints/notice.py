@@ -28,6 +28,7 @@ def notice():
 def approve_records():
     selected_record_ids = request.form.getlist("record_ids")  # 選択されたIDのリスト
     action = request.form.get('action')
+    comment = request.form.get('comment')
 
     if selected_record_ids:
         # データベース更新処理
@@ -35,6 +36,7 @@ def approve_records():
         for record in records:
             if action == "reject":
                 record.status = 'rejected'
+                record.comment = record.user.name + "：" + comment
             elif current_user.has_role("member"):
                 record.status = 'pending_coach'  # 承認フラグを更新
             elif current_user.has_role("coach"):
@@ -43,4 +45,4 @@ def approve_records():
                 db.session.delete(record)
         db.session.commit()
 
-    return redirect(url_for("main.notice"))
+    return redirect(url_for("notice.notice"))

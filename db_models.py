@@ -81,6 +81,7 @@ class MeasurementRecord(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')),
                            onupdate=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
+    comment = db.Column(db.String(1000))
 
     # **リレーション (Flask-Security に適合)**
     user = db.relationship('User', foreign_keys=[user_id])  # 部員とのリレーション
