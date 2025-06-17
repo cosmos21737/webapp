@@ -1,8 +1,8 @@
 from flask import Flask
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_security import Security, SQLAlchemyUserDatastore
 from flask_migrate import Migrate
-from db_models import User, Role, db
+from db_models import User, Role, db, MeasurementRecord
 from blueprints.main import main_bp
 from blueprints.auth import auth_bp
 from blueprints.records import records_bp
@@ -46,6 +46,24 @@ app.register_blueprint(members_bp, url_prefix='/members')
 app.register_blueprint(measurements_bp, url_prefix='/measurements')
 app.register_blueprint(profile_bp, url_prefix='/profile')
 app.register_blueprint(notice_bp, url_prefix='/notice')
+
+@app.context_processor
+def inject_measurement_data():
+    if not current_user.is_authenticated:
+        return {}
+
+    notice_cnt = 0
+    if current_user.has_any_role("manager"):
+        notice_cnt = MeasurementRecord.query.filter_by(status='rejected').count()
+    elif current_user.has_any_role("member"):
+        notice_cnt = MeasurementRecord.query.filter_by(user_id=current_user.user_id, status='draft').count()
+    elif current_user.has_any_role("coach"):
+        notice_cnt = MeasurementRecord.query.filter_by(status='pending_coach').count()
+
+    return {
+        "notice_cnt":notice_cnt
+    }
+
 
 if __name__ == '__main__':
     app.run(debug=True)
