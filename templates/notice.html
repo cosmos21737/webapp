@@ -11,6 +11,8 @@
             <tr>
                 <th>選択</th>
                 <th>測定日</th>
+                <th>学年</th>
+                <th>氏名</th>
                 <th>50m走 (秒)</th>
                 <th>ベースランニング (秒)</th>
                 <th>遠投距離 (m)</th>
@@ -24,8 +26,10 @@
         <tbody>
             {% for record in records %}
             <tr>
-                <td><input type="checkbox" name="record_ids" value="{{ record.record_id }}"></td>
+                <td rowspan="2"><input type="checkbox" name="record_ids" value="{{ record.record_id }}"></td>
                 <td>{{ record.measurement_date }}</td>
+                <td>{{ record.user.grade }}</td>
+                <td>{{ record.user.name }}</td>
                 <td>{{ record.run_50m }}</td>
                 <td>{{ record.base_running }}</td>
                 <td>{{ record.long_throw }}</td>
@@ -35,13 +39,19 @@
                 <td>{{ record.bench_press }}</td>
                 <td>{{ record.squat }}</td>
             </tr>
+            <tr>
+                <td>コメント</td>
+                <td colspan="10">{{ record.comment }}</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <button type="submit" name="action" value="approve">承認する</button>
-    {% if current_user.has_any_role('member', 'coach') %}
+  <button type="submit" name="action" value="approve">承認する</button><br>
+  {% if current_user.has_any_role('member', 'coach') %}
+    <textarea name="comment" placeholder="コメントを入力してください"></textarea><br>
     <button type="submit" name="action" value="reject">否認する</button>
-    {% endif %}
+  {% endif %}
+
 </form>
 {% endblock %}
