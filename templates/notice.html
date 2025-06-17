@@ -41,7 +41,9 @@
             </tr>
             <tr>
                 <td>コメント</td>
-                <td colspan="10">{{ record.comment }}</td>
+                <td colspan="10">{{ record.comment if record.comment else '&nbsp;' | safe
+                                 }}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
