@@ -5,24 +5,65 @@ from datetime import datetime
 from flask import request, Blueprint, render_template, redirect, url_for, session, Response, send_file
 from flask_login import login_required, current_user
 from flask_security import roles_required, roles_accepted
+from sqlalchemy import func
 from db_models import db, User, MeasurementRecord
-
 
 records_bp = Blueprint('records', __name__)
 
-@records_bp.route('/my/records')
+
+@records_bp.route('/my_records')
 @login_required
-@roles_required("member")
 def my_records():
     user_id = current_user.get_id()
     records = MeasurementRecord.query.filter_by(user_id=user_id, status='approved').all()
     user = User.query.get(user_id)
 
-    return render_template('/my/records.html', user=user, records=records)
+    # 各測定項目の順位を計算
+    rankings = {
+        '50m走': calculate_rank(user.user_id, 'run_50m', asc=True),  # 速い方が良いので昇順
+        'ベースランニング': calculate_rank(user.user_id, 'base_running', asc=True),
+        '遠投距離': calculate_rank(user.user_id, 'long_throw', asc=False),
+        'ストレート球速': calculate_rank(user.user_id, 'straight_speed', asc=False),
+        '打球速度': calculate_rank(user.user_id, 'hit_speed', asc=False),
+        'スイング速度': calculate_rank(user.user_id, 'swing_speed', asc=False),
+        'ベンチプレス': calculate_rank(user.user_id, 'bench_press', asc=False),
+        'スクワット': calculate_rank(user.user_id, 'squat', asc=False)
+    }
+
+    return render_template('my/records.html', user=user, records=records, rankings=rankings)
+
+
+def calculate_rank(user_id, metric, asc=True):
+    # 全ユーザーの最新記録を取得して順位を計算
+    subquery = db.session.query(
+        MeasurementRecord.user_id,
+        func.max(MeasurementRecord.measurement_date).label('max_date')
+    ).group_by(MeasurementRecord.user_id).subquery()
+
+    latest_records = db.session.query(MeasurementRecord).join(
+        subquery,
+        (MeasurementRecord.user_id == subquery.c.user_id) &
+        (MeasurementRecord.measurement_date == subquery.c.max_date)
+    )
+
+    # ソート方向を決定
+    if asc:
+        ordered_records = latest_records.order_by(getattr(MeasurementRecord, metric).asc())
+    else:
+        ordered_records = latest_records.order_by(getattr(MeasurementRecord, metric).desc())
+
+    # 順位を計算
+    records_list = ordered_records.all()
+    for idx, record in enumerate(records_list, start=1):
+        if record.user_id == user_id:
+            return idx
+
+    return "N/A"  # 記録がない場合
 
 
 @records_bp.route('/my/records/export_csv')
 @login_required
+@roles_required("member")
 def export_csv():
     # ユーザーと記録データを取得
     user_id = current_user.get_id()

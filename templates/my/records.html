@@ -4,7 +4,7 @@
 
 {% block content %}
 
-{% if 'coach' in current_user.roles or 'director' in current_user.roles%}
+{% if current_user.has_any_role('coach', 'director', "administer") %}
 <form method="POST" action="{{ url_for('members.delete_member', member_id=user.user_id) }}"
       onsubmit="return confirm('本当に削除しますか？');">
     <button type="submit" class="delete-btn">削除</button>
@@ -15,6 +15,48 @@
     <div class="export_records_csv">
         <a href="{{ url_for('records.export_csv') }}">CSV出力</a>
     </div>
+
+<!-- 順位表示セクションを追加 -->
+<div class="rankings-section">
+    <h3>全体順位</h3>
+    <div class="rankings-horizontal">  <!-- 横並び用のコンテナ -->
+        {% for metric, rank in rankings.items() %}
+        <div class="ranking-item">
+            <span class="metric-name">{{ metric }}:</span>
+            <span class="rank-value">{{ rank }}位</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* 横並び用スタイル */
+    .rankings-horizontal {
+        display: flex;           /* 横並びにする */
+        flex-wrap: wrap;         /* 画面幅に合わせて折り返す */
+        gap: 10px;              /* アイテム間の隙間 */
+        margin-top: 10px;
+    }
+
+    .ranking-item {
+        flex: 0 0 auto;         /* 自動幅で折り返しを許可 */
+        padding: 8px 12px;
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        white-space: nowrap;    /* テキストを折り返さない */
+    }
+
+    .metric-name {
+        font-weight: bold;
+        margin-right: 5px;
+    }
+
+    .rank-value {
+        color: #2c7be5;
+    }
+</style>
+
 <table class="member-table">
     <thead>
         <tr>

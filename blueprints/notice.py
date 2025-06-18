@@ -8,7 +8,7 @@ notice_bp = Blueprint('notice', __name__)
 
 @notice_bp.route('/my/notice')
 @login_required
-@roles_accepted("member", "manager", "coach")
+@roles_accepted("administer", "member", "manager", "coach")
 def notice():
     user_id = current_user.get_id()
     user = User.query.get(user_id)
@@ -24,7 +24,7 @@ def notice():
 
 @notice_bp.route("/approve_records", methods=["POST"])
 @login_required
-@roles_accepted("member", "manager", "coach")
+@roles_accepted("administer", "member", "manager", "coach")
 def approve_records():
     selected_record_ids = request.form.getlist("record_ids")  # 選択されたIDのリスト
     action = request.form.get('action')
