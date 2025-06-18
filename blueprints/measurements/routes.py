@@ -1,6 +1,6 @@
 from flask import request, redirect, url_for, render_template, flash, Response
 from flask_login import login_required, current_user
-from flask_security import roles_required
+from flask_security import roles_required, roles_accepted
 from db_models import db, User, MeasurementRecord
 from datetime import datetime
 import io
@@ -12,7 +12,7 @@ from . import services
 
 @measurements_bp.route('/input', methods=['GET', 'POST'])
 @login_required
-@roles_required("manager")
+@roles_accepted("administer", "manager")
 def records_input():
     """
     測定記録入力フォームの表示
@@ -23,7 +23,7 @@ def records_input():
 
 @measurements_bp.route('/submit_record', methods=['POST'])
 @login_required
-@roles_required("manager")
+@roles_accepted("administer", "manager")
 def submit_record():
     """
     単一の測定記録の提出処理
@@ -68,7 +68,7 @@ def submit_record():
 
 @measurements_bp.route('/csv_import', methods=['GET', 'POST'])
 @login_required
-@roles_required("manager")
+@roles_accepted("administer", "manager")
 def csv_import():
     """CSV一括インポート画面の表示とファイル処理"""
     if request.method == 'GET':
@@ -117,7 +117,7 @@ def csv_import():
 
 @measurements_bp.route('/download_csv_template')
 @login_required
-@roles_required("manager")
+@roles_accepted("administer", "manager")
 def download_csv_template():
     """CSVテンプレートファイルのダウンロード"""
     # サービスレイヤーの関数からテンプレート内容を取得

@@ -13,7 +13,7 @@ from . import services
 
 @members_bp.route('/')
 @login_required
-@roles_accepted("coach", "director")
+@roles_accepted("administer", "coach", "director")
 def members():
     members_list = services.get_members_list()
     return render_template('/members/members.html', members=members_list)
@@ -21,14 +21,14 @@ def members():
 
 @members_bp.route('/new')
 @login_required
-@roles_accepted("coach", "director")
+@roles_accepted("administer", "coach", "director")
 def new_member():
     return render_template('/members/new_member.html')
 
 
 @members_bp.route('/register', methods=['POST'])
 @login_required
-@roles_accepted("coach", "director")
+@roles_accepted("administer", "coach", "director")
 def register_member():
     name = request.form.get('name')
     grade = request.form.get('grade')
@@ -45,7 +45,7 @@ def register_member():
 
 @members_bp.route('/records/<int:member_id>')
 @login_required
-@roles_accepted("coach", "director")
+@roles_accepted("administer", "coach", "director")
 def member_records(member_id):
     user, records = services.get_member_and_records(member_id)
     if not user:
@@ -56,7 +56,7 @@ def member_records(member_id):
 
 @members_bp.route('/delete/<int:member_id>', methods=['POST'])
 @login_required
-@roles_accepted("coach", "director")
+@roles_accepted("administer", "coach", "director")
 def delete_member(member_id):
     success, message = services.delete_member_by_id(member_id)
     if success:
@@ -68,7 +68,7 @@ def delete_member(member_id):
 
 @members_bp.route('/csv_import', methods=['GET', 'POST'])
 @login_required
-@roles_accepted("coach", "director")
+@roles_accepted("administer", "coach", "director")
 def csv_import():
     if request.method == 'GET':
         return render_template('/members/csv_import.html')
@@ -102,7 +102,7 @@ def csv_import():
 
 @members_bp.route('/download_csv_template')
 @login_required
-@roles_accepted("coach", "director")
+@roles_accepted("administer", "coach", "director")
 def download_csv_template():
     template_content = services.generate_csv_template_content()
     return Response(
@@ -114,6 +114,7 @@ def download_csv_template():
 
 @members_bp.route('/export_csv')  # Blueprintを使用している場合
 @login_required
+@roles_accepted("administer", "coach", "director")
 def export_csv():
     # 部員一覧を取得（必要に応じて権限チェックを追加）
 

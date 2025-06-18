@@ -22,17 +22,17 @@
         <nav>
             <ul>
                 <li><a href="{{ url_for('main.dashboard') }}">ダッシュボード</a></li>
-                {% if 'manager' in current_user.roles %}
+                {% if current_user.has_any_role('manager', "administer") %}
                 <li><a href="{{ url_for('measurements.records_input') }}">測定記録入力</a></li>
                 {% endif %}
                 {% if 'member' in current_user.roles %}
                 <li><a href="{{ url_for('records.my_records') }}">記録閲覧</a></li>
                 {% endif %}
-                {% if current_user.has_any_role('coach', 'director') %}
+                {% if current_user.has_any_role('coach', 'director', "administer") %}
                 <li><a href="{{ url_for('members.members') }}">部員一覧</a></li>
                 {% endif %}
                 <li><a href="{{ url_for('profile.profile') }}">プロフィール</a></li>
-                {% if current_user.has_any_role('member', 'manager', 'coach') %}
+                {% if current_user.has_any_role('member', 'manager', 'coach', "administer") %}
                 <li><a href="{{ url_for('notice.notice') }}">
                 通知 {{ notice_cnt }}
                 </a>

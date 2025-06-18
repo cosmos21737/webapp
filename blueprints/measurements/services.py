@@ -1,5 +1,6 @@
 import csv
 import io
+from flask_login import login_required, current_user
 from datetime import datetime
 from db_models import db, User, MeasurementRecord  # データベースモデルをインポート
 
@@ -44,7 +45,7 @@ def create_single_measurement_record(user_id, measurement_date_str, form_data, c
     # commitは呼び出し元（routes.py）で行うことで、トランザクション管理を柔軟にする
 
 
-def process_csv_upload(file_content, created_by):
+def process_csv_upload(file_content, created_user):
     """CSVファイルを解析し、複数の測定記録をデータベースに追加する。"""
     dialect = csv.Sniffer().sniff(file_content.split('\n')[0])
     stream = io.StringIO(file_content, newline=None)
@@ -59,6 +60,9 @@ def process_csv_upload(file_content, created_by):
             csv_grade = row.get('学年', '').strip() # CSVの学年データ
             csv_name = row.get('氏名', '').strip()   # CSVの氏名データ
             measurement_date = row.get('測定日', '').strip()
+            status_value = "draft"
+            if current_user.has_role("administer"):
+                status_value = row.get('承認', '').replace('\u3000', ' ').strip()
 
             if not csv_name:
                 error_messages.append(f"行{row_num}: 氏名が入力されていません。スキップしました。")
@@ -88,6 +92,7 @@ def process_csv_upload(file_content, created_by):
                     continue
 
             # 測定記録を作成
+
             new_record = MeasurementRecord(
                 user_id=user.user_id,
                 measurement_date=parsed_date,
@@ -99,8 +104,8 @@ def process_csv_upload(file_content, created_by):
                 swing_speed=parse_float_or_none(row.get('スイング速度 [km/h]')),
                 bench_press=parse_float_or_none(row.get('ベンチプレス [kg]')),
                 squat=parse_float_or_none(row.get('スクワット [kg]')),
-                status='draft',
-                created_by=created_by
+                status=status_value,
+                created_by=current_user.name
             )
             db.session.add(new_record)
             success_count += 1

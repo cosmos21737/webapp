@@ -1,4 +1,5 @@
 氏名,パスワード,役割,学年,活動
+管理者,password123,administer,,1
 テスト部員,password123,member,1,1
 テストマネージャー,password123,manager,,1
 テストコーチ,password123,coach,,1

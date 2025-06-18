@@ -10,7 +10,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 def create_default_roles():
-    roles = ["member", "manager", "coach", "director"]
+    roles = ["member", "manager", "coach", "director", "administer"]
     for role_name in roles:
         existing_role = Role.query.filter_by(name=role_name).first()
         if not existing_role:
