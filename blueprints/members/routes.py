@@ -56,6 +56,8 @@ def members():
                            pagination=pagination,
                            sort_by=sort_by,
                            sort_order=new_sort_order)
+
+
 @members_bp.route('/new')
 @login_required
 @roles_accepted("administer", "coach", "director")
@@ -84,12 +86,14 @@ def register_member():
 @login_required
 @roles_accepted("administer", "coach", "director")
 def member_records(member_id):
-    records = MeasurementRecord.query.filter_by(user_id=member_id, status='approved').all()
     user = User.query.get(member_id)
+
+    # クエリを構築（まだ実行しない）
+    records_query = MeasurementRecord.query.filter_by(user_id=member_id, status='approved')
 
     # 各測定項目の順位を計算
     rankings = {
-        '50m走': calculate_rank(user.user_id, 'run_50m', asc=True),  # 速い方が良いので昇順
+        '50m走': calculate_rank(user.user_id, 'run_50m', asc=True),
         'ベースランニング': calculate_rank(user.user_id, 'base_running', asc=True),
         '遠投距離': calculate_rank(user.user_id, 'long_throw', asc=False),
         'ストレート球速': calculate_rank(user.user_id, 'straight_speed', asc=False),
@@ -99,26 +103,57 @@ def member_records(member_id):
         'スクワット': calculate_rank(user.user_id, 'squat', asc=False)
     }
 
-    return render_template('my/records.html', user=user, records=records, rankings=rankings)
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    sort_by = request.args.get('sort_by', 'measurement_date', type=str)
+    sort_order = request.args.get('sort_order', 'asc', type=str)
+
+    # ソート処理
+    if sort_by == 'measurement_date':
+        sort_column = MeasurementRecord.measurement_date
+    else:
+        sort_column = getattr(MeasurementRecord, sort_by, MeasurementRecord.measurement_date)
+
+    if sort_order == 'desc':
+        sort_column = sort_column.desc()
+    else:
+        sort_column = sort_column.asc()
+
+    # クエリにソートを適用してページネーション
+    pagination = records_query.order_by(sort_column).paginate(page=page, per_page=per_page)
+    records = pagination.items
+
+    return render_template('my/records.html',
+                           user=user,
+                           records=records,
+                           rankings=rankings,
+                           pagination=pagination,
+                           sort_by=sort_by,
+                           sort_order=sort_order)
+
 
 def calculate_rank(user_id, metric, asc=True):
-    # 全ユーザーの最新記録を取得して順位を計算
+    # 各ユーザーの最小値 or 最大値を取得
+    if asc:
+        value_query = func.min(getattr(MeasurementRecord, metric))
+    else:
+        value_query = func.max(getattr(MeasurementRecord, metric))
+
     subquery = db.session.query(
         MeasurementRecord.user_id,
-        func.max(MeasurementRecord.measurement_date).label('max_date')
+        value_query.label('target_value')  # 最小値 or 最大値
     ).group_by(MeasurementRecord.user_id).subquery()
 
-    latest_records = db.session.query(MeasurementRecord).join(
+    # 取得した値と一致するレコードのみ取得
+    target_records = db.session.query(MeasurementRecord).join(
         subquery,
         (MeasurementRecord.user_id == subquery.c.user_id) &
-        (MeasurementRecord.measurement_date == subquery.c.max_date)
+        (getattr(MeasurementRecord, metric) == subquery.c.target_value)
     )
 
     # ソート方向を決定
-    if asc:
-        ordered_records = latest_records.order_by(getattr(MeasurementRecord, metric).asc())
-    else:
-        ordered_records = latest_records.order_by(getattr(MeasurementRecord, metric).desc())
+    ordered_records = target_records.order_by(
+        getattr(MeasurementRecord, metric).asc() if asc else getattr(MeasurementRecord, metric).desc())
 
     # 順位を計算
     records_list = ordered_records.all()
@@ -127,6 +162,7 @@ def calculate_rank(user_id, metric, asc=True):
             return idx
 
     return "N/A"  # 記録がない場合
+
 
 @members_bp.route('/delete/<int:member_id>', methods=['POST'])
 @login_required
