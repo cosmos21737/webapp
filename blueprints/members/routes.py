@@ -4,6 +4,7 @@ from datetime import datetime
 
 from flask import Blueprint, request, render_template, redirect, url_for, flash, Response, send_file
 from flask_security import login_required, current_user, roles_required, roles_accepted
+from sqlalchemy import func
 from db_models import db, User, MeasurementRecord
 
 # service をインポート
@@ -15,10 +16,46 @@ from . import services
 @login_required
 @roles_accepted("administer", "coach", "director")
 def members():
-    members_list = services.get_members_list()
-    return render_template('/members/members.html', members=members_list)
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    sort_by = request.args.get('sort_by')
 
+    # 現在のソート状態を取得
+    current_sort_by = request.args.get('sort_by')
+    current_sort_order = request.args.get('sort_order')
 
+    # 新しいソート順序を決定
+    if sort_by == current_sort_by:
+        # 同じカラムがクリックされたら順序をトグル
+        new_sort_order = 'desc' if current_sort_order == 'asc' else 'asc'
+    else:
+        # 別のカラムがクリックされたら昇順で開始
+        new_sort_order = 'asc'
+
+    # デフォルトソート（何も指定がない場合）
+    if not sort_by:
+        sort_by = 'grade'
+        new_sort_order = 'asc'
+
+    # ソート処理
+    if sort_by == 'name':
+        sort_column = User.name
+    elif sort_by == 'grade':
+        sort_column = User.grade
+    elif sort_by == 'status':
+        sort_column = User.is_active
+
+    sort_column = sort_column.desc() if new_sort_order == 'desc' else sort_column.asc()
+
+    # クエリ実行
+    pagination = User.query.order_by(sort_column).paginate(page=page, per_page=per_page)
+    members_list = pagination.items
+
+    return render_template('members/members.html',
+                           members=members_list,
+                           pagination=pagination,
+                           sort_by=sort_by,
+                           sort_order=new_sort_order)
 @members_bp.route('/new')
 @login_required
 @roles_accepted("administer", "coach", "director")
@@ -47,12 +84,49 @@ def register_member():
 @login_required
 @roles_accepted("administer", "coach", "director")
 def member_records(member_id):
-    user, records = services.get_member_and_records(member_id)
-    if not user:
-        flash("部員が見つかりません", 'error')
-        return redirect(url_for('members.members'))
-    return render_template('my/records.html', user=user, records=records)
+    records = MeasurementRecord.query.filter_by(user_id=member_id, status='approved').all()
+    user = User.query.get(member_id)
 
+    # 各測定項目の順位を計算
+    rankings = {
+        '50m走': calculate_rank(user.user_id, 'run_50m', asc=True),  # 速い方が良いので昇順
+        'ベースランニング': calculate_rank(user.user_id, 'base_running', asc=True),
+        '遠投距離': calculate_rank(user.user_id, 'long_throw', asc=False),
+        'ストレート球速': calculate_rank(user.user_id, 'straight_speed', asc=False),
+        '打球速度': calculate_rank(user.user_id, 'hit_speed', asc=False),
+        'スイング速度': calculate_rank(user.user_id, 'swing_speed', asc=False),
+        'ベンチプレス': calculate_rank(user.user_id, 'bench_press', asc=False),
+        'スクワット': calculate_rank(user.user_id, 'squat', asc=False)
+    }
+
+    return render_template('my/records.html', user=user, records=records, rankings=rankings)
+
+def calculate_rank(user_id, metric, asc=True):
+    # 全ユーザーの最新記録を取得して順位を計算
+    subquery = db.session.query(
+        MeasurementRecord.user_id,
+        func.max(MeasurementRecord.measurement_date).label('max_date')
+    ).group_by(MeasurementRecord.user_id).subquery()
+
+    latest_records = db.session.query(MeasurementRecord).join(
+        subquery,
+        (MeasurementRecord.user_id == subquery.c.user_id) &
+        (MeasurementRecord.measurement_date == subquery.c.max_date)
+    )
+
+    # ソート方向を決定
+    if asc:
+        ordered_records = latest_records.order_by(getattr(MeasurementRecord, metric).asc())
+    else:
+        ordered_records = latest_records.order_by(getattr(MeasurementRecord, metric).desc())
+
+    # 順位を計算
+    records_list = ordered_records.all()
+    for idx, record in enumerate(records_list, start=1):
+        if record.user_id == user_id:
+            return idx
+
+    return "N/A"  # 記録がない場合
 
 @members_bp.route('/delete/<int:member_id>', methods=['POST'])
 @login_required

@@ -15,9 +15,21 @@
 <table class="member-table">
   <thead>
     <tr>
-      <th>氏名</th>
-      <th>学年</th>
-      <th>活動状況</th>
+      <th>
+        <a href="{{ url_for('members.members', sort_by='name', sort_order=sort_order) }}">
+          氏名 {% if sort_by == 'name' %}({{ '↑' if sort_order == 'asc' else '↓' }}){% endif %}
+        </a>
+      </th>
+      <th>
+        <a href="{{ url_for('members.members', sort_by='grade', sort_order=sort_order) }}">
+          学年 {% if sort_by == 'grade' %}({{ '↑' if sort_order == 'asc' else '↓' }}){% endif %}
+        </a>
+      </th>
+      <th>
+        <a href="{{ url_for('members.members', sort_by='status', sort_order=sort_order) }}">
+          活動状況 {% if sort_by == 'status' %}({{ '↑' if sort_order == 'asc' else '↓' }}){% endif %}
+        </a>
+      </th>
     </tr>
   </thead>
   <tbody>
@@ -30,4 +42,31 @@
     {% endfor %}
   </tbody>
 </table>
+
+<!-- ページネーション -->
+<div class="pagination">
+    {% if pagination.has_prev %}
+        <a href="{{ url_for('members.members', page=pagination.prev_num, sort_by=sort_by, sort_order=sort_order) }}">前へ</a>
+    {% endif %}
+
+    {% for page_num in pagination.iter_pages() %}
+        {% if page_num %}
+            {% if page_num == pagination.page %}
+                <strong>{{ page_num }}</strong>
+            {% else %}
+                <a href="{{ url_for('members.members', page=page_num, sort_by=sort_by, sort_order=sort_order) }}">{{ page_num }}</a>
+            {% endif %}
+        {% else %}
+            <span class="ellipsis">…</span>
+        {% endif %}
+    {% endfor %}
+
+    {% if pagination.has_next %}
+        <a href="{{ url_for('members.members', page=pagination.next_num, sort_by=sort_by, sort_order=sort_order) }}">次へ</a>
+    {% endif %}
+</div>
+
+<div class="sort-help">
+    <p>※各項目をクリックするとソートできます。同じ項目を再度クリックすると昇順/降順が切り替わります。</p>
+</div>
 {% endblock %}
