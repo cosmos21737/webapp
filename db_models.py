@@ -1,10 +1,24 @@
+import sqlite3
 import uuid
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import UserMixin, RoleMixin
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from sqlalchemy import event, create_engine
+
 db = SQLAlchemy()
+engine = create_engine('sqlite:///your_database.db')
+
+
+@event.listens_for(engine, "connect")
+def enable_extensions(dbapi_conn, connection_record):
+    if isinstance(dbapi_conn, sqlite3.Connection):
+        try:
+            dbapi_conn.enable_load_extension(True)
+            dbapi_conn.load_extension('sqlite3-stddev')
+        except:
+            pass
 
 
 # **ロールモデル (Flask-Security 用)**
@@ -34,6 +48,7 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(200), nullable=False)
     grade = db.Column(db.Integer, nullable=True)
     is_active = db.Column(db.Boolean, default=True)
+    team_status = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')),
                            onupdate=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))

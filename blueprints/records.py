@@ -11,14 +11,13 @@ from db_models import db, User, MeasurementRecord
 records_bp = Blueprint('records', __name__)
 
 
-@records_bp.route('/my_records')
+@records_bp.route('/records/<int:member_id>')
 @login_required
-def my_records():
-    user_id = current_user.get_id()
-    user = User.query.get(user_id)
+def records(member_id):
+    user = User.query.get(member_id)
 
     # クエリを構築（まだ実行しない）
-    records_query = MeasurementRecord.query.filter_by(user_id=user_id, status='approved')
+    records_query = MeasurementRecord.query.filter_by(user_id=member_id, status='approved')
 
     # 各測定項目の順位を計算
     rankings = {
@@ -50,11 +49,11 @@ def my_records():
 
     # クエリにソートを適用してページネーション
     pagination = records_query.order_by(sort_column).paginate(page=page, per_page=per_page)
-    records = pagination.items
+    records_list = pagination.items
 
-    return render_template('my/records.html',
+    return render_template('records.html',
                            user=user,
-                           records=records,
+                           records=records_list,
                            rankings=rankings,
                            pagination=pagination,
                            sort_by=sort_by,
@@ -62,35 +61,82 @@ def my_records():
 
 
 def calculate_rank(user_id, metric, asc=True):
-    # 各ユーザーの最小値 or 最大値を取得
-    if asc:
-        value_query = func.min(getattr(MeasurementRecord, metric))
-    else:
-        value_query = func.max(getattr(MeasurementRecord, metric))
+    try:
+        print("start")
+        # テーブル名とカラム名を確認
+        column = getattr(MeasurementRecord, metric)
 
-    subquery = db.session.query(
-        MeasurementRecord.user_id,
-        value_query.label('target_value')  # 最小値 or 最大値
-    ).group_by(MeasurementRecord.user_id).subquery()
+        # SQLite用に簡略化したバージョン
+        # 1. 各ユーザーの代表値を取得
+        if asc:
+            subquery = db.session.query(
+                MeasurementRecord.user_id,
+                func.min(column).label('target_value')
+            )
+        else:
+            subquery = db.session.query(
+                MeasurementRecord.user_id,
+                func.max(column).label('target_value')
+            )
 
-    # 取得した値と一致するレコードのみ取得
-    target_records = db.session.query(MeasurementRecord).join(
-        subquery,
-        (MeasurementRecord.user_id == subquery.c.user_id) &
-        (getattr(MeasurementRecord, metric) == subquery.c.target_value)
-    )
+        subquery = subquery.filter(
+            MeasurementRecord.status == 'approved'
+        ).group_by(
+            MeasurementRecord.user_id
+        ).subquery()
 
-    # ソート方向を決定
-    ordered_records = target_records.order_by(
-        getattr(MeasurementRecord, metric).asc() if asc else getattr(MeasurementRecord, metric).desc())
+        # 2. ユーザーの値を取得
+        user_value = db.session.query(
+            subquery.c.target_value
+        ).filter(
+            subquery.c.user_id == user_id
+        ).scalar()
 
-    # 順位を計算
-    records_list = ordered_records.all()
-    for idx, record in enumerate(records_list, start=1):
-        if record.user_id == user_id:
-            return idx
+        if user_value is None:
+            return {'rank': "N/A", 'stddev': "N/A", 'value': "N/A"}
 
-    return "N/A"  # 記録がない場合
+        # 3. SQLite互換の統計計算
+        # 平均と標準偏差をPythonで計算
+        all_values = [x[0] for x in db.session.query(
+            subquery.c.target_value
+        ).filter(
+            subquery.c.target_value.isnot(None)
+        ).all()]
+
+        if not all_values:
+            return {'rank': "N/A", 'stddev': "N/A", 'value': "N/A"}
+
+        avg = sum(all_values) / len(all_values)
+        variance = sum((x - avg) ** 2 for x in all_values) / len(all_values)
+        stddev = variance ** 0.5
+
+        # 4. 順位計算 (SQLite用の代替方法)
+        # より良い値を先に並べる (asc=Trueなら小さい値が良い)
+        ordered_users = db.session.query(
+            subquery.c.user_id,
+            subquery.c.target_value
+        ).order_by(
+            subquery.c.target_value.asc() if asc else subquery.c.target_value.desc()
+        ).all()
+
+        rank = next(
+            (i + 1 for i, (uid, _) in enumerate(ordered_users) if uid == user_id),
+            "N/A"
+        )
+
+        # 偏差値計算
+        def calc_std_score(value, avg, stddev):
+            return 50 + 10 * (value - avg) / stddev if stddev != 0 else 50
+
+        return {
+            'rank': rank,
+            'stddev': round(calc_std_score(user_value, avg, stddev), 1),
+            'value': round(user_value, 2)
+        }
+
+    except Exception as e:
+        print(f"Error in calculate_rank: {str(e)}")
+        return {'rank': "Error", 'stddev': "Error", 'value': "Error"}
 
 
 @records_bp.route('/my/records/export_csv')
