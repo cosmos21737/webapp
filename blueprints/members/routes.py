@@ -19,18 +19,22 @@ def members():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
     sort_by = request.args.get('sort_by')
+    sort_flag = request.args.get('sort_flag')
 
     # 現在のソート状態を取得
     current_sort_by = request.args.get('sort_by')
     current_sort_order = request.args.get('sort_order')
 
     # 新しいソート順序を決定
-    if sort_by == current_sort_by:
-        # 同じカラムがクリックされたら順序をトグル
-        new_sort_order = 'desc' if current_sort_order == 'asc' else 'asc'
+    if sort_flag:
+        if sort_by == current_sort_by:
+            # 同じカラムがクリックされたら順序をトグル
+            new_sort_order = 'desc' if current_sort_order == 'asc' else 'asc'
+        else:
+            # 別のカラムがクリックされたら昇順で開始
+            new_sort_order = 'asc'
     else:
-        # 別のカラムがクリックされたら昇順で開始
-        new_sort_order = 'asc'
+        new_sort_order = current_sort_order
 
     # デフォルトソート（何も指定がない場合）
     if not sort_by:
@@ -102,6 +106,7 @@ def push_team(member_id):
         flash('ユーザーが見つかりません', 'error')
     return redirect(url_for('members.members'))
 
+
 @members_bp.route('/delete_team/<int:member_id>', methods=['POST'])
 @login_required
 @roles_accepted("administer", "coach", "director")
@@ -114,6 +119,7 @@ def delete_team(member_id):
     else:
         flash('ユーザーが見つかりません', 'error')
     return redirect(url_for('members.members'))
+
 
 @members_bp.route('/delete/<int:member_id>', methods=['POST'])
 @login_required
