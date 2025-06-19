@@ -86,83 +86,34 @@ def register_member():
 @login_required
 @roles_accepted("administer", "coach", "director")
 def member_records(member_id):
+    return redirect(url_for('records.records', member_id=member_id))
+
+
+@members_bp.route('/push_team/<int:member_id>', methods=['POST'])
+@login_required
+@roles_accepted("administer", "coach", "director")
+def push_team(member_id):
     user = User.query.get(member_id)
-
-    # クエリを構築（まだ実行しない）
-    records_query = MeasurementRecord.query.filter_by(user_id=member_id, status='approved')
-
-    # 各測定項目の順位を計算
-    rankings = {
-        '50m走': calculate_rank(user.user_id, 'run_50m', asc=True),
-        'ベースランニング': calculate_rank(user.user_id, 'base_running', asc=True),
-        '遠投距離': calculate_rank(user.user_id, 'long_throw', asc=False),
-        'ストレート球速': calculate_rank(user.user_id, 'straight_speed', asc=False),
-        '打球速度': calculate_rank(user.user_id, 'hit_speed', asc=False),
-        'スイング速度': calculate_rank(user.user_id, 'swing_speed', asc=False),
-        'ベンチプレス': calculate_rank(user.user_id, 'bench_press', asc=False),
-        'スクワット': calculate_rank(user.user_id, 'squat', asc=False)
-    }
-
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 20, type=int)
-    sort_by = request.args.get('sort_by', 'measurement_date', type=str)
-    sort_order = request.args.get('sort_order', 'asc', type=str)
-
-    # ソート処理
-    if sort_by == 'measurement_date':
-        sort_column = MeasurementRecord.measurement_date
+    if user:  # ユーザーが存在するかチェック
+        user.team_status = True
+        db.session.commit()  # 変更をデータベースに保存
+        flash('チームステータスを更新しました', 'success')
     else:
-        sort_column = getattr(MeasurementRecord, sort_by, MeasurementRecord.measurement_date)
+        flash('ユーザーが見つかりません', 'error')
+    return redirect(url_for('members.members'))
 
-    if sort_order == 'desc':
-        sort_column = sort_column.desc()
+@members_bp.route('/delete_team/<int:member_id>', methods=['POST'])
+@login_required
+@roles_accepted("administer", "coach", "director")
+def delete_team(member_id):
+    user = User.query.get(member_id)
+    if user:  # ユーザーが存在するかチェック
+        user.team_status = False
+        db.session.commit()  # 変更をデータベースに保存
+        flash('チームステータスを更新しました', 'success')
     else:
-        sort_column = sort_column.asc()
-
-    # クエリにソートを適用してページネーション
-    pagination = records_query.order_by(sort_column).paginate(page=page, per_page=per_page)
-    records = pagination.items
-
-    return render_template('my/records.html',
-                           user=user,
-                           records=records,
-                           rankings=rankings,
-                           pagination=pagination,
-                           sort_by=sort_by,
-                           sort_order=sort_order)
-
-
-def calculate_rank(user_id, metric, asc=True):
-    # 各ユーザーの最小値 or 最大値を取得
-    if asc:
-        value_query = func.min(getattr(MeasurementRecord, metric))
-    else:
-        value_query = func.max(getattr(MeasurementRecord, metric))
-
-    subquery = db.session.query(
-        MeasurementRecord.user_id,
-        value_query.label('target_value')  # 最小値 or 最大値
-    ).group_by(MeasurementRecord.user_id).subquery()
-
-    # 取得した値と一致するレコードのみ取得
-    target_records = db.session.query(MeasurementRecord).join(
-        subquery,
-        (MeasurementRecord.user_id == subquery.c.user_id) &
-        (getattr(MeasurementRecord, metric) == subquery.c.target_value)
-    )
-
-    # ソート方向を決定
-    ordered_records = target_records.order_by(
-        getattr(MeasurementRecord, metric).asc() if asc else getattr(MeasurementRecord, metric).desc())
-
-    # 順位を計算
-    records_list = ordered_records.all()
-    for idx, record in enumerate(records_list, start=1):
-        if record.user_id == user_id:
-            return idx
-
-    return "N/A"  # 記録がない場合
-
+        flash('ユーザーが見つかりません', 'error')
+    return redirect(url_for('members.members'))
 
 @members_bp.route('/delete/<int:member_id>', methods=['POST'])
 @login_required

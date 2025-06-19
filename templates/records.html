@@ -7,7 +7,13 @@
 {% if current_user.has_any_role('coach', 'director', "administer") %}
 <form method="POST" action="{{ url_for('members.delete_member', member_id=user.user_id) }}"
       onsubmit="return confirm('本当に削除しますか？');">
-    <button type="submit" class="delete-btn">削除</button>
+    <button type="submit" class="delete-btn">部員を削除</button>
+</form>
+<form method="POST" action="{{ url_for('members.push_team', member_id=user.user_id) }}">
+    <button type="submit">チームに登録</button>
+</form>
+<form method="POST" action="{{ url_for('members.delete_team', member_id=user.user_id) }}">
+    <button type="submit">チームから削除</button>
 </form>
 {% endif %}
 
@@ -19,16 +25,19 @@
 <!-- 順位表示セクション -->
 <div class="rankings-section">
     <h3>全体順位</h3>
-    <div class="rankings-horizontal">
-        {% for metric, rank in rankings.items() %}
-        <div class="ranking-item">
-            <span class="metric-name">{{ metric }}:</span>
-            <span class="rank-value">{{ rank }}位</span>
+    <div class="rankings-grid">
+        {% for metric, data in rankings.items() %}
+        <div class="ranking-card">
+            <div class="metric-name">{{ metric }}</div>
+            <div class="metric-value">{{ data.value }}</div>
+            <div class="rank-info">
+                <span class="rank">順位: {{ data.rank }}位</span>
+                <span class="stddev">偏差値: {{ data.stddev }}</span>
+            </div>
         </div>
         {% endfor %}
     </div>
 </div>
-
 <!-- 折れ線グラフセクション -->
 <div class="chart-section">
     <h3>記録の推移</h3>
