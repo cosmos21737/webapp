@@ -16,17 +16,17 @@
   <thead>
     <tr>
       <th>
-        <a href="{{ url_for('members.members', sort_by='name', sort_order=sort_order) }}">
+        <a href="{{ url_for('members.members', sort_by='name', sort_order=('desc' if sort_by == 'name' and sort_order == 'asc' else 'asc'), sort_flag=True) }}">
           氏名 {% if sort_by == 'name' %}({{ '↑' if sort_order == 'asc' else '↓' }}){% endif %}
         </a>
       </th>
       <th>
-        <a href="{{ url_for('members.members', sort_by='grade', sort_order=sort_order) }}">
+        <a href="{{ url_for('members.members', sort_by='grade', sort_order=('desc' if sort_by == 'grade' and sort_order == 'asc' else 'asc'), sort_flag=True) }}">
           学年 {% if sort_by == 'grade' %}({{ '↑' if sort_order == 'asc' else '↓' }}){% endif %}
         </a>
       </th>
       <th>
-        <a href="{{ url_for('members.members', sort_by='status', sort_order=sort_order) }}">
+        <a href="{{ url_for('members.members', sort_by='status', sort_order=('desc' if sort_by == 'status' and sort_order == 'asc' else 'asc'), sort_flag=True) }}">
           活動状況 {% if sort_by == 'status' %}({{ '↑' if sort_order == 'asc' else '↓' }}){% endif %}
         </a>
       </th>
