@@ -130,3 +130,12 @@ class MeasurementValue(db.Model):
     __table_args__ = (
         db.UniqueConstraint('record_id', 'type_id', name='_record_type_uc'),
     )
+
+class News(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    post_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<News {self.title}>'

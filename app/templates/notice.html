@@ -48,7 +48,7 @@
     </table>
 
   <button type="submit" name="action" value="approve">承認する</button><br>
-  {% if current_user.has_any_role('member', 'coach') %}
+  {% if current_user.has_any_role('member', 'coach', 'administer') %}
     <textarea name="comment" placeholder="コメントを入力してください"></textarea><br>
     <button type="submit" name="action" value="reject">否認する</button>
   {% endif %}
