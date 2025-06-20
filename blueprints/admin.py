@@ -57,3 +57,40 @@ def delete_measurement_type(type_id):
         flash(f'測定項目の削除中にエラーが発生しました: {e}', 'danger')
 
     return redirect(url_for('admin.admin'))
+
+
+@admin_bp.route('/admin/add_measurement_type', methods=['POST'])
+@login_required
+@roles_required("administer")
+def add_measurement_type():
+    name = request.form.get('name')
+    display_name = request.form.get('display_name')
+    unit = request.form.get('unit')
+    evaluation_direction = request.form.get('evaluation_direction')
+    description = request.form.get('description')
+
+    if not name or not display_name or not evaluation_direction:
+        flash('識別名、表示名、評価方向は必須項目です。', 'danger')
+        return redirect(url_for('admin.admin'))
+
+    existing_type = MeasurementType.query.filter_by(name=name).first()
+    if existing_type:
+        flash('この識別名はすでに存在します。別の識別名を使用してください。', 'danger')
+        return redirect(url_for('admin.admin'))
+
+    try:
+        new_type = MeasurementType(
+            name=name,
+            display_name=display_name,
+            unit=unit if unit else None,
+            evaluation_direction=evaluation_direction,
+            description=description if description else None
+        )
+        db.session.add(new_type)
+        db.session.commit()
+        flash(f'測定項目「{new_type.display_name}」を追加しました。', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'測定項目の追加中にエラーが発生しました: {e}', 'danger')
+
+    return redirect(url_for('admin.admin'))
