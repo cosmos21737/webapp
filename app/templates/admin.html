@@ -1,9 +1,53 @@
 {% extends "base.html" %}
 
-{% block title %}ダッシュボード{% endblock %}
+{% block title %}管理者ダッシュボード{% endblock %}
 
 {% block content %}
 <h2>ようこそ、{{ current_user.name }} さん！</h2>
 <p>このシステムでは、部員の測定記録を管理し、チームの分析ができます。</p>
-<a href="{{ url_for('admin.data_delete') }}">データベースのリセット</a>
+
+<h3>データベース管理</h3>
+<a href="{{ url_for('admin.data_delete') }}" class="btn btn-warning">データベースのリセット</a> {# 必要に応じてスタイルを調整 #}
+<hr>
+
+<h3>測定項目管理</h3>
+{% if measurement_types %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>識別名</th>
+                <th>表示名</th>
+                <th>単位</th>
+                <th>評価方向</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for type in measurement_types %}
+            <tr>
+                <td>{{ type.id }}</td>
+                <td>{{ type.name }}</td>
+                <td>{{ type.display_name }}</td>
+                <td>{{ type.unit if type.unit else 'なし' }}</td>
+                <td>
+                    {% if type.evaluation_direction == 'asc' %}
+                        昇順 (小さい方が良い)
+                    {% else %}
+                        降順 (大きい方が良い)
+                    {% endif %}
+                </td>
+                <td>
+                    <form action="{{ url_for('admin.delete_measurement_type', type_id=type.id) }}" method="POST" onsubmit="return confirm('本当に測定項目「{{ type.display_name }}」を削除しますか？関連する測定値も削除される可能性があります。');" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">削除</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>登録されている測定項目はありません。</p>
+{% endif %}
+
 {% endblock %}
