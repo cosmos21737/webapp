@@ -1,7 +1,7 @@
 from flask import request, Blueprint, render_template, redirect, url_for, session, Response, send_file
 from flask_login import login_required, current_user
 from flask_security import roles_required, roles_accepted
-from db_models import db, User, MeasurementRecord
+from db_models import db, User, MeasurementRecord, MeasurementType
 
 notice_bp = Blueprint('notice', __name__)
 
@@ -12,6 +12,8 @@ notice_bp = Blueprint('notice', __name__)
 def notice():
     user_id = current_user.get_id()
     user = User.query.get(user_id)
+    measurement_types = MeasurementType.query.all()
+
     if current_user.has_role("member"):
         records = MeasurementRecord.query.filter_by(user_id=user_id, status='draft').all()
     if current_user.has_role("coach"):
@@ -19,7 +21,12 @@ def notice():
     if current_user.has_role("manager"):
         records = MeasurementRecord.query.filter_by(status='rejected').all()
 
-    return render_template('notice.html', user=user, records=records)
+
+    return render_template('notice.html',
+                           user=user,
+                           records=records,
+                           measurement_types=measurement_types
+                           )
 
 
 @notice_bp.route("/approve_records", methods=["POST"])
@@ -32,7 +39,7 @@ def approve_records():
 
     if selected_record_ids:
         # データベース更新処理
-        records = MeasurementRecord.query.filter(MeasurementRecord.record_id.in_(selected_record_ids)).all()
+        records = MeasurementRecord.query.filter(MeasurementRecord.id.in_(selected_record_ids)).all()
         for record in records:
             if action == "reject":
                 record.status = 'rejected'

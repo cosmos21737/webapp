@@ -20,7 +20,7 @@
     labels: {{ team_stats.keys()|list|tojson }},
     datasets: [{
       label: 'チーム偏差値',
-      data: {{ team_stats.values()|map(attribute='standard_score')|list|tojson }},
+      data: {{ team_stats.values()|map(attribute='stddev')|list|tojson }},
       fill: true,
       backgroundColor: 'rgba(54, 162, 235, 0.2)',
       borderColor: 'rgba(54, 162, 235, 1)',

@@ -25,13 +25,3 @@ def dashboard():
 @login_required
 def helppage():
     return render_template('help.html')
-
-
-@main_bp.route('/admin')
-@login_required
-@roles_required("administer")
-def admin():
-    return render_template('admin.html')
-
-
-

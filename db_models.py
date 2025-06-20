@@ -76,28 +76,57 @@ class User(db.Model, UserMixin):
 
 
 # **測定記録モデル**
+class MeasurementType(db.Model):
+    """測定項目の種類を管理するテーブル"""
+    __tablename__ = 'measurement_types'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)  # プログラム内で使用する識別子 (例: 'run_50m')
+    display_name = db.Column(db.String(100), nullable=False)  # 表示用名称 (例: '50m走')
+    unit = db.Column(db.String(20))  # 単位 (例: '秒', 'km/h', 'm')
+    evaluation_direction = db.Column(                            # 評価方向
+        db.Enum('asc', 'desc', name='evaluation_direction_enum'),
+        nullable=False,
+        default='asc'
+    )
+    description = db.Column(db.Text)  # 説明文 (任意)
+
+
 class MeasurementRecord(db.Model):
+    """測定記録の基本情報を管理するテーブル"""
     __tablename__ = 'measurement_records'
 
-    record_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)  # 部員のユーザーID
-    measurement_date = db.Column(db.Date, nullable=False)  # 測定日
-    run_50m = db.Column(db.Float)  # 50m走
-    base_running = db.Column(db.Float)  # ベースランニング
-    long_throw = db.Column(db.Float)  # 遠投距離
-    straight_speed = db.Column(db.Float)  # ストレート球速
-    hit_speed = db.Column(db.Float)  # 打球速度
-    swing_speed = db.Column(db.Float)  # スイング速度
-    bench_press = db.Column(db.Float)  # ベンチプレス
-    squat = db.Column(db.Float)  # スクワット
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    measurement_date = db.Column(db.Date, nullable=False)
     status = db.Column(db.Enum('draft', 'pending_coach', 'approved', 'rejected', name='status_enum'),
-                       nullable=False)  # 承認ステータス
-    created_by = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)  # 記録作成者のユーザーID
+                       nullable=False, default='draft')
+    created_by = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')),
                            onupdate=lambda: datetime.now(tz=ZoneInfo('Asia/Tokyo')))
     comment = db.Column(db.String(1000))
 
-    # **リレーション (Flask-Security に適合)**
-    user = db.relationship('User', foreign_keys=[user_id])  # 部員とのリレーション
-    creator = db.relationship('User', foreign_keys=[created_by])  # 記録作成者とのリレーション
+    # リレーション
+    user = db.relationship('User', foreign_keys=[user_id])
+    creator = db.relationship('User', foreign_keys=[created_by])
+    values = db.relationship('MeasurementValue', back_populates='record', cascade='all, delete-orphan')
+
+
+class MeasurementValue(db.Model):
+    """個々の測定値を管理するテーブル"""
+    __tablename__ = 'measurement_values'
+
+    id = db.Column(db.Integer, primary_key=True)
+    record_id = db.Column(db.Integer, db.ForeignKey('measurement_records.id'), nullable=False)
+    type_id = db.Column(db.Integer, db.ForeignKey('measurement_types.id'), nullable=False)
+    value = db.Column(db.Float, nullable=False)
+
+    # リレーション
+    record = db.relationship('MeasurementRecord', back_populates='values')
+    type = db.relationship('MeasurementType')
+
+    # 複合ユニーク制約（同じ記録で同じ測定タイプを重複させない）
+    __table_args__ = (
+        db.UniqueConstraint('record_id', 'type_id', name='_record_type_uc'),
+    )

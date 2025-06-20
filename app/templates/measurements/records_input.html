@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}測定記録入力{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('measurements.csv_import') }}">CSVで登録</a>
+
+<h2>測定記録入力</h2>
+<form method="POST" action="{{ url_for('measurements.submit_record') }}">
+    <label for="member_grade">学年:</label>
+    <input type="text" id="member_grade" name="member_grade" required><br>
+
+    <label for="member_name">部員名:</label>
+    <input type="text" id="member_name" name="member_name" required><br>
+
+    <label for="measurement_date">測定日:</label>
+    <input type="date" id="measurement_date" name="measurement_date" required><br>
+
+    {# measurement_typesを反復処理して動的な入力フィールドを作成 #}
+    {% for type in measurement_types %}
+    <label for="{{ type.name }}">{{ type.display_name }} ({{ type.unit }}):</label>
+    <input type="text" id="{{ type.name }}" name="{{ type.name }}"><br>
+    {% endfor %}
+
+    <button type="submit">記録を保存</button>
+</form>
+
+{% endblock %}

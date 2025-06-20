@@ -38,7 +38,7 @@
                 {% endif %}
                 <li><a href="{{ url_for('main.helppage') }}">ヘルプ</a></li>
                 {% if current_user.has_any_role('administer') %}
-                <li><a href="{{ url_for('main.admin') }}">管理者用</a></li>
+                <li><a href="{{ url_for('admin.admin') }}">管理者用</a></li>
                 {% endif %}
                 <li><a href="{{ url_for('auth.logout') }}">ログアウト</a></li>
 

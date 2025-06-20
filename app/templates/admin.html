@@ -5,4 +5,5 @@
 {% block content %}
 <h2>ようこそ、{{ current_user.name }} さん！</h2>
 <p>このシステムでは、部員の測定記録を管理し、チームの分析ができます。</p>
+<a href="{{ url_for('admin.data_delete') }}">データベースのリセット</a>
 {% endblock %}
