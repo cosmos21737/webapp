@@ -119,7 +119,7 @@ class MeasurementValue(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     record_id = db.Column(db.Integer, db.ForeignKey('measurement_records.id'), nullable=False)
-    type_id = db.Column(db.Integer, db.ForeignKey('measurement_types.id'), nullable=False)
+    type_id = db.Column(db.Integer, db.ForeignKey('measurement_types.id', ondelete='CASCADE'), nullable=False)
     value = db.Column(db.Float, nullable=False)
 
     # リレーション
