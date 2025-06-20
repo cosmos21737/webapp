@@ -1,7 +1,7 @@
 from flask import request, redirect, url_for, render_template, flash, Response
 from flask_login import login_required, current_user
 from flask_security import roles_required, roles_accepted
-from db_models import db, User, MeasurementRecord
+from db_models import db, User, MeasurementRecord, MeasurementType, MeasurementValue
 from datetime import datetime
 import io
 import csv
@@ -18,7 +18,11 @@ def records_input():
     測定記録入力フォームの表示
     """
     user = User.query.get(current_user.get_id())
-    return render_template('/measurements/records_input.html', user=user)
+    measurement_types = MeasurementType.query.all()
+    return render_template('/measurements/records_input.html',
+                           user=user,
+                           measurement_types=measurement_types
+                           )
 
 
 @measurements_bp.route('/submit_record', methods=['POST'])
@@ -31,7 +35,7 @@ def submit_record():
     created_by = current_user.get_id()  # 記入者（ログインしているユーザー）
     member_name = request.form.get('member_name')  # 記録を保存する対象の部員名
     member_grade = request.form.get('member_grade')
-    measurement_date = request.form.get('measurement_date')
+    measurement_date_str = request.form.get('measurement_date')
 
     # 部員の検索
     user = User.query.filter_by(name=member_name, grade=member_grade).first()
@@ -41,17 +45,47 @@ def submit_record():
         return redirect(url_for('measurements.records_input'))  # エラー時は入力画面に戻すなど
         # または、return "部員が見つかりません", 404
 
+    # 日付文字列を日付オブジェクトに変換
     try:
-        # servicesの関数を呼び出し、測定記録を作成
-        services.create_single_measurement_record(
+        measurement_date = datetime.strptime(measurement_date_str, '%Y-%m-%d').date()
+    except ValueError:
+        flash('無効な日付形式です。', 'danger')
+        return redirect(url_for('measurements.record_input'))
+
+    try:
+        # 新しいMeasurementRecordを作成
+        new_record = MeasurementRecord(
             user_id=user.user_id,
-            measurement_date_str=measurement_date,
-            form_data=request.form,
-            created_by=created_by
+            measurement_date=measurement_date,
+            created_by=current_user.user_id,
+            status='draft'# または、コーチの承認が必要な場合は 'pending_coach'
         )
+        db.session.add(new_record)
+        db.session.flush() # new_record.idを取得するためにflushする
+
+        # 送信されたフォームデータを反復処理するために、すべての測定タイプを取得
+        all_measurement_types = MeasurementType.query.all()
+
+        for m_type in all_measurement_types:
+            # この測定タイプに対応する値が送信されたか確認
+            value_str = request.form.get(m_type.name)
+            if value_str:
+                try:
+                    value_float = float(value_str)
+                    new_value = MeasurementValue(
+                        record_id=new_record.id,
+                        type_id=m_type.id,
+                        value=value_float
+                    )
+                    db.session.add(new_value)
+                except ValueError:
+                    flash(f'{m_type.display_name} の値が不正です。数値を入力してください。', 'warning')
+                    # 特定の値をロールバックするか無視するかを選択することもできます
+                    continue
+
         db.session.commit()
-        flash('記録が正常に保存されました。', 'success')
-        print("正常に保存されました。")
+        flash('測定記録が正常に保存されました。', 'success')
+        return redirect(url_for('measurements.records_input')) # または成功ページ
     except ValueError as e:
         # 日付形式のエラーなど、入力値の問題
         flash(str(e), 'error')
@@ -127,4 +161,3 @@ def download_csv_template():
         mimetype="text/csv",
         headers={"Content-disposition": "attachment; filename=measurement_template.csv"}
     )
-

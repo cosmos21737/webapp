@@ -13,37 +13,35 @@
                 <th>測定日</th>
                 <th>学年</th>
                 <th>氏名</th>
-                <th>50m走 (秒)</th>
-                <th>ベースランニング (秒)</th>
-                <th>遠投距離 (m)</th>
-                <th>ストレート球速 (km/h)</th>
-                <th>打球速度 (km/h)</th>
-                <th>スイング速度 (km/h)</th>
-                <th>ベンチプレス (kg)</th>
-                <th>スクワット (kg)</th>
+                {% for type in measurement_types %}
+                <th>{{ type.display_name }} ({{ type.unit }})</th>
+                {% endfor %}
             </tr>
         </thead>
         <tbody>
             {% for record in records %}
+            {% set record_values = {} %}
+            {% for val in record.values %}
+            {% set _ = record_values.update({val.type_id: val.value}) %}
+            {% endfor %}
             <tr>
-                <td rowspan="2"><input type="checkbox" name="record_ids" value="{{ record.record_id }}"></td>
+                <td rowspan="2"><input type="checkbox" name="record_ids" value="{{ record.id }}"></td>
                 <td>{{ record.measurement_date }}</td>
                 <td>{{ record.user.grade }}</td>
                 <td>{{ record.user.name }}</td>
-                <td>{{ record.run_50m }}</td>
-                <td>{{ record.base_running }}</td>
-                <td>{{ record.long_throw }}</td>
-                <td>{{ record.straight_speed }}</td>
-                <td>{{ record.hit_speed }}</td>
-                <td>{{ record.swing_speed }}</td>
-                <td>{{ record.bench_press }}</td>
-                <td>{{ record.squat }}</td>
+                {% for type in measurement_types %}
+                <td>
+                    {% if type.id in record_values %}
+                        {{ record_values[type.id] }}
+                    {% else %}
+                        &nbsp;
+                    {% endif %}
+                </td>
+                {% endfor %}
             </tr>
             <tr>
                 <td>コメント</td>
-                <td colspan="10">{{ record.comment if record.comment else '&nbsp;' | safe
-                                 }}
-                </td>
+                <td colspan="{{ 3 + measurement_types|length }}">{{ record.comment if record.comment else '&nbsp;' | safe }}</td>
             </tr>
             {% endfor %}
         </tbody>
