@@ -15,6 +15,7 @@ from blueprints.measurements import measurements_bp
 from blueprints.team import team_bp
 from blueprints.profile import profile_bp
 from blueprints.notice import notice_bp
+from blueprints.news import news_bp
 from blueprints.admin import admin_bp
 
 app = Flask(__name__)
@@ -50,6 +51,7 @@ app.register_blueprint(measurements_bp, url_prefix='/measurements')
 app.register_blueprint(team_bp, url_prefix='/team')
 app.register_blueprint(profile_bp, url_prefix='/profile')
 app.register_blueprint(notice_bp, url_prefix='/notice')
+app.register_blueprint(news_bp, url_prefix='/news')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 
 

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}ダッシュボード{% endblock %}
+
+{% block content %}
+    <h1>お知らせ</h1>
+
+    {% for post in news_posts_pagination.items %}
+    <div class="news-post">
+        <div class="date">{{ post.post_date.strftime('%Y年%m月%d日 %H:%M') }}</div>
+        <h3>{{ post.title }}</h3>
+        <p>{{ post.content }}</p>
+        {% if current_user.has_any_role('director', 'coach', 'administer') %}
+            <form action="{{ url_for('news.delete_news', news_id=post.id) }}" method="post" onsubmit="return confirm('本当にこのお知らせを削除しますか？');" style="display:inline;">
+                <button type="submit" class="delete-btn">削除</button>
+            </form>
+        {% endif %}
+    </div>
+    {% else %}
+    <p>まだお知らせはありません。</p>
+    {% endfor %}
+
+    <div class="pagination">
+        {% if news_posts_pagination.has_prev %}
+            <a href="{{ url_for('news.news', page=news_posts_pagination.prev_num) }}">前へ</a>
+        {% endif %}
+        {% for page_num in news_posts_pagination.iter_pages() %}
+            {% if page_num %}
+                {% if news_posts_pagination.page == page_num %}
+                    <span class="current-page">{{ page_num }}</span>
+                {% else %}
+                    <a href="{{ url_for('news.news', page=page_num) }}">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                ...
+            {% endif %}
+        {% endfor %}
+        {% if news_posts_pagination.has_next %}
+            <a href="{{ url_for('news.news', page=news_posts_pagination.next_num) }}">次へ</a>
+        {% endif %}
+    </div>
+
+    {% if current_user.has_any_role('director', 'coach', 'administer') %}
+    <hr>
+    <div class="admin-section">
+        <h2>新しいお知らせを投稿</h2>
+        <form action="{{ url_for('news.post_news') }}" method="post">
+            <div>
+                <label for="title">タイトル:</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            <div>
+                <label for="content">内容:</label>
+                <textarea id="content" name="content" required></textarea>
+            </div>
+            <div>
+                <input type="submit" value="投稿">
+            </div>
+        </form>
+    </div>
+    {% endif %}
+{% endblock %}
