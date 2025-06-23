@@ -32,7 +32,7 @@
         </div>
 
         <div class="download-section">
-            <a href="#" class="btn btn-secondary">テンプレートファイルをダウンロード</a>
+            <a href="{{ url_for('measurements.download_csv_template') }}" class="btn btn-secondary">テンプレートファイルをダウンロード</a>
         </div>
 
         <form class="upload-form" method="post" enctype="multipart/form-data">
