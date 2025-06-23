@@ -17,46 +17,18 @@ def records(member_id):
     user = User.query.get_or_404(member_id)
     measurement_types = MeasurementType.query.all()
 
-    # 測定記録を取得
+    # 測定記録を取得（バックエンドでのソート・ページネーションを削除）
+    # get_user_records がすでにソートされている可能性があるため確認
     records_list = services.get_user_records(member_id)
 
     # ランキングデータを取得
     rankings = services.calculate_rankings(member_id)
 
-    # ページネーションとソート処理
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 20, type=int)
-    sort_by = request.args.get('sort_by', 'measurement_date', type=str)
-    sort_order = request.args.get('sort_order', 'asc', type=str)
-
-    # ソート処理（簡略化版）
-    if sort_by == 'measurement_date':
-        records_list.sort(
-            key=lambda x: x.measurement_date,
-            reverse=(sort_order == 'desc')
-        )
-    else:
-        # 他のソート条件が必要な場合は追加
-        pass
-
-    # 簡易ページネーション
-    total_records = len(records_list)
-    start = (page - 1) * per_page
-    end = start + per_page
-    paginated_records = records_list[start:end]
-
+    # すべてのレコードをフロントエンドに渡す
     return render_template('records.html',
                            user=user,
-                           records=paginated_records,
+                           records=records_list,
                            rankings=rankings,
-                           pagination={
-                               'page': page,
-                               'per_page': per_page,
-                               'total': total_records,
-                               'pages': (total_records + per_page - 1) // per_page
-                           },
-                           sort_by=sort_by,
-                           sort_order=sort_order,
                            measurement_types=measurement_types)
 
 

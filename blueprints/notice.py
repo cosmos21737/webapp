@@ -19,7 +19,7 @@ def notice():
     if current_user.has_role("coach"):
         records = MeasurementRecord.query.filter_by(status='pending_coach').all()
     if current_user.has_role("manager"):
-        records = MeasurementRecord.query.filter_by(status='rejected').all()
+        records = MeasurementRecord.query.filter_by(created_by=current_user.user_id, status='rejected').all()
 
 
     return render_template('notice.html',

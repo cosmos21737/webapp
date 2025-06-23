@@ -13,28 +13,16 @@ team_bp = Blueprint('team', __name__)
 @login_required
 @roles_accepted("administer", "member", "coach")
 def team():
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 20, type=int)
 
-    sort_by = 'grade'
-    sort_order = 'asc'
-
-    # ソート処理
-    sort_column = User.grade
-    sort_column = sort_column.desc() if sort_order == 'desc' else sort_column.asc()
-
-    # クエリ実行 (team_statusがTrueのユーザーのみ取得)
-    pagination = User.query.filter_by(team_status=True).order_by(sort_column).paginate(page=page, per_page=per_page)
-    members_list = pagination.items
+    # クエリ実行 (team_statusがTrueのユーザーのみ取得) - ページネーションを削除し、全件取得
+    members_list = User.query.filter_by(team_status=True).all() # .order_by(sort_column) も不要
 
     #チームの偏差値を計算
     team_stats = services.calculate_statuses()
     print(team_stats)
 
     return render_template('team.html',
-                           team=members_list,
+                           team=members_list, # ここを pagination.items から members_list に変更
                            team_stats=team_stats,
-                           pagination=pagination,
-                           sort_by=sort_by,
-                           sort_order=sort_order)
+                           )
 

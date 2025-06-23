@@ -8,28 +8,17 @@
 <nav>
     <ul>
         <li><a href="{{ url_for('members.new_member') }}" style="color: black;">新しいメンバーを登録</a></li>
+        <li><a href="{{ url_for('members.csv_import') }}" style="color: black;">CSVで登録</a></li>
         <li><a href="{{ url_for('members.export_csv') }}" style="color: black;">CSV出力</a></li>
     </ul>
 </nav>
 
-<table class="member-table">
+<table id="memberTable" class="member-table display">
   <thead>
     <tr>
-      <th>
-        <a href="{{ url_for('members.members', sort_by='name', sort_order=('desc' if sort_by == 'name' and sort_order == 'asc' else 'asc'), sort_flag=True) }}">
-          氏名 {% if sort_by == 'name' %}({{ '↑' if sort_order == 'asc' else '↓' }}){% endif %}
-        </a>
-      </th>
-      <th>
-        <a href="{{ url_for('members.members', sort_by='grade', sort_order=('desc' if sort_by == 'grade' and sort_order == 'asc' else 'asc'), sort_flag=True) }}">
-          学年 {% if sort_by == 'grade' %}({{ '↑' if sort_order == 'asc' else '↓' }}){% endif %}
-        </a>
-      </th>
-      <th>
-        <a href="{{ url_for('members.members', sort_by='status', sort_order=('desc' if sort_by == 'status' and sort_order == 'asc' else 'asc'), sort_flag=True) }}">
-          活動状況 {% if sort_by == 'status' %}({{ '↑' if sort_order == 'asc' else '↓' }}){% endif %}
-        </a>
-      </th>
+      <th>氏名</th>
+      <th>学年</th>
+      <th>活動状況</th>
     </tr>
   </thead>
   <tbody>
@@ -43,30 +32,50 @@
   </tbody>
 </table>
 
-<!-- ページネーション -->
-<div class="pagination">
-    {% if pagination.has_prev %}
-        <a href="{{ url_for('members.members', page=pagination.prev_num, sort_by=sort_by, sort_order=sort_order) }}">前へ</a>
-    {% endif %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> {# jQueryの読み込みを忘れずに #}
+<script type="text/javascript" src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 
-    {% for page_num in pagination.iter_pages() %}
-        {% if page_num %}
-            {% if page_num == pagination.page %}
-                <strong>{{ page_num }}</strong>
-            {% else %}
-                <a href="{{ url_for('members.members', page=page_num, sort_by=sort_by, sort_order=sort_order) }}">{{ page_num }}</a>
-            {% endif %}
-        {% else %}
-            <span class="ellipsis">…</span>
-        {% endif %}
-    {% endfor %}
+<script>
+$(document).ready(function() {
+    var table = $('#memberTable').DataTable({
+        "pageLength": 10,
+        "language": {
+            "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Japanese.json"
+        },
+        // DataTablesが自動で列のインデックスを決定するため、
+        // ソートボタンのインデックスと合わせる
+        "columnDefs": [
+            { "orderable": true, "targets": 0 }, // 氏名 (インデックス0)
+            { "orderable": true, "targets": 1 }, // 学年 (インデックス1)
+            { "orderable": true, "targets": 2 }  // 活動状況 (インデックス2)
+        ]
+    });
 
-    {% if pagination.has_next %}
-        <a href="{{ url_for('members.members', page=pagination.next_num, sort_by=sort_by, sort_order=sort_order) }}">次へ</a>
-    {% endif %}
-</div>
+    // 各ボタンにクリックイベントを設定
+    $('#sortByNameAsc').on('click', function() {
+        table.order([0, 'asc']).draw(); // 氏名 (インデックス0) を昇順でソート
+    });
 
-<div class="sort-help">
-    <p>※各項目をクリックするとソートできます。同じ項目を再度クリックすると昇順/降順が切り替わります。</p>
-</div>
+    $('#sortByNameDesc').on('click', function() {
+        table.order([0, 'desc']).draw(); // 氏名 (インデックス0) を降順でソート
+    });
+
+    $('#sortByGradeAsc').on('click', function() {
+        table.order([1, 'asc']).draw(); // 学年 (インデックス1) を昇順でソート
+    });
+
+    $('#sortByGradeDesc').on('click', function() {
+        table.order([1, 'desc']).draw(); // 学年 (インデックス1) を降順でソート
+    });
+
+    $('#sortByStatusAsc').on('click', function() {
+        table.order([2, 'asc']).draw(); // 活動状況 (インデックス2) を昇順でソート
+    });
+
+    $('#sortByStatusDesc').on('click', function() {
+        table.order([2, 'desc']).draw(); // 活動状況 (インデックス2) を降順でソート
+    });
+});
+</script>
 {% endblock %}

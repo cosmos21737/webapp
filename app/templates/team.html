@@ -11,6 +11,7 @@
         <li><a href="{{ url_for('members.export_csv') }}" style="color: black;">CSV出力</a></li>
     </ul>
 </nav>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <canvas id="teamRadarChart" width="400" height="400"></canvas>
 <script>
@@ -48,8 +49,7 @@
   });
 </script>
 
-
-<table class="member-table">
+<table id="teamMemberTable" class="member-table display"> {# id="teamMemberTable" と class="display" を追加 #}
   <thead>
     <tr>
       <th>氏名</th>
@@ -66,30 +66,27 @@
   </tbody>
 </table>
 
-<!-- ページネーション -->
-<div class="pagination">
-    {% if pagination.has_prev %}
-        <a href="{{ url_for('main.team', page=pagination.prev_num, sort_by=sort_by, sort_order=sort_order) }}">前へ</a>
-    {% endif %}
+{# ページネーションのHTMLブロックはDataTablesが自動生成するため削除 #}
+{# <div class="pagination">...</div> #}
 
-    {% for page_num in pagination.iter_pages() %}
-        {% if page_num %}
-            {% if page_num == pagination.page %}
-                <strong>{{ page_num }}</strong>
-            {% else %}
-                <a href="{{ url_for('main.team', page=page_num, sort_by=sort_by, sort_order=sort_order) }}">{{ page_num }}</a>
-            {% endif %}
-        {% else %}
-            <span class="ellipsis">…</span>
-        {% endif %}
-    {% endfor %}
+{# ソートヘルプテキストもDataTablesのUIで提供されるため削除 #}
+{# <div class="sort-help">...</div> #}
 
-    {% if pagination.has_next %}
-        <a href="{{ url_for('main.team', page=pagination.next_num, sort_by=sort_by, sort_order=sort_order) }}">次へ</a>
-    {% endif %}
-</div>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> {# jQueryの読み込みを忘れずに #}
+<script type="text/javascript" src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 
-<div class="sort-help">
-    <p>※各項目をクリックするとソートできます。同じ項目を再度クリックすると昇順/降順が切り替わります。</p>
-</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // DataTablesの初期化
+    $('#teamMemberTable').DataTable({
+        "pageLength": 10, // 1ページあたりの表示件数
+        "language": {
+            "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Japanese.json"
+        },
+        "order": [[1, 'asc']] // 学年（1列目）をデフォルトで昇順ソート
+    });
+});
+</script>
+
 {% endblock %}
