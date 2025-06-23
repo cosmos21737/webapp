@@ -1,69 +1,206 @@
 {% extends "base.html" %}
 
-{% block title %}部員一括登録{% endblock %}
+{% block title %}部員 CSV一括登録 | 野球部タレントマネジメントシステム{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>部員 CSV一括登録</h1>
+<div class="container fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>👥 部員 CSV一括登録</h1>
+        <a href="{{ url_for('members.members') }}" class="btn btn-secondary">
+            <span class="icon">📜</span> 部員一覧に戻る
+        </a>
+    </div>
 
-    <!-- フラッシュメッセージ表示エリア -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    <div class="card mb-4">
-        <div class="card-body">
-            <h2 class="card-title">CSVファイル形式</h2>
-            <p>CSVファイルに対応しています。以下の形式でデータを準備してください。</p>
-
-            <div class="mb-3">
-                <h5>必須項目:</h5>
-                <ul>
-                    <li><strong>氏名</strong> </li>
-                    <li><strong>役割</strong> - 部員/マネージャー/コーチ/監督</li>
-                </ul>
-
-                <h5>オプション項目:</h5>
-                <ul>
-                    <li><strong>学年</strong> - 学生の場合、数字で指定</li>
-                </ul>
+    <div class="card p-4">
+        <!-- Step 1: テンプレートの準備 -->
+        <div class="step-section">
+            <div class="step-header">
+                <span class="step-number">1</span>
+                <h3 class="step-title">テンプレートの準備</h3>
             </div>
-
-            <div class="mb-3">
-                <a href="{{ url_for('members.download_csv_template') }}" class="btn btn-secondary">
-                    <i class="bi bi-download"></i> テンプレートダウンロード
+            <div class="step-content">
+                <p>以下の形式に合わせたCSVファイルをご用意ください。テンプレートをダウンロードして編集すると便利です。</p>
+                <div class="csv-info">
+                    <div class="csv-rules">
+                        <h4>CSVファイルのルール</h4>
+                        <ul>
+                            <li>
+                                <span class="icon-container"><span class="icon">📁</span></span>
+                                <span class="text-container">文字コードは <strong>UTF-8</strong> で保存してください。</span>
+                            </li>
+                            <li>
+                                <span class="icon-container"><span class="icon">📄</span></span>
+                                <span class="text-container">1行目はヘッダーとして扱われます。</span>
+                            </li>
+                            <li>
+                                <span class="icon-container"><span class="icon">📛</span></span>
+                                <span class="text-container"><strong>氏名</strong>は必須項目です。</span>
+                            </li>
+                            <li>
+                                <span class="icon-container"><span class="icon">🏷️</span></span>
+                                <span class="text-container"><strong>役割</strong>は「部員」「マネージャー」「コーチ」「監督」のいずれかを指定してください。</span>
+                            </li>
+                            <li>
+                                <span class="icon-container"><span class="icon">🎓</span></span>
+                                <span class="text-container"><strong>学年</strong>は学生の場合のみ数字で入力します（任意）。</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="alert alert-warning mt-3">
+                    <strong>ご注意：</strong><br>
+                    ・<strong>同じ氏名のユーザーは登録できません。</strong>学年やイニシャルを加えて必ず別名になるようにしてください。<br>
+                    例: <code>山田太郎(2年)</code>、<code>山田太郎A</code> など<br>
+                    ・<strong>初期パスワードは「password123」です。</strong>登録後は必ず各自でパスワードを変更してください。
+                </div>
+                <a href="{{ url_for('members.download_csv_template') }}" class="btn btn-primary mt-3">
+                    <span class="icon">📥</span> テンプレートファイルをダウンロード
                 </a>
             </div>
+        </div>
 
-            <div class="alert alert-info">
-                <h5>サンプルデータ例:</h5>
-                <pre class="mb-0">氏名,役割,学年
-山田太郎,部員,1
-佐藤花子,マネージャー,
-鈴木一郎,コーチ,2</pre>
+        <hr class="my-4">
+
+        <form method="post" enctype="multipart/form-data">
+            <!-- Step 2: ファイル選択 -->
+            <div class="step-section">
+                <div class="step-header">
+                    <span class="step-number">2</span>
+                    <h3 class="step-title">ファイル選択</h3>
+                </div>
+                <div class="step-content">
+                    <p>作成したCSVファイルを選択してください。</p>
+                    <div class="form-group">
+                        <label for="csv_file" class="form-label">CSVファイル</label>
+                        <input type="file" id="csv_file" name="csv_file" class="form-control" accept=".csv" required>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <div class="card">
-        <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label for="csv_file" class="form-label">CSVファイルを選択</label>
-                    <input class="form-control" type="file" id="csv_file" name="csv_file" accept=".csv" required>
-                </div>
+            <hr class="my-4">
 
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-upload"></i> アップロードして登録
-                    </button>
+            <!-- Step 3: アップロード -->
+            <div class="step-section">
+                <div class="step-header">
+                    <span class="step-number">3</span>
+                    <h3 class="step-title">アップロードと登録</h3>
                 </div>
-            </form>
-        </div>
+                <div class="step-content">
+                    <p>ファイルを選択したら、下のボタンを押して部員データを登録します。</p>
+                    <div class="form-buttons mt-3">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <span class="icon">🚀</span> アップロードして登録
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
+
+<style>
+/* 測定記録CSVインポートページと共通のスタイル */
+.step-section {
+    margin-bottom: 1.5rem;
+}
+
+.step-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-radius: 50%;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.step-title {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.step-content {
+    padding-left: 3.5rem;
+    border-left: 2px solid var(--gray-200);
+    padding-bottom: 1rem;
+}
+
+.csv-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    background-color: var(--gray-50);
+    padding: 1rem;
+    border-radius: var(--radius);
+}
+
+.csv-rules h4, .csv-example h4 {
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.csv-rules ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.csv-rules li {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.csv-rules li .icon-container {
+    flex-shrink: 0;
+}
+
+.csv-rules li .text-container {
+    flex-grow: 1;
+}
+
+.csv-rules li .icon {
+    flex-shrink: 0;
+}
+
+.csv-example pre {
+    background-color: var(--gray-800);
+    color: var(--gray-100);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.btn .icon {
+    margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .csv-info {
+        grid-template-columns: 1fr;
+    }
+    .step-content {
+        padding-left: 0;
+        border-left: none;
+    }
+}
+</style>
 {% endblock %}

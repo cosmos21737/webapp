@@ -1,9 +1,14 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from pathlib import Path
 
 from flask import Flask
 from flask_login import LoginManager, current_user
-from flask_security import Security, SQLAlchemyUserDatastore
-from services import services
+from flask_security.core import Security
+from flask_security.datastore import SQLAlchemyUserDatastore
+import services
 
 from db_models import User, Role, db, MeasurementRecord, MeasurementType
 from blueprints.main import main_bp
@@ -26,13 +31,18 @@ app.config['SECURITY_REGISTERABLE'] = True  # ユーザー登録を有効化
 app.config['SECURITY_PASSWORD_SALT'] = 'random_salt'
 app.config['SECURITY_ROLE_TABLE'] = 'roles'
 
+def nl2br(value):
+    from markupsafe import Markup, escape
+    return Markup('<br>'.join(escape(value).split('\n')))
+app.jinja_env.filters['nl2br'] = nl2br
+
 db.init_app(app)
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 
 # Flask-Login のセットアップ
 login_manager = LoginManager()
-login_manager.login_view = "auth.login"
+login_manager.login_view = "auth.login"  # type: ignore
 login_manager.init_app(app)  # ← ここで初期化
 
 
@@ -81,7 +91,7 @@ if __name__ == '__main__':
         print("データベースファイルは存在します")
     else:
         print("データベースファイルが見つかりません - 新規作成します")
-        services.initialize_database()
+        services.initialize_database(app)
 
     print("アプリケーションを開始します...")
     app.run(debug=True)

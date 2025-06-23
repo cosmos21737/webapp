@@ -49,11 +49,14 @@
   });
 </script>
 
-<table id="teamMemberTable" class="member-table display"> {# id="teamMemberTable" と class="display" を追加 #}
+<table id="teamMemberTable" class="member-table display">
   <thead>
     <tr>
       <th>氏名</th>
       <th>学年</th>
+      {% for m_type in measurement_types %}
+        <th>{{ m_type.display_name }}<br><span style="font-size:0.8em;">(偏差値)</span></th>
+      {% endfor %}
     </tr>
   </thead>
   <tbody>
@@ -61,6 +64,12 @@
     <tr>
       <td><a href="{{ url_for('members.member_records', member_id=member.user_id) }}">{{ member.name }}</a></td>
       <td>{{ member.grade }}</td>
+      {% for m_type in measurement_types %}
+        <td>
+          {% set stddev = member_stddevs[member.user_id][m_type.display_name]['stddev'] %}
+          {{ stddev if stddev != 'N/A' else '-' }}
+        </td>
+      {% endfor %}
     </tr>
     {% endfor %}
   </tbody>

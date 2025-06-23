@@ -7,7 +7,19 @@
 <p>このシステムでは、部員の測定記録を管理し、チームの分析ができます。</p>
 
 <h3>データベース管理</h3>
-<a href="{{ url_for('admin.data_delete') }}" class="btn btn-warning">データベースのリセット</a> {# 必要に応じてスタイルを調整 #}
+<div class="card">
+    <div class="card-header">
+        システム管理
+    </div>
+    <div class="list-group list-group-flush">
+        <a href="{{ url_for('admin.manage_contact') }}" class="list-group-item list-group-item-action">
+            <i class="fas fa-address-book me-2"></i>連絡先情報の編集
+        </a>
+        <a href="{{ url_for('admin.data_delete') }}" class="list-group-item list-group-item-action text-danger" onclick="return confirm('本当にデータベースを初期化しますか？すべてのデータが削除されます。');">
+            <i class="fas fa-bomb me-2"></i>データベースの初期化
+        </a>
+    </div>
+</div>
 <hr>
 
 <h3>測定項目管理</h3>

@@ -3,162 +3,605 @@
 {% block title %}ヘルプ・マニュアル | 野球部タレントマネジメントシステム{% endblock %}
 
 {% block content %}
-    <header>
-        <h1>野球部タレントマネジメントシステム ヘルプセンター</h1>
-        <p>システムの使用方法やよくある質問を掲載しています</p>
-    </header>
+<div class="container fade-in">
+    <h1>📖 ヘルプセンター</h1>
+    <p class="help-subtitle">野球部タレントマネジメントシステムの使用方法とよくある質問</p>
 
-    <ul class="nav-tabs">
-        <li><a href="#overview" class="active">システム概要</a></li>
-        <li><a href="#manager-guide">マネージャー向け</a></li>
-        <li><a href="#member-guide">部員向け</a></li>
-        <li><a href="#coach-guide">コーチ/監督向け</a></li>
-        <li><a href="#faq">よくある質問</a></li>
-        <li><a href="#contact">お問い合わせ</a></li>
-    </ul>
+    <!-- システム概要 -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">⚾ システム概要</h3>
+        </div>
+        <div class="d-grid gap-4">
+            <p>野球部タレントマネジメントシステムは、部員の能力測定データを管理・分析し、チーム全体の成長を支援するためのシステムです。</p>
+            
+            <div class="security-notice">
+                <div class="security-icon">🔒</div>
+                <div class="security-content">
+                    <h4>セキュリティに関する重要なお知らせ</h4>
+                    <p><strong>初期パスワードは「password123」に設定されています。</strong>セキュリティのため、初回ログイン後は必ず「プロフィール」という項目にアクセスしてパスワードを変更してください。</p>
+                </div>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <h4>測定記録管理</h4>
+                    <p>初期値で8つの測定項目を電子化して管理。</p>
+                    <p>測定項目は、管理者が自由に追加・編集・削除できます。</p>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">📈</div>
+                    <h4>成長分析</h4>
+                    <p>個人の成長を時系列で確認し、部内での順位や偏差値を表示。</p>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">👥</div>
+                    <h4>チーム分析</h4>
+                    <p>チーム全体の傾向を分析しレーダチャートを表示。戦略策定に役立つデータを提供</p>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">🔔</div>
+                    <h4>通知システム</h4>
+                    <p>承認待ちの記録をリアルタイムで通知。</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <section id="overview">
-        <h2>システム概要</h2>
-        <p>野球部タレントマネジメントシステムは、神奈川県立JPT高校野球部の部員の能力測定データを管理・分析するためのシステムです。</p>
-
-        <h3>主な特徴</h3>
-        <div class="feature-card">
-            <h4>測定記録の電子化</h4>
-            <p>従来の紙ベースの記録を電子化し、データの管理と分析を容易にします。</p>
+    <!-- 役割別ガイド -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">👤 役割別ガイド</h3>
+        </div>
+        
+        <!-- 管理者向け -->
+        <div class="role-section">
+            <h4 class="role-title">⚙️ 管理者向け</h4>
+            <div class="role-content">
+                <div class="role-feature">
+                    <h5>🔧 システム管理</h5>
+                    <ul>
+                        <li>データベースの初期化とリセット</li>
+                        <li>測定項目の追加・編集・削除</li>
+                        <li>システム設定の変更</li>
+                    </ul>
+                </div>
+                <div class="role-feature">
+                    <h5>📊 全データ閲覧</h5>
+                    <ul>
+                        <li>全部員の測定記録を閲覧</li>
+                        <li>チーム全体の統計情報を確認</li>
+                        <li>データのエクスポート機能</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
-        <div class="feature-card">
-            <h4>承認ワークフロー</h4>
-            <p>測定記録はマネージャー→部員→コーチの承認フローを経て確定します。</p>
+        <!-- コーチ・監督向け -->
+        <div class="role-section">
+            <h4 class="role-title">🏆 コーチ・監督向け</h4>
+            <div class="role-content">
+                <div class="role-feature">
+                    <h5>👥 部員管理</h5>
+                    <ul>
+                        <li>部員一覧の確認</li>
+                        <li>新規部員の登録</li>
+                        <li>部員情報の編集</li>
+                    </ul>
+                </div>
+                <div class="role-feature">
+                    <h5>📈 チーム分析</h5>
+                    <ul>
+                        <li>チーム全体の測定結果を確認</li>
+                        <li>個人の成長推移を分析</li>
+                        <li>チーム内ランキングの確認</li>
+                    </ul>
+                </div>
+                <div class="role-feature">
+                    <h5>✅ 承認管理（コーチのみ）</h5>
+                    <ul>
+                        <li>測定記録の最終承認）</li>
+                        <li>承認待ち記録の確認</li>
+                        <li>差し戻し処理</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
-        <div class="feature-card">
-            <h4>時系列分析</h4>
-            <p>個人の成長を時系列で確認でき、効果的なトレーニング計画の立案を支援します。</p>
+        <!-- マネージャー向け -->
+        <div class="role-section">
+            <h4 class="role-title">📝 マネージャー向け</h4>
+            <div class="role-content">
+                <div class="role-feature">
+                    <h5>📊 測定記録入力</h5>
+                    <ul>
+                        <li>個別記録の入力</li>
+                        <li>CSVファイルによる一括入力</li>
+                        <li>入力データの確認と修正</li>
+                    </ul>
+                </div>
+                <div class="role-feature">
+                    <h5>📋 記録管理</h5>
+                    <ul>
+                        <li>入力した記録の確認</li>
+                        <li>承認状況の追跡</li>
+                        <li>過去の記録の参照</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
-        <div class="feature-card">
-            <h4>チーム分析</h4>
-            <p>チーム全体の傾向や強み・弱みを分析し、戦略策定に役立てます。</p>
+        <!-- 部員向け -->
+        <div class="role-section">
+            <h4 class="role-title">🏃 部員向け</h4>
+            <div class="role-content">
+                <div class="role-feature">
+                    <h5>📈 個人記録確認</h5>
+                    <ul>
+                        <li>自分の測定記録を時系列で確認</li>
+                        <li>チーム内での順位と偏差値を確認</li>
+                        <li>成長の推移をグラフで表示</li>
+                    </ul>
+                </div>
+                <div class="role-feature">
+                    <h5>✅ 記録の確認</h5>
+                    <ul>
+                        <li>マネージャーが入力した記録が正しいか確認します。</li>
+                        <li>内容を承認すると、コーチに最終承認の依頼が送られます。</li>
+                        <li>間違いがある場合は、コメントを付けて差し戻すことができます。</li>
+                    </ul>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <h3>対応環境</h3>
-        <ul>
-            <li>ブラウザ: Microsoft Edge, Chrome, Safari, Firefox の最新版</li>
-            <li>OS: Windows 11 Education および主要なモバイルOS</li>
-            <li>デバイス: PC, スマートフォン, タブレット</li>
-        </ul>
-    </section>
-
-    <section id="manager-guide" class="role-section">
-        <h2>マネージャー向けガイド</h2>
-
-        <h3>測定記録の入力方法</h3>
-        <ol>
-            <li>メニューから「測定記録入力」を選択</li>
-            <li>部員を選択し、各測定項目の数値を入力</li>
-            <li>入力内容を確認し「送信」ボタンをクリック</li>
-            <li>部員に承認依頼が通知されます</li>
-        </ol>
-
-        <h3>一括入力方法 (CSV)</h3>
-        <ol>
-            <li>メニューから「一括入力」を選択</li>
-            <li>CSVテンプレートをダウンロード</li>
-            <li>テンプレートに従ってデータを入力</li>
-            <li>ファイルをアップロードして「送信」</li>
-            <li>データの内容を確認し、問題なければ確定</li>
-        </ol>
-
-        <h3>承認状況の確認</h3>
-        <p>「承認状況確認」画面で、各記録の承認ステータスを確認できます。</p>
-        <ul>
-            <li>未承認: 部員がまだ確認していない記録</li>
-            <li>部員承認済: 部員は承認したがコーチがまだ確認していない記録</li>
-            <li>承認完了: 全ての承認フローが完了した記録</li>
-            <li>差し戻し: 何らかの理由で差し戻された記録</li>
-        </ul>
-    </section>
-
-    <section id="member-guide" class="role-section">
-        <h2>部員向けガイド</h2>
-
-        <h3>測定記録の承認方法</h3>
-        <ol>
-            <li>通知または「承認待ち一覧」から記録を選択</li>
-            <li>入力内容を確認</li>
-            <li>問題なければ「承認」、修正が必要なら「差し戻し」を選択</li>
-            <li>差し戻す場合はコメントを入力</li>
-        </ol>
-
-        <h3>個人記録の確認</h3>
-        <p>「個人記録」画面で、自分の過去の測定記録を時系列で確認できます。</p>
-        <ul>
-            <li>グラフ表示で成長を視覚的に確認</li>
-            <li>各項目の最高記録をハイライト表示</li>
-            <li>チーム内での自分の位置を確認</li>
-        </ul>
-    </section>
-
-    <section id="coach-guide" class="role-section">
-        <h2>コーチ・監督向けガイド</h2>
-
-        <h3>部員管理</h3>
-        <ol>
-            <li>「部員管理」画面で新規部員を追加</li>
-            <li>必要情報を入力し「保存」</li>
-            <li>退部・引退処理が必要な場合は該当部員を選択しステータスを更新</li>
-        </ol>
-
-        <h3>測定記録の最終承認</h3>
-        <p>「承認待ち一覧」で部員が承認した記録を確認し、最終承認を行います。</p>
-
-        <h3>チーム分析</h3>
-        <ul>
-            <li>「チーム分析」画面で全体の傾向を確認</li>
-            <li>「推移分析」で季節ごとの変化を把握</li>
-            <li>「ランキング」で各項目のトップ選手を確認</li>
-        </ul>
-    </section>
-
-    <section id="faq">
-        <h2>よくある質問</h2>
-
-        <div class="faq-item">
-            <p class="question">Q. ログインできません</p>
-            <p>A. パスワードを忘れた場合は「ログイン」画面の「パスワードを忘れた場合」リンクから再設定してください。それでも解決しない場合はシステム管理者に連絡してください。</p>
+    <!-- よくある質問 -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">❓ よくある質問</h3>
         </div>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span class="faq-icon">🔑</span>
+                    <h5>ログインできません。</h5>
+                </div>
+                <div class="faq-answer">
+                    <p>ユーザー名とパスワードを確認してください。管理者の場合は「管理者」/「password123」でログインできます。問題が続く場合はシステム管理者に連絡してください。</p>
+                </div>
+            </div>
 
-        <div class="faq-item">
-            <p class="question">Q. 入力したデータが保存されません</p>
-            <p>A. 入力後に必ず「保存」または「送信」ボタンをクリックしてください。それでも解決しない場合はネットワーク接続を確認し、再度お試しください。</p>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span class="faq-icon">🔐</span>
+                    <h5>パスワードを変更したい</h5>
+                </div>
+                <div class="faq-answer">
+                    <p><strong>重要:</strong> 初期パスワードは「password123」に設定されています。セキュリティのため、初回ログイン後は必ず「プロフィール」という項目にアクセスしてパスワードを変更してください。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span class="faq-icon">📊</span>
+                    <h5>測定記録の入力方法を教えてください</h5>
+                </div>
+                <div class="faq-answer">
+                    <p>マネージャー権限が必要です。「測定記録入力」メニューから部員を選択し、各項目の数値を入力してください。CSVファイルでの一括入力も可能です。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span class="faq-icon">✅</span>
+                    <h5>承認フローについて教えてください</h5>
+                </div>
+                <div class="faq-answer">
+                    <p>測定記録は「マネージャー入力 → 部員確認 → コーチ承認」の順で進みます。各ステップで承認が必要で、差し戻しも可能です。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span class="faq-icon">📱</span>
+                    <h5>スマートフォンでも使えますか？</h5>
+                </div>
+                <div class="faq-answer">
+                    <p>はい、レスポンシブデザインに対応しているため、スマートフォンやタブレットでも快適に使用できます。Chrome、Safari、Firefox等の主要ブラウザを推奨します。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span class="faq-icon">📈</span>
+                    <h5>自分の記録を確認したい</h5>
+                </div>
+                <div class="faq-answer">
+                    <p>部員としてログイン後、「記録閲覧」メニューから自分の測定記録を時系列で確認できます。チーム内での順位や偏差値も表示されます。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span class="faq-icon">🔔</span>
+                    <h5>通知の意味を教えてください</h5>
+                </div>
+                <div class="faq-answer">
+                    <p>通知は承認待ちの記録がある場合に表示されます。部員は自分の記録の承認、マネージャーは差し戻された記録、コーチは承認待ちの記録を確認できます。</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span class="faq-icon">🆔</span>
+                    <h5>同じ名前の部員を登録できません</h5>
+                </div>
+                <div class="faq-answer">
+                    <p>システム上、同姓同名の部員は登録できません。<br>
+                    <strong>学年やイニシャルを加えるなど、必ず別名になるようにしてください。</strong><br>
+                    例: <code>山田太郎(2年)</code>、<code>山田太郎A</code> など</p>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="faq-item">
-            <p class="question">Q. 承認フローがわかりません</p>
-            <p>A. 測定記録は「マネージャー入力 → 部員確認 → コーチ承認」の順で進みます。各ステップで承認が必要です。</p>
+    <!-- システム情報 -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">ℹ️ システム情報</h3>
         </div>
-
-        <div class="faq-item">
-            <p class="question">Q. スマートフォンで使いにくいです</p>
-            <p>A. 画面右上のメニューアイコンから「モバイル表示」に切り替えると使いやすくなります。それでも問題がある場合はお問い合わせください。</p>
+        <div class="system-info">
+            <div class="info-row">
+                <span class="info-label">システム名:</span>
+                <span class="info-value">野球部タレントマネジメントシステム</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">バージョン:</span>
+                <span class="info-value">v1.0.0</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">対応ブラウザ:</span>
+                <span class="info-value">Chrome, Firefox, Safari, Edge (最新版)</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">対応デバイス:</span>
+                <span class="info-value">PC, スマートフォン, タブレット</span>
+            </div>
         </div>
-    </section>
+    </div>
 
-    <section id="contact" class="contact-info">
-        <h2>お問い合わせ</h2>
-        <p>システムに関する質問や不具合の報告は以下の連絡先までお願いします。</p>
-        <ul>
-            <li>担当: 野球部 システム管理担当</li>
-            <li>メール: baseball-system@jpt-high.ed.jp</li>
-            <li>校内内線: 1234</li>
-        </ul>
-        <p>不具合を報告する際は、以下の情報をお知らせください:</p>
-        <ul>
-            <li>使用しているデバイスとOSのバージョン</li>
-            <li>使用しているブラウザの種類とバージョン</li>
-            <li>問題が発生したときの操作手順</li>
-            <li>エラーメッセージの内容（表示されている場合）</li>
-        </ul>
-    </section>
+    <!-- お問い合わせ -->
+    <div class="card contact-card">
+        <div class="card-header">
+            <h3 class="card-title">📞 お問い合わせ</h3>
+        </div>
+        <div class="card-body">
+            <p class="mb-3">システムに関する質問や不具合の報告は、以下の連絡先までお気軽にご連絡ください。</p>
+            {% if contact %}
+            <div class="row g-3">
+                {% if contact.email %}
+                <div class="col-md-4 col-12">
+                    <div class="contact-box">
+                        <div class="contact-icon">📧</div>
+                        <div>
+                            <div class="contact-label">メール</div>
+                            <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if contact.phone %}
+                <div class="col-md-4 col-12">
+                    <div class="contact-box">
+                        <div class="contact-icon">📞</div>
+                        <div>
+                            <div class="contact-label">電話</div>
+                            <span>{{ contact.phone }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if contact.note %}
+                <div class="col-md-4 col-12">
+                    <div class="contact-box">
+                        <div class="contact-icon">📝</div>
+                        <div>
+                            <div class="contact-label">備考</div>
+                            <span>{{ contact.note | nl2br }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="alert alert-warning mt-3">
+                現在、連絡先情報は登録されていません。
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<style>
+/* ヘルプページ専用スタイル */
+.help-subtitle {
+    color: var(--gray-600);
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.security-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px solid var(--warning);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.security-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.security-content h4 {
+    color: var(--warning);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.security-content p {
+    color: var(--gray-700);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.feature-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    transition: var(--transition);
+}
+
+.feature-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.feature-item h4 {
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.feature-item p {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.role-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.role-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.role-title {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.role-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.role-feature h5 {
+    color: var(--gray-800);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.role-feature ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.role-feature li {
+    padding: 0.5rem 0;
+    color: var(--gray-600);
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.role-feature li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--success);
+    font-weight: bold;
+}
+
+.measurement-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.measurement-item {
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    text-align: center;
+    transition: var(--transition);
+}
+
+.measurement-item:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+.measurement-item h5 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.measurement-item p {
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.faq-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.faq-item {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.faq-item:hover {
+    box-shadow: var(--shadow);
+}
+
+.faq-question {
+    background: var(--gray-50);
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: var(--transition);
+}
+
+.faq-question:hover {
+    background: var(--gray-100);
+}
+
+.faq-icon {
+    font-size: 1.25rem;
+}
+
+.faq-question h5 {
+    margin: 0;
+    color: var(--gray-800);
+    font-weight: 600;
+}
+
+.faq-answer {
+    padding: 1rem;
+    background: var(--white);
+}
+
+.faq-answer p {
+    margin: 0;
+    color: var(--gray-600);
+    line-height: 1.6;
+}
+
+.system-info {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.info-value {
+    color: var(--gray-800);
+    font-weight: 500;
+}
+
+.contact-card .card-body {
+    background: #f9fafb;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+.contact-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    margin-bottom: 0.5rem;
+    min-height: 70px;
+}
+.contact-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    color: #2563eb;
+}
+.contact-label {
+    font-weight: 600;
+    color: #2563eb;
+    margin-bottom: 0.25rem;
+}
+@media (max-width: 768px) {
+    .contact-box {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+}
+</style>
 {% endblock %}

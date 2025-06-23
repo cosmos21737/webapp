@@ -1,7 +1,7 @@
 import sqlite3
 import uuid
 from flask_sqlalchemy import SQLAlchemy
-from flask_security import UserMixin, RoleMixin
+from flask_security.core import UserMixin, RoleMixin
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -140,3 +140,10 @@ class News(db.Model):
 
     def __repr__(self):
         return f'<News {self.title}>'
+
+class AdminContact(db.Model):
+    __tablename__ = 'admin_contact'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), nullable=False)
+    phone = db.Column(db.String(30), nullable=True)
+    note = db.Column(db.String(255), nullable=True)

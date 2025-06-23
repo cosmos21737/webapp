@@ -1,34 +1,87 @@
 {% extends "base.html" %}
 
-{% block title %}測定記録入力{% endblock %}
+{% block title %}測定記録入力 | 野球部タレントマネジメントシステム{% endblock %}
 
 {% block content %}
-<a href="{{ url_for('measurements.csv_import') }}">CSVで登録</a>
+<div class="container fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📊 測定記録入力</h1>
+        <a href="{{ url_for('measurements.csv_import') }}" class="btn btn-secondary">
+            <span class="icon">📄</span> CSVで一括登録
+        </a>
+    </div>
 
-<h2>測定記録入力</h2>
-<form method="POST" action="{{ url_for('measurements.submit_record') }}">
+    <div class="card">
+        <form method="POST" action="{{ url_for('measurements.submit_record') }}" class="p-4">
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="member_grade">学年</label>
+                    <select id="member_grade" name="member_grade" class="form-control" required>
+                        <option value="">選択してください</option>
+                        <option value="1">1年</option>
+                        <option value="2">2年</option>
+                        <option value="3">3年</option>
+                    </select>
+                </div>
 
-    <label for="member_grade">学年:</label>
-    <select id="member_grade" name="member_grade" required>
-      <option value="">選択してください</option>
-      <option value=1>1年</option>
-      <option value=2>2年</option>
-      <option value=3>3年</option>
-    </select><br>
+                <div class="form-group">
+                    <label for="member_name">部員名</label>
+                    <input type="text" id="member_name" name="member_name" class="form-control" required placeholder="例: 山田 太郎">
+                </div>
 
-    <label for="member_name">部員名:</label>
-    <input type="text" id="member_name" name="member_name" required><br>
+                <div class="form-group">
+                    <label for="measurement_date">測定日</label>
+                    <input type="date" id="measurement_date" name="measurement_date" class="form-control" required>
+                </div>
+            </div>
 
-    <label for="measurement_date">測定日:</label>
-    <input type="date" id="measurement_date" name="measurement_date" required><br>
+            <hr class="my-4">
 
-    {# measurement_typesを反復処理して動的な入力フィールドを作成 #}
-    {% for type in measurement_types %}
-    <label for="{{ type.name }}">{{ type.display_name }} ({{ type.unit }}):</label>
-    <input type="text" id="{{ type.name }}" name="{{ type.name }}"><br>
-    {% endfor %}
+            <h4 class="mb-3">測定項目</h4>
+            <div class="measurement-inputs">
+                {% for type in measurement_types %}
+                <div class="form-group">
+                    <label for="{{ type.name }}">{{ type.display_name }} ({{ type.unit }})</label>
+                    <input type="number" step="any" id="{{ type.name }}" name="{{ type.name }}" class="form-control" placeholder="数値を入力">
+                </div>
+                {% endfor %}
+            </div>
 
-    <button type="submit">記録を保存</button>
-</form>
+            <div class="form-buttons mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <span class="icon">💾</span> 記録を保存
+                </button>
+                <button type="reset" class="btn btn-secondary">
+                    <span class="icon">🔄</span> リセット
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.measurement-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn .icon {
+    margin-right: 0.5rem;
+}
+</style>
 
 {% endblock %}

@@ -1,81 +1,98 @@
 {% extends "base.html" %}
 
-{% block title %}部員一覧{% endblock %}
+{% block title %}部員一覧 | 野球部タレントマネジメントシステム{% endblock %}
 
 {% block content %}
-<h2>部員一覧</h2>
+<div class="container fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>👥 部員一覧</h1>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('members.new_member') }}" class="btn btn-primary">
+                <span class="icon">➕</span> 新規登録
+            </a>
+            <a href="{{ url_for('members.csv_import') }}" class="btn btn-secondary">
+                <span class="icon">📄</span> CSVで一括登録
+            </a>
+            <a href="{{ url_for('members.export_csv') }}" class="btn btn-info">
+                <span class="icon">📤</span> CSV出力
+            </a>
+        </div>
+    </div>
 
-<nav>
-    <ul>
-        <li><a href="{{ url_for('members.new_member') }}" style="color: black;">新しいメンバーを登録</a></li>
-        <li><a href="{{ url_for('members.csv_import') }}" style="color: black;">CSVで登録</a></li>
-        <li><a href="{{ url_for('members.export_csv') }}" style="color: black;">CSV出力</a></li>
-    </ul>
-</nav>
-
-<table id="memberTable" class="member-table display">
-  <thead>
-    <tr>
-      <th>氏名</th>
-      <th>学年</th>
-      <th>活動状況</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for member in members %}
-    <tr>
-      <td><a href="{{ url_for('members.member_records', member_id=member.user_id) }}">{{ member.name }}</a></td>
-      <td>{{ member.grade }}</td>
-      <td>{% if member.is_active %}現役{% else %}引退{% endif %}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    <div class="card p-4">
+        <div class="table-container">
+            <table id="memberTable" class="table table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>氏名</th>
+                        <th>学年</th>
+                        <th>役割</th>
+                        <th>活動状況</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in members %}
+                    <tr>
+                        <td><a href="{{ url_for('records.records', member_id=member.user_id) }}">{{ member.name }}</a></td>
+                        <td>{{ member.grade or '-' }}</td>
+                        <td>
+                            {% for role in member.roles %}
+                                <span class="badge badge-primary">{{ role.display_name or role.name }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if member.is_active %}
+                                <span class="badge badge-success">現役</span>
+                            {% else %}
+                                <span class="badge badge-secondary">引退</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> {# jQueryの読み込みを忘れずに #}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 
 <script>
 $(document).ready(function() {
-    var table = $('#memberTable').DataTable({
+    $('#memberTable').DataTable({
         "pageLength": 10,
         "language": {
             "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Japanese.json"
         },
-        // DataTablesが自動で列のインデックスを決定するため、
-        // ソートボタンのインデックスと合わせる
         "columnDefs": [
-            { "orderable": true, "targets": 0 }, // 氏名 (インデックス0)
-            { "orderable": true, "targets": 1 }, // 学年 (インデックス1)
-            { "orderable": true, "targets": 2 }  // 活動状況 (インデックス2)
-        ]
-    });
-
-    // 各ボタンにクリックイベントを設定
-    $('#sortByNameAsc').on('click', function() {
-        table.order([0, 'asc']).draw(); // 氏名 (インデックス0) を昇順でソート
-    });
-
-    $('#sortByNameDesc').on('click', function() {
-        table.order([0, 'desc']).draw(); // 氏名 (インデックス0) を降順でソート
-    });
-
-    $('#sortByGradeAsc').on('click', function() {
-        table.order([1, 'asc']).draw(); // 学年 (インデックス1) を昇順でソート
-    });
-
-    $('#sortByGradeDesc').on('click', function() {
-        table.order([1, 'desc']).draw(); // 学年 (インデックス1) を降順でソート
-    });
-
-    $('#sortByStatusAsc').on('click', function() {
-        table.order([2, 'asc']).draw(); // 活動状況 (インデックス2) を昇順でソート
-    });
-
-    $('#sortByStatusDesc').on('click', function() {
-        table.order([2, 'desc']).draw(); // 活動状況 (インデックス2) を降順でソート
+            { "orderable": true, "targets": 0 }, // 氏名
+            { "orderable": true, "targets": 1 }, // 学年
+            { "orderable": true, "targets": 2 }, // 役割
+            { "orderable": true, "targets": 3 }  // 活動状況
+        ],
+        "responsive": true
     });
 });
 </script>
+<style>
+.badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: .75em;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.375rem;
+    margin-right: 0.25rem;
+}
+
+.badge-primary { background-color: var(--primary-color); }
+.badge-success { background-color: var(--success); }
+.badge-secondary { background-color: var(--gray-500); }
+</style>
 {% endblock %}

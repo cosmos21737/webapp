@@ -1,62 +1,68 @@
 {% extends "base.html" %}
 
-{% block title %}ダッシュボード{% endblock %}
+{% block title %}お知らせ{% endblock %}
 
 {% block content %}
-    <h1>お知らせ</h1>
+<div class="container fade-in">
+    <h1 class="mb-4"><i class="fas fa-bullhorn"></i> お知らせ</h1>
 
     {% for post in news_posts_pagination.items %}
-    <div class="news-post">
-        <div class="date">{{ post.post_date.strftime('%Y年%m月%d日 %H:%M') }}</div>
-        <h3>{{ post.title }}</h3>
-        <p>{{ post.content }}</p>
-        {% if current_user.has_any_role('director', 'coach', 'administer') %}
-            <form action="{{ url_for('news.delete_news', news_id=post.id) }}" method="post" onsubmit="return confirm('本当にこのお知らせを削除しますか？');" style="display:inline;">
-                <button type="submit" class="delete-btn">削除</button>
-            </form>
-        {% endif %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-primary">{{ post.post_date.strftime('%Y年%m月%d日 %H:%M') }}</span>
+            {% if current_user.has_any_role('director', 'coach', 'administer') %}
+                <form action="{{ url_for('news.delete_news', news_id=post.id) }}" method="post" onsubmit="return confirm('本当にこのお知らせを削除しますか？');" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">削除</button>
+                </form>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <h3 class="card-title mb-2">{{ post.title }}</h3>
+            <p class="card-text">{{ post.content }}</p>
+        </div>
     </div>
     {% else %}
-    <p>まだお知らせはありません。</p>
+    <div class="alert alert-info">まだお知らせはありません。</div>
     {% endfor %}
 
-    <div class="pagination">
+    <div class="pagination d-flex justify-content-center gap-2 mb-4">
         {% if news_posts_pagination.has_prev %}
-            <a href="{{ url_for('news.news', page=news_posts_pagination.prev_num) }}">前へ</a>
+            <a href="{{ url_for('news.news', page=news_posts_pagination.prev_num) }}" class="btn btn-secondary btn-sm">前へ</a>
         {% endif %}
         {% for page_num in news_posts_pagination.iter_pages() %}
             {% if page_num %}
                 {% if news_posts_pagination.page == page_num %}
-                    <span class="current-page">{{ page_num }}</span>
+                    <span class="btn btn-primary btn-sm disabled">{{ page_num }}</span>
                 {% else %}
-                    <a href="{{ url_for('news.news', page=page_num) }}">{{ page_num }}</a>
+                    <a href="{{ url_for('news.news', page=page_num) }}" class="btn btn-outline-primary btn-sm">{{ page_num }}</a>
                 {% endif %}
             {% else %}
-                ...
+                <span class="btn btn-light btn-sm disabled">...</span>
             {% endif %}
         {% endfor %}
         {% if news_posts_pagination.has_next %}
-            <a href="{{ url_for('news.news', page=news_posts_pagination.next_num) }}">次へ</a>
+            <a href="{{ url_for('news.news', page=news_posts_pagination.next_num) }}" class="btn btn-secondary btn-sm">次へ</a>
         {% endif %}
     </div>
 
     {% if current_user.has_any_role('director', 'coach', 'administer') %}
     <hr>
-    <div class="admin-section">
-        <h2>新しいお知らせを投稿</h2>
+    <div class="admin-section mt-4">
+        <h2 class="mb-3"><i class="fas fa-plus-circle"></i> 新しいお知らせを投稿</h2>
         <form action="{{ url_for('news.post_news') }}" method="post">
-            <div>
-                <label for="title">タイトル:</label>
-                <input type="text" id="title" name="title" required>
+            <div class="form-group mb-3">
+                <label for="title" class="fw-bold">タイトル:</label>
+                <input type="text" id="title" name="title" class="form-control" required>
             </div>
-            <div>
-                <label for="content">内容:</label>
-                <textarea id="content" name="content" required></textarea>
+            <div class="form-group mb-3">
+                <label for="content" class="fw-bold">内容:</label>
+                <textarea id="content" name="content" class="form-control" required></textarea>
             </div>
-            <div>
-                <input type="submit" value="投稿">
+            <div class="form-buttons">
+                <input type="submit" value="投稿" class="btn btn-primary">
             </div>
         </form>
     </div>
     {% endif %}
+</div>
 {% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}管理者設定 - 連絡先情報{% endblock %}
+
+{% block content %}
+<div class="container fade-in">
+    <h1 class="mb-4">⚙️ 管理者設定</h1>
+
+    <div class="card">
+        <div class="card-header">
+            連絡先情報の編集
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin.manage_contact') }}">
+                <div class="mb-3">
+                    <label for="email" class="form-label">メールアドレス</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ contact.email or '' }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">電話番号</label>
+                    <input type="text" class="form-control" id="phone" name="phone" value="{{ contact.phone or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="note" class="form-label">備考</label>
+                    <textarea class="form-control" id="note" name="note" rows="3">{{ contact.note or '' }}</textarea>
+                    <div class="form-text">
+                        この内容はヘルプページやログイン画面の問い合わせ先に表示されます。
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">保存する</button>
+                <a href="{{ url_for('admin.admin') }}" class="btn btn-secondary">キャンセル</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

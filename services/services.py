@@ -5,7 +5,7 @@ from app import app
 
 from werkzeug.security import generate_password_hash
 
-from db_models import User, Role, db, MeasurementRecord, MeasurementType, MeasurementValue
+from db_models import User, Role, db, MeasurementRecord, MeasurementType, MeasurementValue, News, AdminContact
 
 from sqlalchemy import func
 
@@ -251,24 +251,32 @@ def calculate_status(metric_name, asc=True):
         return {'stddev': "Error", 'value': "Error"}
 
 
-def initialize_database():
+def initialize_database(app):
     """データベースの初期化処理"""
     with app.app_context():
-        # テーブルを作成
+        db.drop_all()
         db.create_all()
-        print("データベーステーブルを作成しました")
 
-        # デフォルトロールを作成
         create_default_roles()
-        # 記録項目を追加
+        register_administer()
         init_measurement_types()
 
-        # 管理者を登録
-        success, message = register_administer()
-        if not success:
-            print(f"管理者登録失敗: {message}")
-        else:
-            print(f"管理者登録成功: {message}")
+        # サンプルのニュース記事を追加
+        news1 = News(title='新しいシーズンが始まります！', content='春季大会に向けて、チーム一丸となって頑張りましょう。応援よろしくお願いします！')
+        news2 = News(title='体力測定の結果を公開', content='先日行われた体力測定の結果が、各自のマイページから確認できるようになりました。')
+        db.session.add(news1)
+        db.session.add(news2)
+
+        # 管理者連絡先を初期化
+        contact = AdminContact(
+            email="support@example.com",
+            phone="090-1234-5678",
+            note="システムに関するお問い合わせはこちらまでご連絡ください。"
+        )
+        db.session.add(contact)
+
+        db.session.commit()
+        print("データベースが初期化されました。")
 
 
 def register_administer():

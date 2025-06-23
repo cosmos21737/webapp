@@ -1,33 +1,348 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>ログイン</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    {# ページの上部など、目立つ場所に配置 #}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+{% extends "base.html" %}
 
+{% block title %}ログイン - 野球部タレントマネジメントシステム{% endblock %}
 
-    <h1>野球部タレントマネジメントシステム</h1>
-    <h2>ログイン</h2>
-    <form method="POST" action="{{ url_for('auth.login') }}">
-        <label for="username">ユーザー名:</label>
-        <input type="text" id="username" name="username" required><br>
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-logo">
+                <span class="logo-icon">⚾</span>
+                <h1>野球部タレントマネジメントシステム</h1>
+            </div>
+            <p class="login-subtitle">アカウントにログインしてください</p>
+        </div>
 
-        <label for="password">パスワード:</label>
-        <input type="password" id="password" name="password" required><br>
+        <!-- フラッシュメッセージ -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="login-alerts">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'message' else 'info' }} fade-in">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
 
-        <button type="submit">ログイン</button>
-    </form>
-</body>
-</html>
+        <form method="POST" action="{{ url_for('auth.login') }}" class="login-form">
+            <div class="form-group">
+                <label for="username" class="form-label">
+                    <span class="label-icon">👤</span>
+                    ユーザー名
+                </label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-control login-input" 
+                    placeholder="ユーザー名を入力してください"
+                    required
+                    autocomplete="username"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    <span class="label-icon">🔒</span>
+                    パスワード
+                </label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-control login-input" 
+                    placeholder="パスワードを入力してください"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-lg login-btn">
+                    <span class="btn-icon">🚪</span>
+                    ログイン
+                </button>
+            </div>
+        </form>
+        <div class="mt-4 text-center">
+            {% if contact and contact.email %}
+            <p class="text-muted">ご不明な点があれば <a href="mailto:{{ contact.email }}">{{ contact.email }}</a> までお問い合わせください。</p>
+            {% endif %}
+        </div>
+
+        <div class="login-footer">
+            <div class="login-info">
+                <h3>📋 システム情報</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">対応ブラウザ:</span>
+                        <span class="info-value">Chrome, Firefox, Safari, Edge</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">システムバージョン:</span>
+                        <span class="info-value">v1.0.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ログインページ専用スタイル */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.login-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 3rem 2rem;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    z-index: 1;
+    border: 1px solid var(--gray-200);
+    animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-logo {
+    margin-bottom: 1rem;
+}
+
+.logo-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.login-header h1 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.login-subtitle {
+    color: var(--gray-600);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.login-alerts {
+    margin-bottom: 2rem;
+}
+
+.login-form {
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.label-icon {
+    font-size: 1rem;
+}
+
+.login-input {
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius);
+    transition: var(--transition);
+    background: var(--white);
+}
+
+.login-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+.login-btn {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.login-btn:hover::before {
+    left: 100%;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-icon {
+    font-size: 1.25rem;
+}
+
+.login-footer {
+    border-top: 1px solid var(--gray-200);
+    padding-top: 2rem;
+    margin-top: 2rem;
+}
+
+.login-info h3 {
+    color: var(--primary-color);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.info-grid {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.info-value {
+    color: var(--gray-800);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 1rem;
+    }
+    
+    .login-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .login-header h1 {
+        font-size: 1.25rem;
+    }
+    
+    .logo-icon {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-card {
+        padding: 1.5rem 1rem;
+    }
+    
+    .login-header h1 {
+        font-size: 1.125rem;
+    }
+    
+    .logo-icon {
+        font-size: 2rem;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}
+</style>
+{% endblock %}

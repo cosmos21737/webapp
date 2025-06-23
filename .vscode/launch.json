@@ -1,0 +1,65 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flask App (Development)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/app/app.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "C:\\Users\\cosmo\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+            "env": {
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [],
+            "justMyCode": true
+        },
+        {
+            "name": "Flask App (Production)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/app/app.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "C:\\Users\\cosmo\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+            "env": {
+                "FLASK_ENV": "production",
+                "FLASK_DEBUG": "0",
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [],
+            "justMyCode": true
+        },
+        {
+            "name": "Database Initialization",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/db_init.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "C:\\Users\\cosmo\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": true
+        },
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "C:\\Users\\cosmo\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
+    ]
+}

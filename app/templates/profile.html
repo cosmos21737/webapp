@@ -1,101 +1,191 @@
 {% extends "base.html" %}
 
-{% block title %}{{ user.name }}さんのプロフィール{% endblock %}
+{% block title %}{{ current_user.name }}さんのプロフィール | 野球部タレントマネジメントシステム{% endblock %}
 
 {% block content %}
-<div class="user-profile-container">
-    <!-- ユーザー基本情報セクション -->
-    <div class="user-info-section">
-        <h2>{{ user.name }}さんのプロフィール</h2>
-        
-        <div class="user-details">
-            <div class="detail-row">
-                {% if user.grade %}
-                <span class="detail-label">学年:</span>
-                <span class="detail-value">{{ user.grade }}年生</span>
-                {% else %}
-                <span class="detail-value">&nbsp;</span>
-                {% endif %}
+<div class="container fade-in">
+    <h1 class="mb-4">👤 プロフィール</h1>
+
+    <div class="card p-4">
+        <div class="row">
+            <!-- 左カラム: ユーザー情報 -->
+            <div class="col-md-5 border-end">
+                <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                    <h4 class="font-weight-bold mt-3">{{ current_user.name }}</h4>
+                </div>
+                <div class="mt-4">
+                    <div class="info-row">
+                        <span class="info-icon">🏷️</span>
+                        <span class="info-label">役割:</span>
+                        <span class="info-value">
+                             {% for role in current_user.roles %}
+                                {{ role.display_name }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-icon">🎓</span>
+                        <span class="info-label">学年:</span>
+                        <span class="info-value">{{ current_user.get_grade_display() }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-icon">📅</span>
+                        <span class="info-label">登録日:</span>
+                        <span class="info-value">{{ current_user.get_formatted_created_at() }}</span>
+                    </div>
+                     <div class="info-row">
+                        <span class="info-icon">✅</span>
+                        <span class="info-label">活動状況:</span>
+                        <span class="info-value">
+                            {% if current_user.is_active %}
+                                <span class="badge badge-success">現役</span>
+                            {% else %}
+                                <span class="badge badge-secondary">引退</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
             </div>
-            <div class="detail-row">
-                <span class="detail-label">登録日:</span>
-                <span class="detail-value">{{ user.created_at.strftime('%Y/%m/%d') }}</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">権限:</span>
-                <span class="detail-value">
-                    {% for role in user.roles %}
-                        {{ role.display_name }}{% if not loop.last %}, {% endif %}
-                    {% endfor %}
-                </span>
+
+            <!-- 右カラム: パスワード変更 -->
+            <div class="col-md-7">
+                <div class="p-3 py-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-right">パスワード変更</h4>
+                    </div>
+
+                    <!-- フラッシュメッセージ -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+
+                    <form method="POST" action="{{ url_for('profile.change_password') }}" class="password-form needs-validation" novalidate>
+                        <div class="row mt-3">
+                            <div class="col-md-12 mb-3">
+                                <label for="current_password" class="form-label">現在のパスワード</label>
+                                <input type="password" id="current_password" name="current_password" class="form-control" placeholder="現在のパスワード" required>
+                                 <div class="invalid-feedback">
+                                    現在のパスワードを入力してください。
+                                </div>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="new_password" class="form-label">新しいパスワード</label>
+                                <input type="password" id="new_password" name="new_password" class="form-control" placeholder="新しいパスワード (6文字以上)" required minlength="6">
+                                <div class="invalid-feedback">
+                                    パスワードは6文字以上で入力してください。
+                                </div>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="confirm_password" class="form-label">新しいパスワード（確認）</label>
+                                <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="新しいパスワードを再入力" required minlength="6">
+                                <div class="invalid-feedback" id="confirm-password-feedback">
+                                    新しいパスワードと確認用パスワードが一致しません。
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-5 text-center">
+                            <button class="btn btn-primary profile-button" type="submit">パスワードを変更</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- パスワード変更セクション -->
-    <div class="password-change-section">
-        <h3>パスワード変更</h3>
-
-        <!-- フラッシュメッセージの表示 -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-
-        <form method="POST" action="{{ url_for('profile.change_password') }}" class="password-form">
-
-            <div class="form-group">
-                <label for="current_password">現在のパスワード:</label>
-                <input type="password" id="current_password" name="current_password" required>
-            </div>
-
-            <div class="form-group">
-                <label for="new_password">新しいパスワード:</label>
-                <input type="password" id="new_password" name="new_password" required minlength="6">
-            </div>
-
-            <div class="form-group">
-                <label for="confirm_password">新しいパスワード（確認）:</label>
-                <input type="password" id="confirm_password" name="confirm_password" required minlength="6">
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">パスワードを変更</button>
-                <a href="{{ url_for('records.records', member_id=current_user.user_id) }}" class="btn btn-secondary">キャンセル</a>
-            </div>
-        </form>
-    </div>
 </div>
 
+<style>
+.info-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+.info-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    width: 30px; /* アイコンの幅を固定 */
+    text-align: center;
+}
+.info-label {
+    font-weight: bold;
+    color: var(--gray-600);
+    width: 80px;
+}
+.info-value {
+    color: var(--dark);
+}
+.badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: .75em;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.375rem;
+    margin-right: 0.25rem;
+}
+.badge-success { background-color: var(--success); }
+.badge-secondary { background-color: var(--gray-500); }
+</style>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('.password-form');
+(function () {
+  'use strict'
+
+  // Bootstrapのデフォルトバリデーションを無効化
+  var forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+
+    // パスワード一致のバリデーション
     const newPassword = document.getElementById('new_password');
     const confirmPassword = document.getElementById('confirm_password');
+    const confirmPasswordFeedback = document.getElementById('confirm-password-feedback');
 
+    function validatePassword() {
+        if (newPassword.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity("Invalid");
+            confirmPasswordFeedback.style.display = 'block';
+        } else {
+            confirmPassword.setCustomValidity("");
+            confirmPasswordFeedback.style.display = 'none';
+        }
+    }
+
+    newPassword.addEventListener('change', validatePassword);
+    confirmPassword.addEventListener('keyup', validatePassword);
+
+    const form = document.querySelector('.password-form');
     form.addEventListener('submit', function(e) {
+         validatePassword(); // 送信前にもう一度チェック
         if (newPassword.value !== confirmPassword.value) {
             e.preventDefault();
-            alert('新しいパスワードと確認用パスワードが一致しません。');
-            confirmPassword.focus();
         }
     });
 
-    confirmPassword.addEventListener('input', function() {
-        if (newPassword.value !== confirmPassword.value) {
-            confirmPassword.setCustomValidity('パスワードが一致しません');
-        } else {
-            confirmPassword.setCustomValidity('');
-        }
-    });
-});
+})()
 </script>
 
 {% endblock %}

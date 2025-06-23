@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request
 from flask_login import login_required
-from flask_security import roles_accepted
+from flask_security.decorators import roles_accepted
 
-from db_models import User
+from db_models import User, MeasurementType
 
 from services import services
 
@@ -21,8 +21,16 @@ def team():
     team_stats = services.calculate_statuses()
     print(team_stats)
 
+    # 各メンバーの全種目偏差値を取得
+    member_stddevs = {}
+    measurement_types = MeasurementType.query.all()
+    for member in members_list:
+        member_stddevs[member.user_id] = services.calculate_rankings(member.user_id)
+
     return render_template('team.html',
                            team=members_list, # ここを pagination.items から members_list に変更
                            team_stats=team_stats,
+                           member_stddevs=member_stddevs,
+                           measurement_types=measurement_types
                            )
 

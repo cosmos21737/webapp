@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
 from flask_login import login_required
-from flask_security import roles_required
+from flask_security.decorators import roles_required
 
 from services import services
-from db_models import db, MeasurementType
+from db_models import db, MeasurementType, AdminContact
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -28,7 +28,7 @@ def data_delete():
 
         # 必要に応じて再作成
         db.create_all()
-        services.initialize_database()
+        services.initialize_database(current_app)
 
         flash('データベースを初期化しました。', 'success')
     except Exception as e:
@@ -58,6 +58,42 @@ def delete_measurement_type(type_id):
     return redirect(url_for('admin.admin'))
 
 
+@admin_bp.route('/admin/contact', methods=['GET', 'POST'])
+@login_required
+@roles_required("administer")
+def manage_contact():
+    # 常に最初のレコードを対象とする
+    contact = AdminContact.query.first()
+    if not contact:
+        # もしデータがなければ、空のデータを作成してセッションに追加
+        contact = AdminContact()
+        contact.email=""
+        contact.phone=""
+        contact.note=""
+        db.session.add(contact)
+        db.session.commit()
+        # 再度取得し、Noneでないことを保証する
+        contact = AdminContact.query.first()
+    
+    if not contact:
+        flash('連絡先情報の取得に失敗しました。', 'danger')
+        return redirect(url_for('admin.admin'))
+
+    if request.method == 'POST':
+        contact.email = request.form.get('email', '')
+        contact.phone = request.form.get('phone', '')
+        contact.note = request.form.get('note', '')
+        try:
+            db.session.commit()
+            flash('連絡先情報を更新しました。', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'更新中にエラーが発生しました: {e}', 'danger')
+        return redirect(url_for('admin.manage_contact'))
+
+    return render_template('admin/contact.html', contact=contact)
+
+
 @admin_bp.route('/admin/add_measurement_type', methods=['POST'])
 @login_required
 @roles_required("administer")
@@ -78,13 +114,13 @@ def add_measurement_type():
         return redirect(url_for('admin.admin'))
 
     try:
-        new_type = MeasurementType(
-            name=name,
-            display_name=display_name,
-            unit=unit if unit else None,
-            evaluation_direction=evaluation_direction,
-            description=description if description else None
-        )
+        new_type = MeasurementType()
+        new_type.name=name
+        new_type.display_name=display_name
+        new_type.unit=unit if unit else None
+        new_type.evaluation_direction=evaluation_direction
+        new_type.description=description if description else None
+
         db.session.add(new_type)
         db.session.commit()
         flash(f'測定項目「{new_type.display_name}」を追加しました。', 'success')

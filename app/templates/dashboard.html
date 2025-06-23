@@ -3,6 +3,122 @@
 {% block title %}ダッシュボード{% endblock %}
 
 {% block content %}
-<h2>ようこそ、{{ current_user.name }} さん！</h2>
-<p>このシステムでは、部員の測定記録を管理し、チームの分析ができます。</p>
+<div class="container fade-in">
+    <h1>ようこそ、{{ current_user.name }} さん！</h1>
+    
+    <!-- ユーザー情報カード -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">👤 ユーザー情報</h3>
+        </div>
+        <div class="d-grid gap-3">
+            <div class="d-flex justify-content-between">
+                <span class="fw-bold">名前:</span>
+                <span>{{ current_user.name }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="fw-bold">役割:</span>
+                <div class="d-flex gap-2">
+                    {% for role in current_user.roles %}
+                        <span class="badge badge-primary">{{ role.display_name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="fw-bold">ステータス:</span>
+                <span class="badge badge-success">アクティブ</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- クイックアクション -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">⚡ クイックアクション</h3>
+        </div>
+        <div class="d-grid gap-3">
+            {% if current_user.has_any_role('manager', "administer") %}
+            <a href="{{ url_for('measurements.records_input') }}" class="btn btn-primary">
+                📊 測定記録を入力
+            </a>
+            {% endif %}
+            
+            {% if 'member' in current_user.roles %}
+            <a href="{{ url_for('records.records', member_id=current_user.user_id) }}" class="btn btn-secondary">
+                📈 自分の記録を確認
+            </a>
+            {% endif %}
+            
+            {% if current_user.has_any_role('coach', 'director', "administer") %}
+            <a href="{{ url_for('members.members') }}" class="btn btn-success">
+                👥 部員一覧を表示
+            </a>
+            <a href="{{ url_for('team.team') }}" class="btn btn-warning">
+                🏆 チーム分析
+            </a>
+            {% endif %}
+            
+            <a href="{{ url_for('profile.profile') }}" class="btn btn-info">
+                👤 プロフィール編集
+            </a>
+        </div>
+    </div>
+
+    <!-- システム情報 -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">ℹ️ システム情報</h3>
+        </div>
+        <div class="d-grid gap-3">
+            <div class="d-flex justify-content-between">
+                <span>測定項目数:</span>
+                <span class="badge badge-primary">8項目</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>データベース:</span>
+                <span class="badge badge-success">SQLite</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>システムバージョン:</span>
+                <span class="badge badge-info">v1.0.0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知セクション -->
+    {% if current_user.has_any_role('member', 'manager', 'coach', "administer") %}
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">🔔 通知</h3>
+        </div>
+        <div class="d-grid gap-3">
+            {% if notice_cnt > 0 %}
+            <div class="alert alert-warning">
+                <strong>{{ notice_cnt }}件</strong> の新しい通知があります。
+                <a href="{{ url_for('notice.notice') }}" class="btn btn-sm btn-warning mt-2">
+                    確認する
+                </a>
+            </div>
+            {% else %}
+            <div class="alert alert-success">
+                新しい通知はありません。
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ヘルプセクション -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">❓ ヘルプ</h3>
+        </div>
+        <div class="d-grid gap-3">
+            <p>システムの使い方や操作方法について詳しく知りたい場合は、ヘルプページをご覧ください。</p>
+            <a href="{{ url_for('main.help') }}" class="btn btn-secondary">
+                📖 ヘルプページを開く
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}

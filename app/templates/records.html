@@ -11,12 +11,16 @@
               onsubmit="return confirm('本当に削除しますか？');">
             <button type="submit" class="btn btn-danger">部員を削除</button>
         </form>
+        {% if not user.team_status %}
         <form method="POST" action="{{ url_for('members.push_team', member_id=user.user_id) }}">
             <button type="submit" class="btn btn-primary">チームに登録</button>
         </form>
+        {% endif %}
+        {% if user.team_status %}
         <form method="POST" action="{{ url_for('members.delete_team', member_id=user.user_id) }}">
             <button type="submit" class="btn btn-warning">チームから削除</button>
         </form>
+        {% endif %}
     </div>
     {% endif %}
 </div>

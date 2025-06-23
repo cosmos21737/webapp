@@ -5,54 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}野球部タレントマネジメントシステム{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    {# ページの上部など、目立つ場所に配置 #}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+<body class="{% if request.endpoint == 'auth.login' %}login-page{% endif %}">
+    <!-- ログインページ以外でのフラッシュメッセージ -->
+    {% if request.endpoint != 'auth.login' %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container fade-in">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'message' else 'info' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+
+    <!-- ヘッダー（ログインページ以外で表示） -->
+    {% if request.endpoint != 'auth.login' %}
     <header>
-        <h1>野球部タレントマネジメントシステム</h1>
+        <h1>⚾ 野球部タレントマネジメントシステム</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">ダッシュボード</a></li>
+                <li><a href="{{ url_for('main.dashboard') }}" class="nav-link">🏠 ダッシュボード</a></li>
                 {% if current_user.has_any_role('manager', "administer") %}
-                <li><a href="{{ url_for('measurements.records_input') }}">測定記録入力</a></li>
+                <li><a href="{{ url_for('measurements.records_input') }}" class="nav-link">📊 測定記録入力</a></li>
                 {% endif %}
                 {% if 'member' in current_user.roles %}
-                <li><a href="{{ url_for('records.records', member_id=current_user.user_id) }}">記録閲覧</a></li>
+                <li><a href="{{ url_for('records.records', member_id=current_user.user_id) }}" class="nav-link">📈 記録閲覧</a></li>
                 {% endif %}
                 {% if current_user.has_any_role('coach', 'director', "administer") %}
-                <li><a href="{{ url_for('members.members') }}">部員一覧</a></li>
-                <li><a href="{{ url_for('team.team') }}">チーム</a></li>
+                <li><a href="{{ url_for('members.members') }}" class="nav-link">👥 部員一覧</a></li>
+                <li><a href="{{ url_for('team.team') }}" class="nav-link">🏆 チーム</a></li>
                 {% endif %}
-                <li><a href="{{ url_for('profile.profile') }}">プロフィール</a></li>
+                <li><a href="{{ url_for('profile.profile') }}" class="nav-link">👤 プロフィール</a></li>
                 {% if current_user.has_any_role('member', 'manager', 'coach', "administer") %}
-                <li><a href="{{ url_for('notice.notice') }}">通知 {{ notice_cnt }}</a></li>
+                <li><a href="{{ url_for('notice.notice') }}" class="nav-link">🔔 通知 
+                    {% if notice_cnt > 0 %}
+                        <span class="badge badge-danger">{{ notice_cnt }}</span>
+                    {% endif %}
+                </a></li>
                 {% endif %}
-                <li><a href="{{ url_for('main.helppage') }}">ヘルプ</a></li>
+                <li><a href="{{ url_for('main.help') }}" class="nav-link">❓ ヘルプ</a></li>
                 {% if current_user.has_any_role('administer') %}
-                <li><a href="{{ url_for('admin.admin') }}">管理者用</a></li>
+                <li><a href="{{ url_for('admin.admin') }}" class="nav-link">⚙️ 管理者用</a></li>
                 {% endif %}
-                <li><a href="{{ url_for('news.news') }}">お知らせ</a></li>
-                <li><a href="{{ url_for('auth.logout') }}">ログアウト</a></li>
-
+                <li><a href="{{ url_for('news.news') }}" class="nav-link">📢 お知らせ</a></li>
+                <li><a href="{{ url_for('auth.logout') }}" class="nav-link">🚪 ログアウト</a></li>
             </ul>
         </nav>
     </header>
+    {% endif %}
 
-    <main>
+    <!-- メインコンテンツ -->
+    <main class="{% if request.endpoint == 'auth.login' %}login-main{% endif %}">
         {% block content %}{% endblock %}
     </main>
 
+    <!-- フッター（ログインページ以外で表示） -->
+    {% if request.endpoint != 'auth.login' %}
     <footer>
-        <p>&copy; 2025 JPT高校野球部</p>
+        <p>&copy; 2025 JPT高校野球部 - タレントマネジメントシステム</p>
     </footer>
+    {% endif %}
+
+    <!-- JavaScript for animations -->
+    <script>
+        // ページ読み込み時のアニメーション
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.container, .card');
+            elements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+                element.classList.add('fade-in');
+            });
+        });
+
+        // ナビゲーションリンクのアクティブ状態
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                link.style.fontWeight = '600';
+            }
+        });
+    </script>
 </body>
 </html>
