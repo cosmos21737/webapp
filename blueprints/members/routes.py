@@ -5,7 +5,7 @@ from datetime import datetime
 from flask import Blueprint, request, render_template, redirect, url_for, flash, Response, send_file
 from flask_security import login_required, current_user, roles_required, roles_accepted
 from sqlalchemy import func
-from db_models import db, User, MeasurementRecord
+from db_models import db, User, MeasurementRecord, Role
 
 # service をインポート
 from . import members_bp
@@ -52,7 +52,7 @@ def members():
     sort_column = sort_column.desc() if new_sort_order == 'desc' else sort_column.asc()
 
     # クエリ実行
-    pagination = User.query.order_by(sort_column).paginate(page=page, per_page=per_page)
+    pagination = User.query.filter(~User.roles.any(Role.name == 'administer')).order_by(sort_column).paginate(page=page, per_page=per_page)
     members_list = pagination.items
 
     return render_template('members/members.html',

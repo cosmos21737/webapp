@@ -3,7 +3,6 @@ from pathlib import Path
 from flask import Flask
 from flask_login import LoginManager, current_user
 from flask_security import Security, SQLAlchemyUserDatastore
-from werkzeug.security import generate_password_hash
 from services import services
 
 from db_models import User, Role, db, MeasurementRecord, MeasurementType

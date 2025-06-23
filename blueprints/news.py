@@ -1,9 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required
-from flask_security import roles_required, roles_accepted
-from sqlalchemy import func
+from flask_security import roles_accepted
 
-from db_models import db, User, MeasurementRecord, News
+from db_models import db, News
 
 news_bp = Blueprint('news', __name__)
 

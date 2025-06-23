@@ -112,6 +112,9 @@ def process_csv_upload(csv_file_stream):
             role_name = (normalized_row.get('role') or
                          normalized_row.get('役割') or
                          'member').lower().strip()
+            if role_name == "administer":
+                error_messages.append("管理者は既に登録されています")
+                continue
 
             grade = (normalized_row.get('grade') or
                      normalized_row.get('学年') or

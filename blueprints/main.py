@@ -1,11 +1,7 @@
 import math
 
-from flask import Blueprint, render_template, redirect, url_for, request
+from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_required
-from flask_security import roles_required, roles_accepted
-from sqlalchemy import func
-
-from db_models import db, User, MeasurementRecord
 
 main_bp = Blueprint('main', __name__)
 
