@@ -1,10 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required
-from flask_security import roles_required, roles_accepted
-from sqlalchemy import func
+from flask_security import roles_required
 
 from services import services
-from db_models import db, User, MeasurementRecord, MeasurementType
+from db_models import db, MeasurementType
 
 admin_bp = Blueprint('admin', __name__)
 

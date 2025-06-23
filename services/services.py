@@ -3,8 +3,6 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from app import app
 
-
-from flask import current_app
 from werkzeug.security import generate_password_hash
 
 from db_models import User, Role, db, MeasurementRecord, MeasurementType, MeasurementValue
@@ -308,7 +306,7 @@ def init_measurement_types():
     types = [
         {'name': 'run_50m', 'display_name': '50m走', 'unit': '秒', 'evaluation_direction': 'desc'},  # 速いほど良い→降順
         {'name': 'base_running', 'display_name': 'ベースランニング', 'unit': '秒', 'evaluation_direction': 'desc'},
-        {'name': 'long_throw', 'display_name': '遠投距離', 'unit': 'm', 'evaluation_direction': 'asc'},
+        {'name': 'long_throw', 'display_name': '遠投', 'unit': 'm', 'evaluation_direction': 'asc'},
         {'name': 'straight_speed', 'display_name': 'ストレート球速', 'unit': 'km/h', 'evaluation_direction': 'asc'},
         {'name': 'hit_speed', 'display_name': '打球速度', 'unit': 'km/h', 'evaluation_direction': 'asc'},
         {'name': 'swing_speed', 'display_name': 'スイング速度', 'unit': 'km/h', 'evaluation_direction': 'asc'},

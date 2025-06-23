@@ -3,8 +3,6 @@ from flask_login import login_required, current_user
 from flask_security import roles_required, roles_accepted
 from db_models import db, User, MeasurementRecord, MeasurementType, MeasurementValue
 from datetime import datetime
-import io
-import csv
 
 from . import measurements_bp
 from . import services
