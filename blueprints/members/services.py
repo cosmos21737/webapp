@@ -75,7 +75,7 @@ def process_csv_upload(csv_file_stream):
     """
     success_count = 0
     error_messages = []
-    default_password = "password123"
+    password = "password123"
     roles_cache = {r.display_name: r for r in Role.query.all()}
 
     # csv_utils.py から parse_csv_file を呼び出す
@@ -97,10 +97,6 @@ def process_csv_upload(csv_file_stream):
             if User.query.filter_by(name=name.strip()).first():
                 error_messages.append(f"行{row_num}: 部員「{name}」は既に登録されています")
                 continue
-
-            password = (normalized_row.get('password') or
-                        normalized_row.get('パスワード') or
-                        default_password).strip()
 
             role_name = (normalized_row.get('role') or
                          normalized_row.get('役割')

@@ -61,7 +61,7 @@ def inject_measurement_data():
 
     notice_cnt = 0
     if current_user.has_any_role("manager"):
-        notice_cnt = MeasurementRecord.query.filter_by(status='rejected').count()
+        notice_cnt = MeasurementRecord.query.filter_by(created_by=current_user.user_id, status='rejected').count()
     elif current_user.has_any_role("member"):
         notice_cnt = MeasurementRecord.query.filter_by(user_id=current_user.user_id, status='draft').count()
     elif current_user.has_any_role("coach"):

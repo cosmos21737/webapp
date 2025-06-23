@@ -6,16 +6,18 @@
 <h2>{{ user.name }} さんの承認待ち測定記録</h2>
 
 <form method="POST" action="{{ url_for('notice.approve_records') }}">
-    <table class="member-table">
+    <table id="noticeRecordsTable" class="member-table display">
         <thead>
             <tr>
                 <th>選択</th>
                 <th>測定日</th>
                 <th>学年</th>
                 <th>氏名</th>
+                <th>作成者</th>
                 {% for type in measurement_types %}
                 <th>{{ type.display_name }} ({{ type.unit }})</th>
                 {% endfor %}
+                <th>コメント</th> {# コメント用の新しいヘッダー列を追加 #}
             </tr>
         </thead>
         <tbody>
@@ -25,24 +27,24 @@
             {% set _ = record_values.update({val.type_id: val.value}) %}
             {% endfor %}
             <tr>
-                <td rowspan="2"><input type="checkbox" name="record_ids" value="{{ record.id }}"></td>
+                {# 以前の rowspan="2" のtdを削除し、通常のtdにする #}
+                <td><input type="checkbox" name="record_ids" value="{{ record.id }}"></td>
                 <td>{{ record.measurement_date }}</td>
                 <td>{{ record.user.grade }}</td>
                 <td>{{ record.user.name }}</td>
+                <td>{{ record.creator.name }}</td>
                 {% for type in measurement_types %}
                 <td>
                     {% if type.id in record_values %}
                         {{ record_values[type.id] }}
                     {% else %}
-                        &nbsp;
+                        - {# データがない場合の表示 #}
                     {% endif %}
                 </td>
                 {% endfor %}
+                <td>{{ record.comment if record.comment else '-' }}</td> {# コメントをこの行の新しいセルとして追加 #}
             </tr>
-            <tr>
-                <td>コメント</td>
-                <td colspan="{{ 3 + measurement_types|length }}">{{ record.comment if record.comment else '&nbsp;' | safe }}</td>
-            </tr>
+            {# ここにあったコメントのための2つ目の<tr>...</tr>ブロックは完全に削除してください #}
             {% endfor %}
         </tbody>
     </table>
@@ -54,4 +56,49 @@
   {% endif %}
 
 </form>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    $('#noticeRecordsTable').DataTable({
+        "pageLength": 10,
+        "language": {
+            "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Japanese.json"
+        },
+        "ordering": true,
+        "paging": true,
+        "searching": true,
+        "columnDefs": [
+            { "orderable": false, "targets": 0 }, // 選択 (チェックボックス) はソート不可
+            { "type": "date", "targets": 1 },     // 測定日は日付としてソート
+            // コメント列にカスタムクラスを適用
+            { "className": "comment-column", "targets": -1 } // 最後の列（コメント列）に 'comment-column' クラスを適用
+        ]
+    });
+});
+</script>
+
+<style>
+    /* その他のスタイルがあればここに維持 */
+
+    /* DataTablesによって適用されるコメント列のスタイル */
+    .comment-column {
+        max-width: 250px; /* 必要に応じて最大幅を設定 */
+        word-wrap: break-word; /* 長い単語を途中で改行する */
+        white-space: normal; /* テキストが改行されるようにする */
+    }
+
+    /* DataTablesの検索ボックスやページネーションの間のスペース調整（オプション） */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+</style>
+
 {% endblock %}

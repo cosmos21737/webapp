@@ -16,50 +16,18 @@ from . import services
 @login_required
 @roles_accepted("administer", "coach", "director")
 def members():
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 20, type=int)
-    sort_by = request.args.get('sort_by')
-    sort_flag = request.args.get('sort_flag')
+    # 現在のページネーションの行を削除またはコメントアウトし、すべてのユーザーを取得する
+    # pagination = User.query.filter(~User.roles.any(Role.name == 'administer')).order_by(sort_column).paginate(page=page, per_page=per_page)
+    # members_list = pagination.items
 
-    # 現在のソート状態を取得
-    current_sort_by = request.args.get('sort_by')
-    current_sort_order = request.args.get('sort_order')
-
-    # 新しいソート順序を決定
-    if sort_flag:
-        if sort_by == current_sort_by:
-            # 同じカラムがクリックされたら順序をトグル
-            new_sort_order = 'desc' if current_sort_order == 'asc' else 'asc'
-        else:
-            # 別のカラムがクリックされたら昇順で開始
-            new_sort_order = 'asc'
-    else:
-        new_sort_order = current_sort_order
-
-    # デフォルトソート（何も指定がない場合）
-    if not sort_by:
-        sort_by = 'grade'
-        new_sort_order = 'asc'
-
-    # ソート処理
-    if sort_by == 'name':
-        sort_column = User.name
-    elif sort_by == 'grade':
-        sort_column = User.grade
-    elif sort_by == 'status':
-        sort_column = User.is_active
-
-    sort_column = sort_column.desc() if new_sort_order == 'desc' else sort_column.asc()
-
-    # クエリ実行
-    pagination = User.query.filter(~User.roles.any(Role.name == 'administer')).order_by(sort_column).paginate(page=page, per_page=per_page)
-    members_list = pagination.items
+    # すべてのメンバーを取得する (または、フロントエンドで処理できる適切なサブセット)
+    members_list = User.query.filter(~User.roles.any(Role.name == 'administer')).all()
 
     return render_template('members/members.html',
                            members=members_list,
-                           pagination=pagination,
-                           sort_by=sort_by,
-                           sort_order=new_sort_order)
+                           # paginationオブジェクトは不要になるため削除
+                           # sort_byとsort_orderも不要になるため削除
+                           )
 
 
 @members_bp.route('/new')

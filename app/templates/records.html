@@ -27,7 +27,6 @@
     </a>
 </div>
 
-<!-- 順位表示セクション -->
 <div class="card rankings-section">
     <div class="card-header">
         <h3>全体順位</h3>
@@ -48,7 +47,6 @@
     </div>
 </div>
 
-<!-- 折れ線グラフセクション -->
 <div class="card chart-section mt-4">
     <div class="card-header">
         <h3>記録の推移</h3>
@@ -67,13 +65,12 @@
     </div>
 </div>
 
-<!-- 記録テーブル -->
 <div class="card mt-4">
     <div class="card-header">
         <h3>詳細記録</h3>
     </div>
     <div class="card-body table-responsive">
-        <table class="table table-striped table-hover">
+        <table id="detailedRecordsTable" class="table table-striped table-hover display"> {# id="detailedRecordsTable"とclass="display"を追加 #}
             <thead class="table-light">
                 <tr>
                     <th>測定日</th>
@@ -102,47 +99,13 @@
     </div>
 </div>
 
-<!-- ページネーション -->
-{% if pagination.pages > 1 %}
-<nav class="mt-4">
-    <ul class="pagination justify-content-center">
-        {% if pagination.has_prev %}
-        <li class="page-item">
-            <a class="page-link" href="{{ url_for('records.records', member_id=user.user_id, page=pagination.prev_num) }}">
-                &laquo; 前へ
-            </a>
-        </li>
-        {% endif %}
-
-        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-            {% if page_num %}
-                <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
-                    <a class="page-link" href="{{ url_for('records.records', member_id=user.user_id, page=page_num) }}">
-                        {{ page_num }}
-                    </a>
-                </li>
-            {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link">...</span>
-                </li>
-            {% endif %}
-        {% endfor %}
-
-        {% if pagination.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="{{ url_for('records.records', member_id=user.user_id, page=pagination.next_num) }}">
-                次へ &raquo;
-            </a>
-        </li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
-
-<!-- Chart.jsのCDN -->
+<script src="https://cdn.jsdelivr.net/npm/moment"></script> {# moment.js は chartjs-adapter-moment より前に必要 #}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/moment"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> {# jQueryはDataTablesより前に必要 #}
+<script type="text/javascript" src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -156,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
             displayName: '{{ m_type.display_name }}',
             unit: '{{ m_type.unit }}',
             direction: '{{ m_type.evaluation_direction }}',
-            id: {{ m_type.id }} // ★ここを追加すると、JavaScriptでのデータ参照が容易になります
+            id: {{ m_type.id }}
         };
         {% endfor %}
         console.log("Measurement Types:", measurementTypes);
@@ -170,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 values: [
                     {% for value in record.values %}
                     {
-                        type_id: {{ value.type_id }}, // measurement_typeのID
+                        type_id: {{ value.type_id }},
                         value: {{ value.value if value.value is not none else 'null' }}
                     }{% if not loop.last %},{% endif %}
                     {% endfor %}
@@ -192,8 +155,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const dataPoints = allRecordsData.map(record => {
                 const recordDate = new Date(record.measurement_date);
-                // 選択された測定項目の値を見つける
-                // typeInfo.id を使って、values配列から対応する値を探します
                 const foundValue = record.values.find(val => val.type_id === typeInfo.id);
                 const yValue = foundValue ? foundValue.value : null;
 
@@ -208,7 +169,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: typeInfo.displayName + ' (' + typeInfo.unit + ')',
                     data: dataPoints,
-                    // 評価方向に応じて色を設定
                     borderColor: typeInfo.direction === 'desc' ? 'rgba(255, 99, 132, 1)' : 'rgba(75, 192, 192, 1)',
                     backgroundColor: typeInfo.direction === 'desc' ? 'rgba(255, 99, 132, 0.2)' : 'rgba(75, 192, 192, 0.2)',
                     tension: 0.3,
@@ -218,18 +178,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // 初期のチャートデータ ('run_50m' をデフォルトとするか、セレクタの初期値に合わせる)
-        const initialMetric = 'run_50m'; // 50m走を初期表示に設定
+        const initialMetric = 'run_50m';
         const initialChartData = prepareChartData(initialMetric);
         if (!initialChartData) {
             console.error("Failed to prepare initial chart data.");
-            return;
+            // デフォルトの option が存在しない場合の処理
+            const metricSelector = document.getElementById('metricSelector');
+            if (metricSelector.options.length > 0) {
+                initialMetric = metricSelector.options[0].value;
+                initialChartData = prepareChartData(initialMetric);
+                if (!initialChartData) {
+                    return; // 依然としてデータが準備できない場合は処理を終了
+                }
+            } else {
+                return; // オプションが全くない場合は処理を終了
+            }
         }
 
         // グラフの初期化
         const ctx = document.getElementById('recordsChart').getContext('2d');
         const chart = new Chart(ctx, {
             type: 'line',
-            data: initialChartData, // 初期データを設定
+            data: initialChartData,
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -267,25 +237,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 測定項目選択時の処理
         document.getElementById('metricSelector').addEventListener('change', function() {
-            const selectedMetric = this.value; // JavaScript変数として取得
-            const newChartData = prepareChartData(selectedMetric); // 新しい関数を呼び出す
+            const selectedMetric = this.value;
+            const newChartData = prepareChartData(selectedMetric);
 
             if (newChartData) {
-                // チャートのデータを更新
                 chart.data.labels = newChartData.labels;
                 chart.data.datasets[0].label = newChartData.datasets[0].label;
                 chart.data.datasets[0].data = newChartData.datasets[0].data;
                 chart.data.datasets[0].borderColor = newChartData.datasets[0].borderColor;
                 chart.data.datasets[0].backgroundColor = newChartData.datasets[0].backgroundColor;
-                chart.update(); // チャートを再描画
+                chart.update();
             }
         });
 
         // ページロード時に、セレクタの初期値をチャートの初期データに合わせて設定
         document.getElementById('metricSelector').value = initialMetric;
 
+
+        // DataTablesの初期化 (詳細記録テーブル)
+        $('#detailedRecordsTable').DataTable({
+            "pageLength": 10, // 1ページあたりの表示件数
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Japanese.json"
+            },
+            "order": [[0, 'desc']] // 測定日（0列目）をデフォルトで降順ソート
+        });
+
     } catch (error) {
-        console.error('グラフ初期化エラー:', error);
+        console.error('グラフまたはDataTables初期化エラー:', error);
     }
 });
 </script>
