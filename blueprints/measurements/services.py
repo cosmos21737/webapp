@@ -3,7 +3,7 @@ import io
 import re # 正規表現モジュールをインポート
 from flask_login import current_user
 from datetime import datetime
-from db_models import db, User, MeasurementRecord, MeasurementValue, MeasurementType
+from db_models import db, User, MeasurementRecord, MeasurementValue, MeasurementType, Role
 
 
 def parse_float_or_none(value):
@@ -188,10 +188,13 @@ def parse_float_or_none(value):
     except ValueError:
         return None
 
+
 def generate_csv_template_content():
     """
     CSVテンプレートの内容を文字列で返す。
-    動的にMeasurementTypeからヘッダーを生成する。
+    動的にMeasurementTypeからヘッダーとサンプルデータを生成する。
+    測定値は0.0とし、氏名は固定の「テスト部員１」「テスト部員２」「テスト部員３」とする。
+    学年は仮に「1」とする。
     """
     header_parts = ['学年', '氏名']
     # 順番を保証するためにorder_byを使用し、すべてのMeasurementTypeを取得
@@ -207,11 +210,23 @@ def generate_csv_template_content():
 
     header = ",".join(header_parts)
 
-    # 例示データ（これは引き続きある程度手動で調整が必要かもしれません）
-    # ヘッダーが動的に生成されるため、例示データはヘッダーの順序と一致させる必要があります
-    example_data = """
-1,渡辺 蒼,7.38,13.1,51,101,109,110,66,138,2025/4/1
-1,吉田 翔太,7.19,11.8,65,144,106,89,92,110,2025/4/1
-1,清水 悠人,6.59,12.3,58,139,105,110,94,94,2025/4/1
-"""
-    return header + "\n" + example_data.strip()
+    # サンプルデータを動的に生成
+    example_rows = []
+    # 固定の部員名リスト
+    fixed_member_names = ["テスト部員１", "テスト部員２", "テスト部員３"]
+
+    # 今日の日付をYYYY/MM/DD形式で取得
+    today_date_str = datetime.now().strftime('%Y/%m/%d')
+
+    for i, member_name in enumerate(fixed_member_names):
+        # 仮に学年を1年生とする
+        grade = "1"
+        row_values = [grade, member_name]
+        for m_type in measurement_types:
+            row_values.append("0.0")  # すべての測定値を0.0に設定
+        row_values.append(today_date_str)
+        example_rows.append(",".join(row_values))
+
+    example_data = "\n".join(example_rows)
+
+    return header + "\n" + example_data
