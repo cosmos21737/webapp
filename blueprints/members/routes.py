@@ -74,11 +74,11 @@ def new_member():
 @roles_accepted("administer", "coach", "director")
 def register_member():
     name = request.form.get('name')
-    grade = request.form.get('grade')
-    is_active = request.form.get('is_active') == "true"
+    grade = request.form.get('member_grade')
+    member_role = request.form.get('member_role')
     password = "password123"  # 固定パスワード
 
-    success, message = services.register_new_member(name, grade, is_active, password)
+    success, message = services.register_new_member(name, grade, member_role, password)
     if success:
         flash(message, 'success')
     else:

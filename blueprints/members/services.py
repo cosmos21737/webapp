@@ -15,21 +15,18 @@ def get_members_list():
     ).all()
 
 
-def register_new_member(name, grade, is_active, password):
+def register_new_member(name, grade, member_role, password):
     """新しい部員を登録する"""
     hashed_password = generate_password_hash(password)
-
-    member_role = Role.query.filter_by(name="member").first()
-    if not member_role:
-        return False, "エラー: 'member' ロールがデータベースに存在しません"
+    role_instance = Role.query.filter_by(name=member_role).first()
 
     member_instance = User(
         name=name,
         grade=int(grade) if grade else None,
-        is_active=is_active,
+        is_active = True,
         password_hash=hashed_password
     )
-    member_instance.roles.append(member_role)
+    member_instance.roles.append(role_instance)
 
     try:
         db.session.add(member_instance)
