@@ -4,18 +4,26 @@
 
 {% block content %}
 <a href="{{ url_for('members.csv_import') }}">CSVで登録</a>
-<h2>新しい部員を登録</h2>
+<h2>新しいメンバーを登録</h2>
 <form action="{{ url_for('members.register_member') }}" method="post">
     <label for="name">氏名:</label>
     <input type="text" id="name" name="name" required><br>
 
-    <label for="grade">学年:</label>
-    <input type="number" id="grade" name="grade" required><br>
+    <label for="member_grade">学年（学生の場合）:</label>
+    <select id="member_grade" name="member_grade" required>
+      <option value="">選択してください</option>
+      <option value=1>1年</option>
+      <option value=2>2年</option>
+      <option value=3>3年</option>
+    </select><br>
 
-    <label for="is_active">活動状況:</label>
-    <select id="is_active" name="is_active">
-        <option value="true">現役</option>
-        <option value="false">引退</option>
+        <label for="member_role">役割:</label>
+    <select id="member_role" name="member_role" required>
+      <option value="">選択してください</option>
+      <option value="member">部員</option>
+      <option value="manager">マネージャー</option>
+      <option value="coach">コーチ</option>
+      <option value="director">顧問</option>
     </select><br>
 
     <button type="submit">登録</button>
