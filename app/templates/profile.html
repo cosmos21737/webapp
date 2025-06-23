@@ -25,7 +25,7 @@
                 <span class="detail-label">権限:</span>
                 <span class="detail-value">
                     {% for role in user.roles %}
-                        {{ role.name }}{% if not loop.last %}, {% endif %}
+                        {{ role.display_name }}{% if not loop.last %}, {% endif %}
                     {% endfor %}
                 </span>
             </div>

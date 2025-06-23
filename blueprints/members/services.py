@@ -76,11 +76,7 @@ def process_csv_upload(csv_file_stream):
     success_count = 0
     error_messages = []
     default_password = "password123"
-    roles_cache = {r.name: r for r in Role.query.all()}
-
-    if not roles_cache.get('member'):
-        error_messages.append('システムエラー: memberロールが存在しません')
-        return 0, error_messages
+    roles_cache = {r.display_name: r for r in Role.query.all()}
 
     # csv_utils.py から parse_csv_file を呼び出す
     try:
@@ -107,9 +103,9 @@ def process_csv_upload(csv_file_stream):
                         default_password).strip()
 
             role_name = (normalized_row.get('role') or
-                         normalized_row.get('役割') or
-                         'member').lower().strip()
-            if role_name == "administer":
+                         normalized_row.get('役割')
+                         ).lower().strip()
+            if role_name == "管理者":
                 error_messages.append("管理者は既に登録されています")
                 continue
 
@@ -117,9 +113,7 @@ def process_csv_upload(csv_file_stream):
                      normalized_row.get('学年') or
                      '').strip()
 
-            is_active = str(normalized_row.get('active') or
-                            normalized_row.get('活動') or
-                            '1').strip() == '1'
+            is_active = True
 
             new_user = User(
                 name=name.strip(),
@@ -148,7 +142,7 @@ def process_csv_upload(csv_file_stream):
 
 def generate_csv_template_content():
     """CSVテンプレートのコンテンツを生成する"""
-    return """氏名,パスワード,役割,学年,活動
-山田太郎,pass123,member,1,1
-佐藤花子,pass456,manager,,1
-鈴木一郎,,coach,2,0"""
+    return """氏名,パスワード,役割,学年
+山田太郎,pass123,部員,1
+佐藤花子,pass456,マネージャー,
+鈴木一郎,,コーチ,2"""
