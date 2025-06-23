@@ -325,16 +325,23 @@ def init_measurement_types():
 
 def create_default_roles():
     """デフォルトロールを作成する"""
-    roles = ["member", "manager", "coach", "director", "administer"]
+    roles = [
+        {"name": "member", "display_name": "部員"},
+        {"name": "manager", "display_name": "マネージャー"},
+        {"name": "coach", "display_name": "コーチ"},
+        {"name": "director", "display_name": "監督"},
+        {"name": "administer", "display_name": "管理者"},
+        ]
+
     created_count = 0
 
-    for role_name in roles:
-        existing_role = Role.query.filter_by(name=role_name).first()
+    for role in roles:
+        existing_role = Role.query.filter_by(name=role["name"]).first()
         if not existing_role:
-            new_role = Role(name=role_name)
+            new_role = Role(name=role["name"], display_name=role["display_name"])
             db.session.add(new_role)
             created_count += 1
-            print(f"ロール '{role_name}' を作成しました")
+            print(f"ロール '{role["name"]}' を作成しました")
 
     if created_count > 0:
         db.session.commit()
