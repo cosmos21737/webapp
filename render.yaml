@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: baseball-team-app
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m flask run --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: FLASK_APP
+        value: app.app
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SECURITY_PASSWORD_SALT
+        generateValue: true
+    healthCheckPath: /
+    autoDeploy: true 

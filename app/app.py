@@ -3,6 +3,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from pathlib import Path
+from dotenv import load_dotenv
 
 from flask import Flask
 from flask_login import LoginManager, current_user
@@ -22,13 +23,25 @@ from blueprints.notice import notice_bp
 from blueprints.news import news_bp
 from blueprints.admin import admin_bp
 
+# Load environment variables
+load_dotenv()
+
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # セッション用の秘密キー
-app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///baseball_team.db'
+app.secret_key = os.environ.get('SECRET_KEY', 'your_secret_key')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_secret_key')
+
+# Database configuration - support both PostgreSQL and SQLite
+database_url = os.environ.get('DATABASE_URL')
+if database_url and database_url.startswith('postgres://'):
+    # Convert postgres:// to postgresql:// for newer versions
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///baseball_team.db')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECURITY_REGISTERABLE'] = True  # ユーザー登録を有効化
-app.config['SECURITY_PASSWORD_SALT'] = 'random_salt'
+app.config['SECURITY_REGISTERABLE'] = True
+app.config['SECURITY_PASSWORD_SALT'] = os.environ.get('SECURITY_PASSWORD_SALT', 'random_salt')
 app.config['SECURITY_ROLE_TABLE'] = 'roles'
 
 def nl2br(value):
