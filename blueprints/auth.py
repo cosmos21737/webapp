@@ -1,6 +1,7 @@
 from flask import Blueprint, request, redirect, url_for, render_template, flash
-from flask_login import LoginManager, login_user, logout_user, login_required
-from db_models import User, AdminContact
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_security.decorators import roles_required
+from db_models import User, AdminContact, db
 from werkzeug.security import check_password_hash
 
 auth_bp = Blueprint('auth', __name__, template_folder='../templates')
@@ -13,7 +14,7 @@ login_manager.login_message = "このページにアクセスするにはログ�
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])

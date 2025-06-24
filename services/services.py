@@ -1,7 +1,6 @@
 import statistics
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from app import app
 
 from werkzeug.security import generate_password_hash
 
