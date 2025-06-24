@@ -49,6 +49,20 @@
                     <p>承認待ちの記録をリアルタイムで通知。</p>
                 </div>
             </div>
+
+            <!-- 学年更新システム -->
+            <div class="grade-update-notice">
+                <div class="grade-update-icon">🎓</div>
+                <div class="grade-update-content">
+                    <h4>学年更新システム</h4>
+                    <p><strong>毎年4月1日に自動的に学年更新が行われます。</strong></p>
+                    <ul>
+                        <li>部員とマネージャーの学年が1つずつ上がります</li>
+                        <li>3年生以上の部員・マネージャーは自動的にシステムから削除されます</li>
+                    </ul>
+                    <p class="grade-update-note">※ 学年更新により削除されたデータは復元できません。重要なデータは事前にバックアップを取ってください。</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -244,6 +258,21 @@
                     <p>システム上、同姓同名の部員は登録できません。<br>
                     <strong>学年やイニシャルを加えるなど、必ず別名になるようにしてください。</strong><br>
                     例: <code>山田太郎(2年)</code>、<code>山田太郎A</code> など</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span class="faq-icon">🎓</span>
+                    <h5>学年更新について教えてください</h5>
+                </div>
+                <div class="faq-answer">
+                    <p><strong>毎年4月1日に自動的に学年更新が行われます。</strong></p>
+                    <ul>
+                        <li>部員とマネージャーの学年が1つずつ上がります</li>
+                        <li>3年生以上の部員・マネージャーは自動的にシステムから削除されます</li>
+                        <li>削除されたデータは復元できませんので、重要なデータは事前にバックアップを取ってください</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -602,6 +631,57 @@
         flex-direction: row;
         align-items: flex-start;
     }
+}
+
+.grade-update-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: 2px solid #3b82f6;
+    border-radius: var(--radius);
+    margin-top: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.grade-update-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.grade-update-content h4 {
+    color: #1d4ed8;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.grade-update-content p {
+    color: var(--gray-700);
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+
+.grade-update-content ul {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+    color: var(--gray-700);
+}
+
+.grade-update-content li {
+    margin-bottom: 0.25rem;
+    line-height: 1.5;
+}
+
+.grade-update-note {
+    font-size: 0.875rem;
+    color: #dc2626 !important;
+    font-weight: 500;
+    margin-top: 0.75rem !important;
+    padding: 0.5rem;
+    background: #fef2f2;
+    border-radius: 0.25rem;
+    border-left: 3px solid #dc2626;
 }
 </style>
 {% endblock %}

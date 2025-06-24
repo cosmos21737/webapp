@@ -1,6 +1,6 @@
 from flask import request, Blueprint, render_template, redirect, url_for
 from flask_login import login_required, current_user
-from flask_security import roles_accepted
+from flask_security.decorators import roles_accepted
 from db_models import db, User, MeasurementRecord, MeasurementType
 
 notice_bp = Blueprint('notice', __name__)
@@ -11,16 +11,15 @@ notice_bp = Blueprint('notice', __name__)
 @roles_accepted("administer", "member", "manager", "coach")
 def notice():
     user_id = current_user.get_id()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     measurement_types = MeasurementType.query.all()
 
     if current_user.has_role("member"):
         records = MeasurementRecord.query.filter_by(user_id=user_id, status='draft').all()
-    if current_user.has_role("coach"):
+    if current_user.has_any_role("coach", "administer"):
         records = MeasurementRecord.query.filter_by(status='pending_coach').all()
     if current_user.has_role("manager"):
         records = MeasurementRecord.query.filter_by(created_by=current_user.user_id, status='rejected').all()
-
 
     return render_template('notice.html',
                            user=user,
@@ -46,7 +45,7 @@ def approve_records():
                 record.comment = record.user.name + "：" + comment
             elif current_user.has_role("member"):
                 record.status = 'pending_coach'  # 承認フラグを更新
-            elif current_user.has_role("coach"):
+            elif current_user.has_any_role("coach", "administer"):
                 record.status = 'approved'
             elif current_user.has_role("manager"):
                 db.session.delete(record)

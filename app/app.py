@@ -5,11 +5,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from pathlib import Path
 from dotenv import load_dotenv
 
-from flask import Flask
+from flask import Flask, g
 from flask_login import LoginManager, current_user
 from flask_security.core import Security
 from flask_security.datastore import SQLAlchemyUserDatastore
-import services
 
 from db_models import User, Role, db, MeasurementRecord, MeasurementType
 from blueprints.main import main_bp
@@ -22,6 +21,8 @@ from blueprints.profile import profile_bp
 from blueprints.notice import notice_bp
 from blueprints.news import news_bp
 from blueprints.admin import admin_bp
+from services.services import initialize_database
+from services.grade_update_service import GradeUpdateService
 
 # Load environment variables
 load_dotenv()
@@ -58,10 +59,9 @@ login_manager = LoginManager()
 login_manager.login_view = "auth.login"  # type: ignore
 login_manager.init_app(app)  # ← ここで初期化
 
-
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 # Blueprint の登録
@@ -75,6 +75,29 @@ app.register_blueprint(profile_bp, url_prefix='/profile')
 app.register_blueprint(notice_bp, url_prefix='/notice')
 app.register_blueprint(news_bp, url_prefix='/news')
 app.register_blueprint(admin_bp, url_prefix='/admin')
+
+
+@app.before_request
+def check_grade_update():
+    """リクエスト前に学年更新をチェック"""
+    if current_user.is_authenticated:
+        # セッションで今日すでにチェックしたかどうかを管理
+        from flask import session
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        
+        today = datetime.now(ZoneInfo('Asia/Tokyo')).strftime('%Y-%m-%d')
+        session_key = f'grade_update_checked_{today}'
+        print("すでにチェックされています")
+        if not session.get(session_key):
+            try:
+                print(f"学年更新をチェックします: {today}")
+                success = GradeUpdateService.check_and_update_grades()
+                if success:
+                    print(f"学年更新が実行されました: {today}")
+                session[session_key] = True
+            except Exception as e:
+                print(f"学年更新チェック中にエラーが発生しました: {str(e)}")
 
 
 @app.context_processor
@@ -104,7 +127,7 @@ if __name__ == '__main__':
         print("データベースファイルは存在します")
     else:
         print("データベースファイルが見つかりません - 新規作成します")
-        services.initialize_database(app)
+        initialize_database(app)
 
     print("アプリケーションを開始します...")
     app.run(debug=True)
