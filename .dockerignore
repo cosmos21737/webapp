@@ -1,0 +1,68 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Development files
+*.bat
+*.ps1
+db_check.py
+db_init.py
+measurements_sample.csv
+measurements_test100.csv
+members_test.csv
+USERS.csv
+
+# Documentation
+README.md
+*.md
+ER.md
+アプリ設計書.md
+
+# Instance directory (will be created in container)
+instance/
+
+# Uploads directory (will be created in container)
+uploads/ 
