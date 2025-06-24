@@ -6,48 +6,50 @@
 <h2>{{ user.name }} さんの承認待ち測定記録</h2>
 
 <form method="POST" action="{{ url_for('notice.approve_records') }}">
-    <table id="noticeRecordsTable" class="member-table display">
-        <thead>
-            <tr>
-                <th>選択</th>
-                <th>測定日</th>
-                <th>学年</th>
-                <th>氏名</th>
-                <th>作成者</th>
-                {% for type in measurement_types %}
-                <th>{{ type.display_name }} ({{ type.unit }})</th>
+    <div class="table-container">
+        <table id="noticeRecordsTable" class="member-table display">
+            <thead>
+                <tr>
+                    <th>選択</th>
+                    <th>測定日</th>
+                    <th>学年</th>
+                    <th>氏名</th>
+                    <th>作成者</th>
+                    {% for type in measurement_types %}
+                    <th>{{ type.display_name }} ({{ type.unit }})</th>
+                    {% endfor %}
+                    <th>コメント</th> {# コメント用の新しいヘッダー列を追加 #}
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                {% set record_values = {} %}
+                {% for val in record.values %}
+                {% set _ = record_values.update({val.type_id: val.value}) %}
                 {% endfor %}
-                <th>コメント</th> {# コメント用の新しいヘッダー列を追加 #}
-            </tr>
-        </thead>
-        <tbody>
-            {% for record in records %}
-            {% set record_values = {} %}
-            {% for val in record.values %}
-            {% set _ = record_values.update({val.type_id: val.value}) %}
-            {% endfor %}
-            <tr>
-                {# 以前の rowspan="2" のtdを削除し、通常のtdにする #}
-                <td><input type="checkbox" name="record_ids" value="{{ record.id }}"></td>
-                <td>{{ record.measurement_date }}</td>
-                <td>{{ record.user.grade }}</td>
-                <td>{{ record.user.name }}</td>
-                <td>{{ record.creator.name }}</td>
-                {% for type in measurement_types %}
-                <td>
-                    {% if type.id in record_values %}
-                        {{ record_values[type.id] }}
-                    {% else %}
-                        - {# データがない場合の表示 #}
-                    {% endif %}
-                </td>
+                <tr>
+                    {# 以前の rowspan="2" のtdを削除し、通常のtdにする #}
+                    <td><input type="checkbox" name="record_ids" value="{{ record.id }}"></td>
+                    <td>{{ record.measurement_date }}</td>
+                    <td>{{ record.user.grade }}</td>
+                    <td>{{ record.user.name }}</td>
+                    <td>{{ record.creator.name }}</td>
+                    {% for type in measurement_types %}
+                    <td>
+                        {% if type.id in record_values %}
+                            {{ record_values[type.id] }}
+                        {% else %}
+                            - {# データがない場合の表示 #}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    <td>{{ record.comment if record.comment else '-' }}</td> {# コメントをこの行の新しいセルとして追加 #}
+                </tr>
+                {# ここにあったコメントのための2つ目の<tr>...</tr>ブロックは完全に削除してください #}
                 {% endfor %}
-                <td>{{ record.comment if record.comment else '-' }}</td> {# コメントをこの行の新しいセルとして追加 #}
-            </tr>
-            {# ここにあったコメントのための2つ目の<tr>...</tr>ブロックは完全に削除してください #}
-            {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 
   <button type="submit" name="action" value="approve">承認する</button><br>
   {% if current_user.has_any_role('member', 'coach', 'administer') %}
@@ -71,6 +73,8 @@ document.addEventListener('DOMContentLoaded', function() {
         "ordering": true,
         "paging": true,
         "searching": true,
+        "scrollX": true, // 横スクロールを有効にする
+        "scrollCollapse": true,
         "columnDefs": [
             { "orderable": false, "targets": 0 }, // 選択 (チェックボックス) はソート不可
             { "type": "date", "targets": 1 },     // 測定日は日付としてソート
@@ -82,22 +86,77 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-    /* その他のスタイルがあればここに維持 */
-
-    /* DataTablesによって適用されるコメント列のスタイル */
-    .comment-column {
-        max-width: 250px; /* 必要に応じて最大幅を設定 */
-        word-wrap: break-word; /* 長い単語を途中で改行する */
-        white-space: normal; /* テキストが改行されるようにする */
+    /* テーブルコンテナのスタイル */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
     }
 
-    /* DataTablesの検索ボックスやページネーションの間のスペース調整（オプション） */
+    /* テーブルの基本スタイル */
+    #noticeRecordsTable {
+        width: 100%;
+        min-width: 800px; /* 最小幅を設定 */
+        border-collapse: collapse;
+        background-color: white;
+    }
+
+    #noticeRecordsTable th,
+    #noticeRecordsTable td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        white-space: nowrap; /* テキストの折り返しを防ぐ */
+    }
+
+    #noticeRecordsTable th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    #noticeRecordsTable tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    /* コメント列のスタイル */
+    .comment-column {
+        max-width: 200px;
+        min-width: 150px;
+        word-wrap: break-word;
+        white-space: normal; /* コメント列のみ改行を許可 */
+        overflow-wrap: break-word;
+    }
+
+    /* チェックボックスのスタイル */
+    #noticeRecordsTable input[type="checkbox"] {
+        margin: 0;
+        cursor: pointer;
+    }
+
+    /* DataTablesの検索ボックスやページネーションの間のスペース調整 */
     .dataTables_wrapper .dataTables_length,
     .dataTables_wrapper .dataTables_filter,
     .dataTables_wrapper .dataTables_info,
     .dataTables_wrapper .dataTables_paginate {
         margin-top: 10px;
         margin-bottom: 10px;
+    }
+
+    /* レスポンシブ対応 */
+    @media (max-width: 768px) {
+        .table-container {
+            font-size: 14px;
+        }
+        
+        #noticeRecordsTable th,
+        #noticeRecordsTable td {
+            padding: 6px 8px;
+        }
     }
 </style>
 

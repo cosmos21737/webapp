@@ -49,31 +49,33 @@
   });
 </script>
 
-<table id="teamMemberTable" class="member-table display">
-  <thead>
-    <tr>
-      <th>氏名</th>
-      <th>学年</th>
-      {% for m_type in measurement_types %}
-        <th>{{ m_type.display_name }}<br><span style="font-size:0.8em;">(偏差値)</span></th>
-      {% endfor %}
-    </tr>
-  </thead>
-  <tbody>
-    {% for member in team %}
-    <tr>
-      <td><a href="{{ url_for('members.member_records', member_id=member.user_id) }}">{{ member.name }}</a></td>
-      <td>{{ member.grade }}</td>
-      {% for m_type in measurement_types %}
-        <td>
-          {% set stddev = member_stddevs[member.user_id][m_type.display_name]['stddev'] %}
-          {{ stddev if stddev != 'N/A' else '-' }}
-        </td>
-      {% endfor %}
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<div class="table-container">
+    <table id="teamMemberTable" class="member-table display">
+      <thead>
+        <tr>
+          <th>氏名</th>
+          <th>学年</th>
+          {% for m_type in measurement_types %}
+            <th>{{ m_type.display_name }}<br><span style="font-size:0.8em;">(偏差値)</span></th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for member in team %}
+        <tr>
+          <td><a href="{{ url_for('members.member_records', member_id=member.user_id) }}">{{ member.name }}</a></td>
+          <td>{{ member.grade }}</td>
+          {% for m_type in measurement_types %}
+            <td>
+              {% set stddev = member_stddevs[member.user_id][m_type.display_name]['stddev'] %}
+              {{ stddev if stddev != 'N/A' else '-' }}
+            </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
 
 {# ページネーションのHTMLブロックはDataTablesが自動生成するため削除 #}
 {# <div class="pagination">...</div> #}
@@ -93,9 +95,72 @@ document.addEventListener('DOMContentLoaded', function() {
         "language": {
             "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Japanese.json"
         },
-        "order": [[1, 'asc']] // 学年（1列目）をデフォルトで昇順ソート
+        "order": [[1, 'asc']], // 学年（1列目）をデフォルトで昇順ソート
+        "scrollX": true, // 横スクロールを有効にする
+        "scrollCollapse": true,
+        "autoWidth": true, // 自動幅調整を有効化
+        "responsive": false // レスポンシブ機能を無効化
     });
 });
 </script>
+
+<style>
+    /* テーブルコンテナのスタイル */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    /* テーブルの基本スタイル */
+    #teamMemberTable {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+    }
+
+    #teamMemberTable th,
+    #teamMemberTable td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        white-space: nowrap; /* テキストの折り返しを防ぐ */
+    }
+
+    #teamMemberTable th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    #teamMemberTable tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    #teamMemberTable a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    #teamMemberTable a:hover {
+        text-decoration: underline;
+    }
+
+    /* レスポンシブ対応 */
+    @media (max-width: 768px) {
+        .table-container {
+            font-size: 14px;
+        }
+        
+        #teamMemberTable th,
+        #teamMemberTable td {
+            padding: 6px 8px;
+        }
+    }
+</style>
 
 {% endblock %}

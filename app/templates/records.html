@@ -4,9 +4,31 @@
 {% block content %}
 <div class="member-header">
     <h2>{{ user.name }} さんの測定記録</h2>
+    
+    <div class="member-status">
+        {% if user.is_active %}
+        <div class="status-badge active">
+            <i class="fas fa-user-check"></i>
+            <span>現役</span>
+        </div>
+        {% else %}
+        <div class="status-badge retired">
+            <i class="fas fa-user-times"></i>
+            <span>引退</span>
+        </div>
+        {% endif %}
+    </div>
 
     {% if current_user.has_any_role('coach', 'director', "administer") %}
     <div class="member-actions">
+        <form method="POST" action="{{ url_for('records.toggle_active', member_id=user.user_id) }}"
+              onsubmit="return confirm('{{ user.name }}さんの活動状況を変更しますか？');">
+            {% if user.is_active %}
+            <button type="submit" class="btn btn-warning">引退にする</button>
+            {% else %}
+            <button type="submit" class="btn btn-success">現役に戻す</button>
+            {% endif %}
+        </form>
         <form method="POST" action="{{ url_for('members.delete_member', member_id=user.user_id) }}"
               onsubmit="return confirm('本当に削除しますか？');">
             <button type="submit" class="btn btn-danger">部員を削除</button>
@@ -73,33 +95,35 @@
     <div class="card-header">
         <h3>詳細記録</h3>
     </div>
-    <div class="card-body table-responsive">
-        <table id="detailedRecordsTable" class="table table-striped table-hover display"> {# id="detailedRecordsTable"とclass="display"を追加 #}
-            <thead class="table-light">
-                <tr>
-                    <th>測定日</th>
-                    {% for m_type in measurement_types %}
-                    <th>{{ m_type.display_name }} ({{ m_type.unit }})</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for record in records %}
-                <tr>
-                    <td>{{ record.measurement_date.strftime('%Y/%m/%d') }}</td>
-                    {% for m_type in measurement_types %}
-                    <td>
-                        {% for value in record.values if value.type_id == m_type.id %}
-                            {{ value.value }}
-                        {% else %}
-                            -
+    <div class="card-body">
+        <div class="table-container">
+            <table id="detailedRecordsTable" class="table table-striped table-hover display"> {# id="detailedRecordsTable"とclass="display"を追加 #}
+                <thead class="table-light">
+                    <tr>
+                        <th>測定日</th>
+                        {% for m_type in measurement_types %}
+                        <th>{{ m_type.display_name }} ({{ m_type.unit }})</th>
                         {% endfor %}
-                    </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.measurement_date.strftime('%Y/%m/%d') }}</td>
+                        {% for m_type in measurement_types %}
+                        <td>
+                            {% for value in record.values if value.type_id == m_type.id %}
+                                {{ value.value }}
+                            {% else %}
+                                -
+                            {% endfor %}
+                        </td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -264,7 +288,11 @@ document.addEventListener('DOMContentLoaded', function() {
             "language": {
                 "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Japanese.json"
             },
-            "order": [[0, 'desc']] // 測定日（0列目）をデフォルトで降順ソート
+            "order": [[0, 'desc']], // 測定日（0列目）をデフォルトで降順ソート
+            "scrollX": true, // 横スクロールを有効にする
+            "scrollCollapse": true,
+            "autoWidth": true, // 自動幅調整を有効化
+            "responsive": false // レスポンシブ機能を無効化
         });
 
     } catch (error) {
@@ -281,6 +309,50 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-bottom: 20px;
     }
 
+    .member-status {
+        margin-right: 20px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .status-badge.active {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: 2px solid #28a745;
+    }
+
+    .status-badge.active:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    }
+
+    .status-badge.retired {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
+        border: 2px solid #6c757d;
+    }
+
+    .status-badge.retired:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+    }
+
+    .status-badge i {
+        font-size: 16px;
+    }
+
     .member-actions {
         display: flex;
         gap: 10px;
@@ -288,6 +360,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
     .export-section {
         margin-bottom: 20px;
+    }
+
+    /* テーブルコンテナのスタイル */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    /* テーブルの基本スタイル */
+    #detailedRecordsTable {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+    }
+
+    #detailedRecordsTable th,
+    #detailedRecordsTable td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        white-space: nowrap; /* テキストの折り返しを防ぐ */
+    }
+
+    #detailedRecordsTable th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    #detailedRecordsTable tbody tr:hover {
+        background-color: #f5f5f5;
     }
 
     .rankings-grid {
@@ -330,18 +438,6 @@ document.addEventListener('DOMContentLoaded', function() {
         position: relative;
         height: 400px;
         margin-bottom: 20px;
-    }
-
-    @media (max-width: 768px) {
-        .member-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .rankings-grid {
-            grid-template-columns: 1fr 1fr;
-        }
     }
 </style>
 {% endblock %}

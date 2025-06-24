@@ -3,93 +3,396 @@
 {% block title %}管理者ダッシュボード{% endblock %}
 
 {% block content %}
-<h2>ようこそ、{{ current_user.name }} さん！</h2>
-<p>このシステムでは、部員の測定記録を管理し、チームの分析ができます。</p>
-
-<h3>データベース管理</h3>
-<div class="card">
-    <div class="card-header">
-        システム管理
+<div class="admin-dashboard">
+    <div class="admin-header">
+        <h1><i class="fas fa-cogs"></i> 管理者ダッシュボード</h1>
+        <p class="admin-subtitle">ようこそ、{{ current_user.name }} さん！このシステムでは、部員の測定記録を管理し、チームの分析ができます。</p>
     </div>
-    <div class="list-group list-group-flush">
-        <a href="{{ url_for('admin.manage_contact') }}" class="list-group-item list-group-item-action">
-            <i class="fas fa-address-book me-2"></i>連絡先情報の編集
-        </a>
-        <a href="{{ url_for('admin.data_delete') }}" class="list-group-item list-group-item-action text-danger" onclick="return confirm('本当にデータベースを初期化しますか？すべてのデータが削除されます。');">
-            <i class="fas fa-bomb me-2"></i>データベースの初期化
-        </a>
+
+    <div class="admin-grid">
+        <!-- システム管理セクション -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h3><i class="fas fa-server"></i> システム管理</h3>
+            </div>
+            <div class="card system-card">
+                <div class="card-body">
+                    <div class="action-grid">
+                        <a href="{{ url_for('admin.manage_contact') }}" class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-address-book"></i>
+                            </div>
+                            <div class="action-content">
+                                <h4>連絡先情報の編集</h4>
+                                <p>システムの連絡先情報を管理します</p>
+                            </div>
+                        </a>
+                        
+                        <form action="{{ url_for('admin.data_delete') }}" method="POST" onsubmit="return confirm('本当にデータベースを初期化しますか？すべてのデータが削除されます。');" class="action-item">
+                            <button type="submit" class="action-button danger">
+                                <div class="action-icon">
+                                    <i class="fas fa-bomb"></i>
+                                </div>
+                                <div class="action-content">
+                                    <h4>データベースの初期化</h4>
+                                    <p>すべてのデータを削除して初期化します</p>
+                                </div>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 測定項目管理セクション -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h3><i class="fas fa-list-alt"></i> 測定項目管理</h3>
+            </div>
+            
+            {% if measurement_types %}
+            <div class="card measurement-card">
+                <div class="card-header">
+                    <h4>現在の測定項目一覧</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover measurement-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>識別名</th>
+                                    <th>表示名</th>
+                                    <th>単位</th>
+                                    <th>評価方向</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for type in measurement_types %}
+                                <tr>
+                                    <td><span class="badge bg-secondary">{{ type.id }}</span></td>
+                                    <td><code>{{ type.name }}</code></td>
+                                    <td><strong>{{ type.display_name }}</strong></td>
+                                    <td>{{ type.unit if type.unit else '<span class="text-muted">なし</span>' | safe }}</td>
+                                    <td>
+                                        {% if type.evaluation_direction == 'asc' %}
+                                        <span class="badge bg-success">昇順 (小さい方が良い)</span>
+                                        {% else %}
+                                        <span class="badge bg-warning text-dark">降順 (大きい方が良い)</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form action="{{ url_for('admin.delete_measurement_type', type_id=type.id) }}" method="POST" onsubmit="return confirm('本当に測定項目「{{ type.display_name }}」を削除しますか？関連する測定値も削除される可能性があります。');" style="display:inline;">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="fas fa-trash"></i> 削除
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-info-circle text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3">登録されている測定項目はありません。</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 新規測定項目追加セクション -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h3><i class="fas fa-plus-circle"></i> 新しい測定項目を追加</h3>
+            </div>
+            <div class="card add-measurement-card">
+                <div class="card-body">
+                    <form action="{{ url_for('admin.add_measurement_type') }}" method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="name" class="form-label">
+                                        <i class="fas fa-tag"></i> 識別名
+                                    </label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="例: run_50m" required>
+                                    <div class="form-text">プログラム内での一意な名前</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="display_name" class="form-label">
+                                        <i class="fas fa-eye"></i> 表示名
+                                    </label>
+                                    <input type="text" class="form-control" id="display_name" name="display_name" placeholder="例: 50m走" required>
+                                    <div class="form-text">ユーザーに表示される名前</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="unit" class="form-label">
+                                        <i class="fas fa-ruler"></i> 単位
+                                    </label>
+                                    <input type="text" class="form-control" id="unit" name="unit" placeholder="例: 秒, km/h">
+                                    <div class="form-text">測定値の単位</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="evaluation_direction" class="form-label">
+                                        <i class="fas fa-sort"></i> 評価方向
+                                    </label>
+                                    <select class="form-select" id="evaluation_direction" name="evaluation_direction">
+                                        <option value="asc">昇順 (小さい方が良い)</option>
+                                        <option value="desc">降順 (大きい方が良い)</option>
+                                    </select>
+                                    <div class="form-text">数値の評価方法</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="description" class="form-label">
+                                <i class="fas fa-info-circle"></i> 説明文
+                            </label>
+                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="測定項目の詳細な説明を入力してください"></textarea>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus"></i> 測定項目を追加
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-<hr>
 
-<h3>測定項目管理</h3>
-{% if measurement_types %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>識別名</th>
-                <th>表示名</th>
-                <th>単位</th>
-                <th>評価方向</th>
-                <th>操作</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for type in measurement_types %}
-            <tr>
-                <td>{{ type.id }}</td>
-                <td>{{ type.name }}</td>
-                <td>{{ type.display_name }}</td>
-                <td>{{ type.unit if type.unit else 'なし' }}</td>
-                <td>
-                    {% if type.evaluation_direction == 'asc' %}
-                        昇順 (小さい方が良い)
-                    {% else %}
-                        降順 (大きい方が良い)
-                    {% endif %}
-                </td>
-                <td>
-                    <form action="{{ url_for('admin.delete_measurement_type', type_id=type.id) }}" method="POST" onsubmit="return confirm('本当に測定項目「{{ type.display_name }}」を削除しますか？関連する測定値も削除される可能性があります。');" style="display:inline;">
-                        <button type="submit" class="btn btn-danger btn-sm">削除</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p>登録されている測定項目はありません。</p>
-{% endif %}
+<style>
+.admin-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-<hr>
+.admin-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
 
-<h3>新しい測定項目を追加</h3>
-<form action="{{ url_for('admin.add_measurement_type') }}" method="POST">
-    <div class="form-group">
-        <label for="name">識別名 (プログラム内での一意な名前):</label>
-        <input type="text" class="form-control" id="name" name="name" required>
-    </div>
-    <div class="form-group">
-        <label for="display_name">表示名 (ユーザーに表示される名前):</label>
-        <input type="text" class="form-control" id="display_name" name="display_name" required>
-    </div>
-    <div class="form-group">
-        <label for="unit">単位 (例: 秒, km/h):</label>
-        <input type="text" class="form-control" id="unit" name="unit">
-    </div>
-    <div class="form-group">
-        <label for="evaluation_direction">評価方向:</label>
-        <select class="form-control" id="evaluation_direction" name="evaluation_direction">
-            <option value="asc">昇順 (小さい方が良い)</option>
-            <option value="desc">降順 (大きい方が良い)</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="description">説明文:</label>
-        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">測定項目を追加</button>
-</form>
+.admin-header h1 {
+    margin-bottom: 10px;
+    font-weight: 700;
+}
 
+.admin-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.admin-grid {
+    display: grid;
+    gap: 30px;
+}
+
+.admin-section {
+    margin-bottom: 30px;
+}
+
+.section-header {
+    margin-bottom: 20px;
+}
+
+.section-header h3 {
+    color: #495057;
+    font-weight: 600;
+    border-left: 4px solid #007bff;
+    padding-left: 15px;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.action-item {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+}
+
+.action-item:hover {
+    text-decoration: none;
+    color: inherit;
+    transform: translateY(-2px);
+}
+
+.action-button {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+}
+
+.action-item, .action-button {
+    padding: 20px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.action-item:hover, .action-button:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 15px rgba(0,123,255,0.15);
+}
+
+.action-button.grade-update:hover {
+    border-color: #ffc107;
+    box-shadow: 0 4px 15px rgba(255,193,7,0.15);
+}
+
+.action-button.danger:hover {
+    border-color: #dc3545;
+    box-shadow: 0 4px 15px rgba(220,53,69,0.15);
+}
+
+.action-icon {
+    font-size: 2rem;
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+.action-button.grade-update .action-icon {
+    color: #ffc107;
+}
+
+.action-button.danger .action-icon {
+    color: #dc3545;
+}
+
+.action-content h4 {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.action-content p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.measurement-table {
+    margin: 0;
+}
+
+.measurement-table th {
+    background-color: #343a40;
+    color: white;
+    border: none;
+    padding: 12px 8px;
+}
+
+.measurement-table td {
+    padding: 12px 8px;
+    vertical-align: middle;
+}
+
+.measurement-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.add-measurement-card {
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+}
+
+.add-measurement-card .card-body {
+    padding: 30px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.form-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.btn-lg {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #e9ecef;
+    padding: 20px;
+}
+
+.card-header h4 {
+    margin: 0;
+    color: #495057;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+}
+</style>
 {% endblock %}
