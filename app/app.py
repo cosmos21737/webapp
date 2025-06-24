@@ -22,7 +22,6 @@ from blueprints.notice import notice_bp
 from blueprints.news import news_bp
 from blueprints.admin import admin_bp
 from services.services import initialize_database
-from services.grade_update_service import GradeUpdateService
 
 # Load environment variables
 load_dotenv()
@@ -75,29 +74,6 @@ app.register_blueprint(profile_bp, url_prefix='/profile')
 app.register_blueprint(notice_bp, url_prefix='/notice')
 app.register_blueprint(news_bp, url_prefix='/news')
 app.register_blueprint(admin_bp, url_prefix='/admin')
-
-
-@app.before_request
-def check_grade_update():
-    """リクエスト前に学年更新をチェック"""
-    if current_user.is_authenticated:
-        # セッションで今日すでにチェックしたかどうかを管理
-        from flask import session
-        from datetime import datetime
-        from zoneinfo import ZoneInfo
-        
-        today = datetime.now(ZoneInfo('Asia/Tokyo')).strftime('%Y-%m-%d')
-        session_key = f'grade_update_checked_{today}'
-        print("すでにチェックされています")
-        if not session.get(session_key):
-            try:
-                print(f"学年更新をチェックします: {today}")
-                success = GradeUpdateService.check_and_update_grades()
-                if success:
-                    print(f"学年更新が実行されました: {today}")
-                session[session_key] = True
-            except Exception as e:
-                print(f"学年更新チェック中にエラーが発生しました: {str(e)}")
 
 
 @app.context_processor

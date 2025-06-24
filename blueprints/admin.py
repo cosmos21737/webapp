@@ -3,7 +3,6 @@ from flask_login import login_required
 from flask_security.decorators import roles_required
 
 from services import services
-from services.grade_update_service import GradeUpdateService
 from db_models import db, MeasurementType, AdminContact
 
 admin_bp = Blueprint('admin', __name__)
