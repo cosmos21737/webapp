@@ -22,7 +22,6 @@ from blueprints.notice import notice_bp
 from blueprints.news import news_bp
 from blueprints.admin import admin_bp
 from services.services import initialize_database
-from services.grade_update_service import GradeUpdateService
 
 # Load environment variables
 load_dotenv()
