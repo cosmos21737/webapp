@@ -66,6 +66,50 @@
         </div>
     </div>
 
+    <!-- 承認フロー詳細ガイド -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">✅ 承認フロー詳細ガイド</h3>
+        </div>
+        <div class="approval-guide">
+            <div class="approval-overview" style="margin-bottom:2rem;">
+                <h4>📋 測定記録登録の流れ</h4>
+                <div class="registration-flow">
+                    <div class="flow-step-simple">
+                        <div class="step-number-simple">1</div>
+                        <div class="step-content-simple">
+                            <h6>📝 マネージャーが測定記録を作成、提出します</h6>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step-simple">
+                        <div class="step-number-simple">2</div>
+                        <div class="step-content-simple">
+                            <h6>👤 部員が測定記録を確認、承認します</h6>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step-simple">
+                        <div class="step-number-simple">3</div>
+                        <div class="step-content-simple">
+                            <h6>🏆 コーチが測定記録を確認、承認します</h6>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step-simple">
+                        <div class="step-number-simple">4</div>
+                        <div class="step-content-simple">
+                            <h6>✅ 記録が承認され、正式な記録として登録されます</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-notes">
+                    <p><strong>差し戻しについて：</strong>記録に間違いがあった場合、部員、コーチは測定記録を差し戻しできます。差し戻された記録はマネージャーに通知されるので確認後、再提出を行ってください。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 役割別ガイド -->
     <div class="card">
         <div class="card-header">
@@ -79,17 +123,21 @@
                 <div class="role-feature">
                     <h5>🔧 システム管理</h5>
                     <ul>
-                        <li>データベースの初期化とリセット</li>
-                        <li>測定項目の追加・編集・削除</li>
-                        <li>システム設定の変更</li>
+                        <li>データベースの初期化</li>
+                        <li>測定項目の追加、削除</li>
+                        <li>連絡先の登録</li>
                     </ul>
                 </div>
                 <div class="role-feature">
-                    <h5>📊 全データ閲覧</h5>
+                    <h5>📊 測定記録入力</h5>
                     <ul>
-                        <li>全部員の測定記録を閲覧</li>
-                        <li>チーム全体の統計情報を確認</li>
-                        <li>データのエクスポート機能</li>
+                        <li>CSVにより、初めから承認された記録の入力が可能（十分に確認したのちに行うこと）</li>
+                    </ul>
+                </div>
+                <div class="role-feature">
+                    <h5>📈 その他の機能</h5>
+                    <ul>
+                        <li>監督・コーチと同等の機能を利用可能</li>
                     </ul>
                 </div>
             </div>
@@ -103,24 +151,30 @@
                     <h5>👥 部員管理</h5>
                     <ul>
                         <li>部員一覧の確認</li>
-                        <li>新規部員の登録</li>
+                        <li>部員の登録・削除</li>
                         <li>部員情報の編集</li>
                     </ul>
                 </div>
                 <div class="role-feature">
                     <h5>📈 チーム分析</h5>
                     <ul>
-                        <li>チーム全体の測定結果を確認</li>
-                        <li>個人の成長推移を分析</li>
-                        <li>チーム内ランキングの確認</li>
+                        <li>チーム全体の成績レベルをレーダーチャートで確認</li>
+                        <li>個人成績の確認</li>
                     </ul>
                 </div>
                 <div class="role-feature">
                     <h5>✅ 承認管理（コーチのみ）</h5>
                     <ul>
-                        <li>測定記録の最終承認）</li>
+                        <li>測定記録の最終承認</li>
                         <li>承認待ち記録の確認</li>
                         <li>差し戻し処理</li>
+                    </ul>
+                </div>
+                <div class="role-feature">
+                    <h5>📢 お知らせ管理</h5>
+                    <ul>
+                        <li>お知らせの追加</li>
+                        <li>お知らせの削除</li>
                     </ul>
                 </div>
             </div>
@@ -135,15 +189,12 @@
                     <ul>
                         <li>個別記録の入力</li>
                         <li>CSVファイルによる一括入力</li>
-                        <li>入力データの確認と修正</li>
                     </ul>
                 </div>
                 <div class="role-feature">
                     <h5>📋 記録管理</h5>
                     <ul>
-                        <li>入力した記録の確認</li>
-                        <li>承認状況の追跡</li>
-                        <li>過去の記録の参照</li>
+                        <li>差し戻された記録の確認</li>
                     </ul>
                 </div>
             </div>
@@ -157,16 +208,16 @@
                     <h5>📈 個人記録確認</h5>
                     <ul>
                         <li>自分の測定記録を時系列で確認</li>
-                        <li>チーム内での順位と偏差値を確認</li>
+                        <li>部内での順位と偏差値を確認</li>
                         <li>成長の推移をグラフで表示</li>
                     </ul>
                 </div>
                 <div class="role-feature">
                     <h5>✅ 記録の確認</h5>
                     <ul>
-                        <li>マネージャーが入力した記録が正しいか確認します。</li>
-                        <li>内容を承認すると、コーチに最終承認の依頼が送られます。</li>
-                        <li>間違いがある場合は、コメントを付けて差し戻すことができます。</li>
+                        <li>マネージャーが入力した記録が正しいか確認。</li>
+                        <li>内容を承認すると、コーチに最終承認の通知が送られる。</li>
+                        <li>間違いがある場合は、コメントを付けて差し戻すことができる。</li>
                     </ul>
                 </div>
             </div>
@@ -185,7 +236,7 @@
                     <h5>ログインできません。</h5>
                 </div>
                 <div class="faq-answer">
-                    <p>ユーザー名とパスワードを確認してください。管理者の場合は「管理者」/「password123」でログインできます。問題が続く場合はシステム管理者に連絡してください。</p>
+                    <p>ユーザー名とパスワードを確認してください。問題が続く場合はシステム管理者に連絡してください。</p>
                 </div>
             </div>
 
@@ -205,17 +256,7 @@
                     <h5>測定記録の入力方法を教えてください</h5>
                 </div>
                 <div class="faq-answer">
-                    <p>マネージャー権限が必要です。「測定記録入力」メニューから部員を選択し、各項目の数値を入力してください。CSVファイルでの一括入力も可能です。</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span class="faq-icon">✅</span>
-                    <h5>承認フローについて教えてください</h5>
-                </div>
-                <div class="faq-answer">
-                    <p>測定記録は「マネージャー入力 → 部員確認 → コーチ承認」の順で進みます。各ステップで承認が必要で、差し戻しも可能です。</p>
+                    <p>マネージャー、管理者のみが行えます。「測定記録入力」メニューから部員を選択し、各項目の数値を入力してください。CSVファイルでの一括入力も可能です。</p>
                 </div>
             </div>
 
@@ -235,17 +276,7 @@
                     <h5>自分の記録を確認したい</h5>
                 </div>
                 <div class="faq-answer">
-                    <p>部員としてログイン後、「記録閲覧」メニューから自分の測定記録を時系列で確認できます。チーム内での順位や偏差値も表示されます。</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span class="faq-icon">🔔</span>
-                    <h5>通知の意味を教えてください</h5>
-                </div>
-                <div class="faq-answer">
-                    <p>通知は承認待ちの記録がある場合に表示されます。部員は自分の記録の承認、マネージャーは差し戻された記録、コーチは承認待ちの記録を確認できます。</p>
+                    <p>部員としてログイン後、「記録閲覧」メニューから自分の測定記録を時系列で確認できます。部内での順位や偏差値も表示されます。</p>
                 </div>
             </div>
 
@@ -258,21 +289,6 @@
                     <p>システム上、同姓同名の部員は登録できません。<br>
                     <strong>学年やイニシャルを加えるなど、必ず別名になるようにしてください。</strong><br>
                     例: <code>山田太郎(2年)</code>、<code>山田太郎A</code> など</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span class="faq-icon">🎓</span>
-                    <h5>学年更新について教えてください</h5>
-                </div>
-                <div class="faq-answer">
-                    <p><strong>毎年4月1日に自動的に学年更新が行われます。</strong></p>
-                    <ul>
-                        <li>部員とマネージャーの学年が1つずつ上がります</li>
-                        <li>3年生以上の部員・マネージャーは自動的にシステムから削除されます</li>
-                        <li>削除されたデータは復元できませんので、重要なデータは事前にバックアップを取ってください</li>
-                    </ul>
                 </div>
             </div>
         </div>
@@ -682,6 +698,79 @@
     background: #fef2f2;
     border-radius: 0.25rem;
     border-left: 3px solid #dc2626;
+}
+
+.notification-system {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: 2px solid #3b82f6;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.notification-explanation {
+    margin-top: 1.5rem;
+}
+
+.notification-types {
+    margin-bottom: 1.5rem;
+}
+
+.notification-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.notification-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-content h6 {
+    color: var(--gray-800);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.notification-content p {
+    color: var(--gray-600);
+    margin: 0;
+}
+
+.notification-usage {
+    margin-top: 1.5rem;
+}
+
+.notification-usage ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-usage li {
+    padding: 0.5rem 0;
+    color: var(--gray-600);
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.notification-usage li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--success);
+    font-weight: bold;
 }
 </style>
 {% endblock %}

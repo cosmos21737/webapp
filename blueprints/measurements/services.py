@@ -230,3 +230,50 @@ def generate_csv_template_content():
     example_data = "\n".join(example_rows)
 
     return header + "\n" + example_data
+
+
+def generate_admin_csv_template_content():
+    """
+    管理者用CSVテンプレートの内容を文字列で返す。
+    承認状態の列を含む。
+    """
+    header_parts = ['学年', '氏名']
+    # 順番を保証するためにorder_byを使用し、すべてのMeasurementTypeを取得
+    measurement_types = MeasurementType.query.order_by(MeasurementType.id).all()
+    for m_type in measurement_types:
+        # display_nameとunitを組み合わせてCSVヘッダー名を生成
+        header_name = f"{m_type.display_name} [{m_type.unit}]" if m_type.unit else m_type.display_name
+        header_parts.append(header_name)
+
+    header_parts.append('測定日')
+    header_parts.append('承認')  # 管理者用テンプレートには承認列を追加
+
+    header = ",".join(header_parts)
+
+    # サンプルデータを動的に生成
+    example_rows = []
+    # 固定の部員名リスト
+    fixed_member_names = ["テスト部員１", "テスト部員２", "テスト部員３"]
+
+    # 今日の日付をYYYY/MM/DD形式で取得
+    today_date_str = datetime.now().strftime('%Y/%m/%d')
+
+    for i, member_name in enumerate(fixed_member_names):
+        # 仮に学年を1年生とする
+        grade = "1"
+        row_values = [grade, member_name]
+        for m_type in measurement_types:
+            row_values.append("0.0")  # すべての測定値を0.0に設定
+        row_values.append(today_date_str)
+        # 承認状態のサンプル値（draft, pending_coach, approved, rejected）
+        if i == 0:
+            row_values.append("draft")  # 下書き
+        elif i == 1:
+            row_values.append("pending_coach")  # コーチ承認待ち
+        else:
+            row_values.append("approved")  # 承認済み
+        example_rows.append(",".join(row_values))
+
+    example_data = "\n".join(example_rows)
+
+    return header + "\n" + example_data

@@ -706,3 +706,670 @@ footer p {
     --gray-900: #f9fafb;
   }
 }
+
+/* ========================================
+   承認フロー関連スタイル
+   ======================================== */
+.approval-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+}
+
+.flow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--primary-color);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.flow-step:hover {
+  transform: translateX(5px);
+  box-shadow: var(--shadow);
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: var(--white);
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  box-shadow: var(--shadow);
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content h6 {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.step-content p {
+  color: var(--gray-700);
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.step-content ul {
+  margin-left: 1rem;
+  color: var(--gray-600);
+}
+
+.step-content ul li {
+  margin-bottom: 0.25rem;
+  line-height: 1.5;
+}
+
+.step-content ul li strong {
+  color: var(--gray-800);
+  font-weight: 600;
+}
+
+.approval-notes,
+.approval-roles {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.approval-notes h6,
+.approval-roles h6 {
+  color: var(--primary-color);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.approval-notes ul,
+.approval-roles ul {
+  margin-left: 1rem;
+  color: var(--gray-700);
+}
+
+.approval-notes ul li,
+.approval-roles ul li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.approval-notes ul li strong,
+.approval-roles ul li strong {
+  color: var(--gray-800);
+  font-weight: 600;
+}
+
+/* ステータス表示用のスタイル */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.status-draft {
+  background: var(--gray-100);
+  color: var(--gray-600);
+  border: 1px solid var(--gray-300);
+}
+
+.status-pending {
+  background: var(--accent-light);
+  color: var(--gray-800);
+  border: 1px solid var(--accent-color);
+}
+
+.status-approved {
+  background: var(--success);
+  color: var(--white);
+  border: 1px solid var(--success);
+}
+
+.status-rejected {
+  background: var(--error);
+  color: var(--white);
+  border: 1px solid var(--error);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .approval-flow {
+    gap: 1rem;
+    padding: 0.75rem;
+  }
+  
+  .flow-step {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  
+  .step-number {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+  
+  .step-content h6 {
+    justify-content: center;
+  }
+  
+  .step-content ul {
+    text-align: left;
+  }
+}
+
+/* ========================================
+   承認フロー詳細ガイド用スタイル
+   ======================================== */
+.approval-guide {
+  padding: 1rem 0;
+}
+
+/* 測定記録登録の流れ用スタイル */
+.registration-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--primary-color);
+}
+
+.flow-step-simple {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 500px;
+  padding: 1rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--primary-color);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.flow-step-simple:hover {
+  transform: translateX(5px);
+  box-shadow: var(--shadow);
+}
+
+.step-number-simple {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: var(--white);
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  box-shadow: var(--shadow);
+}
+
+.step-content-simple {
+  flex: 1;
+}
+
+.step-content-simple h6 {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.flow-arrow {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.flow-notes {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.flow-notes p {
+  color: var(--gray-700);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.flow-notes p strong {
+  color: var(--gray-800);
+  font-weight: 600;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .registration-flow {
+    padding: 1rem;
+  }
+  
+  .flow-step-simple {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .step-content-simple h6 {
+    justify-content: center;
+  }
+}
+
+.guide-intro {
+  background: var(--gray-50);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  border-left: 4px solid var(--primary-color);
+  margin-bottom: 2rem;
+}
+
+.guide-intro p {
+  color: var(--gray-700);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.status-explanation {
+  margin-bottom: 2rem;
+}
+
+.status-explanation h4 {
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.status-item {
+  background: var(--white);
+  padding: 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.status-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.status-item .status-badge {
+  margin-bottom: 0.5rem;
+}
+
+.status-item p {
+  color: var(--gray-600);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.operation-steps {
+  margin-bottom: 2rem;
+}
+
+.operation-steps h4 {
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.role-operation {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+}
+
+.role-operation h5 {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.operation-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.operation-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--accent-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.step-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  width: 2rem;
+  text-align: center;
+}
+
+.step-detail {
+  flex: 1;
+}
+
+.step-detail strong {
+  color: var(--gray-800);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.step-detail p {
+  color: var(--gray-600);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.note-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.note-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.note-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 2rem;
+  text-align: center;
+}
+
+.note-content {
+  flex: 1;
+}
+
+.note-content h6 {
+  color: var(--primary-color);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.note-content p {
+  color: var(--gray-600);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .notes-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .operation-step {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .note-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
+
+/* ========================================
+   通知システム用スタイル
+   ======================================== */
+.notification-system {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border: 2px solid var(--primary-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.notification-system h4 {
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notification-explanation {
+  margin-top: 1rem;
+}
+
+.notification-explanation > p {
+  color: var(--gray-700);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.notification-types {
+  margin-bottom: 1.5rem;
+}
+
+.notification-types h5 {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.notification-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.notification-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.notification-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 2rem;
+  text-align: center;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content h6 {
+  color: var(--primary-color);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.notification-content p {
+  color: var(--gray-600);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0.25rem;
+}
+
+.notification-content p:last-child {
+  margin-bottom: 0;
+}
+
+.notification-content p strong {
+  color: var(--gray-800);
+  font-weight: 600;
+}
+
+.notification-usage {
+  margin-top: 1.5rem;
+}
+
+.notification-usage h5 {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.notification-usage ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-usage li {
+  padding: 0.5rem 0;
+  color: var(--gray-700);
+  position: relative;
+  padding-left: 1.5rem;
+  line-height: 1.6;
+}
+
+.notification-usage li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--success);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.notification-usage li strong {
+  color: var(--gray-800);
+  font-weight: 600;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .notification-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .notification-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .notification-icon {
+    font-size: 2rem;
+  }
+}
