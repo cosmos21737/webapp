@@ -159,3 +159,17 @@ def download_csv_template():
         mimetype="text/csv",
         headers={"Content-disposition": "attachment; filename=measurement_template.csv"}
     )
+
+
+@measurements_bp.route('/download_admin_csv_template')
+@login_required
+@roles_accepted("administer")
+def download_admin_csv_template():
+    """管理者用CSVテンプレートファイルのダウンロード"""
+    # 管理者用テンプレート内容を取得
+    template_content = services.generate_admin_csv_template_content()
+    return Response(
+        template_content,
+        mimetype="text/csv",
+        headers={"Content-disposition": "attachment; filename=admin_measurement_template.csv"}
+    )

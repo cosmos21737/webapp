@@ -5,15 +5,12 @@
 {% block content %}
 <h2>チーム一覧</h2>
 
-<nav>
-    <ul>
-        <li><a href="{{ url_for('members.new_member') }}" style="color: black;">新しい部員を登録</a></li>
-        <li><a href="{{ url_for('members.export_csv') }}" style="color: black;">CSV出力</a></li>
-    </ul>
-</nav>
+<!-- レーダーチャート用のコンテナを追加 -->
+<div class="chart-container">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <canvas id="teamRadarChart" width="600" height="600"></canvas>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<canvas id="teamRadarChart" width="400" height="400"></canvas>
 <script>
   const ctx = document.getElementById('teamRadarChart');
 
@@ -25,7 +22,9 @@
       fill: true,
       backgroundColor: 'rgba(54, 162, 235, 0.2)',
       borderColor: 'rgba(54, 162, 235, 1)',
-      pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+      pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+      pointRadius: 6,
+      pointHoverRadius: 8
     }]
   };
 
@@ -33,16 +32,41 @@
     type: 'radar',
     data: data,
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       scales: {
         r: {
           suggestedMin: 30,
-          suggestedMax: 70
+          suggestedMax: 70,
+          ticks: {
+            font: {
+              size: 14
+            }
+          },
+          pointLabels: {
+            font: {
+              size: 16,
+              weight: 'bold'
+            }
+          }
         }
       },
       plugins: {
         title: {
           display: true,
-          text: 'チーム偏差値レーダーチャート'
+          text: 'チーム偏差値レーダーチャート',
+          font: {
+            size: 20,
+            weight: 'bold'
+          },
+          padding: 20
+        },
+        legend: {
+          labels: {
+            font: {
+              size: 16
+            }
+          }
         }
       }
     }
@@ -77,11 +101,6 @@
     </table>
 </div>
 
-{# ページネーションのHTMLブロックはDataTablesが自動生成するため削除 #}
-{# <div class="pagination">...</div> #}
-
-{# ソートヘルプテキストもDataTablesのUIで提供されるため削除 #}
-{# <div class="sort-help">...</div> #}
 
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> {# jQueryの読み込みを忘れずに #}
@@ -96,15 +115,37 @@ document.addEventListener('DOMContentLoaded', function() {
             "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Japanese.json"
         },
         "order": [[1, 'asc']], // 学年（1列目）をデフォルトで昇順ソート
-        "scrollX": true, // 横スクロールを有効にする
-        "scrollCollapse": true,
-        "autoWidth": true, // 自動幅調整を有効化
-        "responsive": false // レスポンシブ機能を無効化
+        "scrollX": true,            // 横スクロール
+        "scrollY": "400px",         // 縦スクロール（高さ指定）
+        "scrollCollapse": true,     // スクロールバーの自動表示/非表示
+        "autoWidth": true,          // 自動幅調整
+        "fixedHeader": true,        // ヘッダー固定
+        "fixedColumns": {           // 列固定
+            "left": 2,              // 左2列を固定
+            "right": 1              // 右1列を固定
+        },
+        "columnDefs": [
+            { "width": "20%", "targets": 0 },  // 1列目を20%幅
+            { "className": "text-center", "targets": "_all" } // 3列目を中央揃え
+        ]
     });
 });
 </script>
 
 <style>
+    /* チャートコンテナのスタイル */
+    .chart-container {
+        width: 100%;
+        max-width: 800px;
+        height: 600px;
+        margin: 20px auto;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        background-color: #f8f9fa;
+    }
+
     /* テーブルコンテナのスタイル */
     .table-container {
         width: 100%;
@@ -124,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
     #teamMemberTable th,
     #teamMemberTable td {
         padding: 8px 12px;
-        text-align: left;
+        text-align: center;
         border-bottom: 1px solid #ddd;
         white-space: nowrap; /* テキストの折り返しを防ぐ */
     }
@@ -152,6 +193,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /* レスポンシブ対応 */
     @media (max-width: 768px) {
+        .chart-container {
+            max-width: 100%;
+            height: 400px;
+            padding: 10px;
+        }
+        
         .table-container {
             font-size: 14px;
         }

@@ -3,6 +3,9 @@
 {% block title %}通知{% endblock %}
 
 {% block content %}
+<!-- FontAwesome アイコンライブラリを追加 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <h2>{{ user.name }} さんの承認待ち測定記録</h2>
 
 <form method="POST" action="{{ url_for('notice.approve_records') }}">
@@ -51,12 +54,27 @@
         </table>
     </div>
 
-  <button type="submit" name="action" value="approve">承認する</button><br>
-  {% if current_user.has_any_role('member', 'coach', 'administer') %}
-    <textarea name="comment" placeholder="コメントを入力してください"></textarea><br>
-    <button type="submit" name="action" value="reject">否認する</button>
-  {% endif %}
-
+    <!-- 承認・否認操作エリア -->
+    <div class="action-area">
+        <div class="action-buttons">
+            <button type="submit" name="action" value="approve" class="btn btn-approve">
+                <i class="fas fa-check"></i> 承認する
+            </button>
+            
+            {% if current_user.has_any_role('member', 'coach', 'administer') %}
+            <button type="submit" name="action" value="reject" class="btn btn-reject">
+                <i class="fas fa-times"></i> 否認する
+            </button>
+            {% endif %}
+        </div>
+        
+        {% if current_user.has_any_role('member', 'coach', 'administer') %}
+        <div class="comment-area">
+            <label for="comment">コメント（否認時は必須）:</label>
+            <textarea name="comment" id="comment" placeholder="コメントを入力してください（否認する場合は理由を記載してください）" rows="3"></textarea>
+        </div>
+        {% endif %}
+    </div>
 </form>
 
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
@@ -86,6 +104,111 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+    /* 承認・否認操作エリアのスタイル */
+    .action-area {
+        margin: 30px 0;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    /* ボタンの基本スタイル */
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    /* 承認ボタン */
+    .btn-approve {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-approve:hover {
+        background-color: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    }
+
+    /* 否認ボタン */
+    .btn-reject {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-reject:hover {
+        background-color: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    }
+
+    /* コメントエリア */
+    .comment-area {
+        margin-top: 15px;
+    }
+
+    .comment-area label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .comment-area textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ced4da;
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+        transition: border-color 0.3s ease;
+    }
+
+    .comment-area textarea:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    /* アイコンのスタイル（FontAwesomeがない場合の代替） */
+    .btn i {
+        font-size: 14px;
+    }
+
+    /* FontAwesomeがない場合の代替アイコン */
+    .btn-approve::before {
+        content: "✓";
+        margin-right: 8px;
+        font-weight: bold;
+    }
+
+    .btn-reject::before {
+        content: "✗";
+        margin-right: 8px;
+        font-weight: bold;
+    }
+
     /* テーブルコンテナのスタイル */
     .table-container {
         width: 100%;
@@ -106,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
     #noticeRecordsTable th,
     #noticeRecordsTable td {
         padding: 8px 12px;
-        text-align: left;
+        text-align: center;
         border-bottom: 1px solid #ddd;
         white-space: nowrap; /* テキストの折り返しを防ぐ */
     }
@@ -136,6 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
     #noticeRecordsTable input[type="checkbox"] {
         margin: 0;
         cursor: pointer;
+        transform: scale(1.2);
     }
 
     /* DataTablesの検索ボックスやページネーションの間のスペース調整 */
@@ -149,6 +273,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /* レスポンシブ対応 */
     @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
         .table-container {
             font-size: 14px;
         }
