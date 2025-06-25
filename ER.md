@@ -1,88 +1,85 @@
 ```mermaid
 erDiagram
+    %% ロール管理
+    ROLES {
+        int id PK
+        string name UK "administer,member,manager,coach"
+        string display_name UK
+    }
+
+    %% ユーザーロールの中間テーブル
+    USER_ROLES {
+        int id PK
+        int user_id FK
+        int role_id FK
+    }
+
     %% ユーザー管理
     USERS {
         int user_id PK
+        string fs_uniquifier UK
         string name UK
         string password_hash
-        enum role "manager,member,coach,director"
         int grade "学年(部員のみ)"
         boolean is_active
+        boolean team_status
         datetime created_at
         datetime updated_at
+    }
+
+    %% 測定項目管理
+    MEASUREMENT_TYPES {
+        int id PK
+        string name UK "run_50m, base_running, etc."
+        string display_name "50m走, ベースランニング, etc."
+        string unit "秒, km/h, m, kg"
+        enum evaluation_direction "asc, desc"
+        text description
     }
 
     %% 測定記録
     MEASUREMENT_RECORDS {
-        int record_id PK
-        int user_id FK
+        int id PK
+        int user_id FK "測定対象者"
         date measurement_date
-        decimal run_50m "50m走(秒)"
-        decimal base_running "ベースランニング(秒)"
-        decimal long_throw "遠投(m)"
-        decimal straight_speed "ストレート球速(km/h)"
-        decimal hit_speed "打球速度(km/h)"
-        decimal swing_speed "スイング速度(km/h)"
-        decimal bench_press "ベンチプレス(kg)"
-        decimal squat "スクワット(kg)"
-        enum status "draft,pending_member,pending_coach,approved"
-        int created_by FK
+        enum status "draft,pending_coach,approved,rejected"
+        int created_by FK "記録作成者"
         datetime created_at
         datetime updated_at
+        string comment
     }
 
-    %% 承認履歴
-    APPROVAL_HISTORY {
-        int approval_id PK
+    %% 測定値
+    MEASUREMENT_VALUES {
+        int id PK
         int record_id FK
-        int approver_id FK
-        enum approver_type "member,coach"
-        enum action "approved,rejected"
-        text comment
-        datetime approved_at
+        int type_id FK
+        float value
     }
 
-    %% 通知
-    NOTIFICATIONS {
-        int notification_id PK
-        int user_id FK
-        int record_id FK
-        enum type "approval_request,approval_completed,record_updated"
+    %% ニュース
+    NEWS {
+        int id PK
         string title
-        text message
-        boolean is_read
-        datetime created_at
+        text content
+        datetime post_date
     }
 
-    %% 部員管理（退部・引退管理）
-    MEMBER_STATUS {
-        int status_id PK
-        int user_id FK
-        enum status "active,withdrawn,retired"
-        date status_date
-        text reason
-        int updated_by FK
-        datetime created_at
+    %% 管理者連絡先
+    ADMIN_CONTACT {
+        int id PK
+        string email
+        string phone
+        string note
     }
 
     %% リレーションシップ
-    USERS ||--o{ MEASUREMENT_RECORDS : "測定対象"
-    USERS ||--o{ MEASUREMENT_RECORDS : "記録作成者"
-    USERS ||--o{ APPROVAL_HISTORY : "承認者"
-    USERS ||--o{ NOTIFICATIONS : "通知対象"
-    USERS ||--o{ MEMBER_STATUS : "ステータス対象"
-    USERS ||--o{ MEMBER_STATUS : "更新者"
+    USERS ||--o{ USER_ROLES : "ユーザーの役割"
+    ROLES ||--o{ USER_ROLES : "役割のユーザー"
     
-    MEASUREMENT_RECORDS ||--o{ APPROVAL_HISTORY : "承認対象"
-    MEASUREMENT_RECORDS ||--o{ NOTIFICATIONS : "関連記録"
+    USERS ||--o{ MEASUREMENT_RECORDS : "測定対象者"
+    USERS ||--o{ MEASUREMENT_RECORDS : "記録作成者"
+    
+    MEASUREMENT_RECORDS ||--o{ MEASUREMENT_VALUES : "記録の測定値"
+    MEASUREMENT_TYPES ||--o{ MEASUREMENT_VALUES : "測定項目の値"
 ```
-
-    <!-- %% システム設定（測定項目管理）
-    MEASUREMENT_ITEMS {
-        int item_id PK
-        string category "走力,肩力,打力,筋力"
-        string item_name
-        string unit
-        boolean is_active
-        int display_order
-    } -->
