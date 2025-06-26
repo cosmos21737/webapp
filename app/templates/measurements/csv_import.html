@@ -28,18 +28,14 @@
                             <li><span class="icon">🎓</span> <strong>学生番号は必須</strong>です。部員の特定に使用されます。</li>
                             <li><span class="icon">👤</span> 学生以外の場合は未使用の任意のIDを入力（例：C0031）</li>
                             <li><span class="icon">📅</span> 測定日は「YYYY/MM/DD」または「YYYY-MM-DD」形式で入力してください。</li>
-                            {% if current_user.has_role("administer") %}
-                            <li><span class="icon">✅</span> <strong>管理者のみ：</strong>承認状態も指定できます（下書き, コーチ待ち, 承認, 差し戻し）</li>
-                            {% endif %}
+                            <li><span class="icon">⚠️</span> 記録項目に空白（未入力）がある場合、エラーとなりますのでご注意ください。</li>
                         </ul>
                     </div>
                     <div class="csv-example">
                         <h4>テンプレートの種類</h4>
                         <ul>
                             <li><span class="icon">👥</span> <strong>全部員テンプレート：</strong>現在の部員全員の学生番号・学年・氏名が入ったテンプレート</li>
-                            {% if current_user.has_role("administer") %}
-                            <li><span class="icon">👑👥</span> <strong>管理者用全部員テンプレート：</strong>日本語の承認状態（下書き, コーチ待ち, 承認, 差し戻し）付きの全部員テンプレート</li>
-                            {% endif %}
+
                         </ul>
                     </div>
                 </div>
@@ -47,14 +43,6 @@
                     <a href="{{ url_for('measurements.download_csv_template_with_members') }}" class="btn btn-primary mt-3">
                         <span class="icon">👥</span> 全部員テンプレートをダウンロード
                     </a>
-                    {% if current_user.has_role("administer") %}
-                    <a href="{{ url_for('measurements.download_admin_csv_template_with_members') }}" class="btn btn-warning mt-3 ms-2">
-                        <span class="icon">👑👥</span> 管理者用全部員テンプレートをダウンロード
-                    </a>
-                    <div class="admin-note mt-2">
-                        <small class="text-muted">※ 管理者用テンプレートには承認状態の列が含まれています</small>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>

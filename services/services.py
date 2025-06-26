@@ -11,6 +11,18 @@ from sqlalchemy import func
 
 def create_record(user_id, measurement_date, created_by, values_dict, comment=None):
     """新しい測定記録を作成"""
+    # すべての測定値が入力されているかチェック
+    missing_values = []
+    all_measurement_types = MeasurementType.query.all()
+    
+    for m_type in all_measurement_types:
+        value = values_dict.get(m_type.name)
+        if value is None:
+            missing_values.append(m_type.display_name)
+    
+    if missing_values:
+        raise ValueError(f"以下の測定値が入力されていません: {', '.join(missing_values)}")
+
     record = MeasurementRecord(
         user_id=user_id,
         measurement_date=measurement_date,

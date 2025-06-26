@@ -67,10 +67,22 @@ def submit_record():
         # 送信されたフォームデータを反復処理するために、すべての測定タイプを取得
         all_measurement_types = MeasurementType.query.all()
 
+        # すべての測定値が入力されているかチェック
+        missing_values = []
+        for m_type in all_measurement_types:
+            value_str = request.form.get(m_type.name)
+            if not value_str or not value_str.strip():
+                missing_values.append(m_type.display_name)
+        
+        if missing_values:
+            flash(f'以下の測定値が入力されていません: {", ".join(missing_values)}', 'danger')
+            db.session.rollback()
+            return redirect(url_for('measurements.records_input'))
+
         for m_type in all_measurement_types:
             # この測定タイプに対応する値が送信されたか確認
             value_str = request.form.get(m_type.name)
-            if value_str:
+            if value_str and value_str.strip():
                 try:
                     value_float = float(value_str)
                     new_value = MeasurementValue(
@@ -154,25 +166,12 @@ def csv_import():
 @login_required
 @roles_accepted("administer", "manager")
 def download_csv_template_with_members():
-    """全ての部員を含むCSVテンプレートファイルのダウンロード"""
-    # 全ての部員を含むテンプレート内容を取得
+    """
+    全ての部員を含むCSVテンプレートファイルのダウンロード
+    """
     template_content = services.generate_csv_template_with_all_members()
     return Response(
         template_content,
         mimetype="text/csv",
         headers={"Content-disposition": "attachment; filename=measurement_template_with_members.csv"}
-    )
-
-
-@measurements_bp.route('/download_admin_csv_template_with_members')
-@login_required
-@roles_accepted("administer")
-def download_admin_csv_template_with_members():
-    """全ての部員を含む管理者用CSVテンプレートファイルのダウンロード"""
-    # 全ての部員を含む管理者用テンプレート内容を取得
-    template_content = services.generate_admin_csv_template_with_all_members()
-    return Response(
-        template_content,
-        mimetype="text/csv",
-        headers={"Content-disposition": "attachment; filename=admin_measurement_template_with_members.csv"}
     )

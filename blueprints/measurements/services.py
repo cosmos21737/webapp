@@ -40,9 +40,19 @@ def create_single_measurement_record(user_id, measurement_date_str, form_data, c
     # すべての測定タイプを取得
     all_measurement_types = MeasurementType.query.all()
 
+    # すべての測定値が入力されているかチェック
+    missing_values = []
+    for m_type in all_measurement_types:
+        value_str = form_data.get(m_type.name)
+        if not value_str or not value_str.strip():
+            missing_values.append(m_type.display_name)
+    
+    if missing_values:
+        raise ValueError(f"以下の測定値が入力されていません: {', '.join(missing_values)}")
+
     for m_type in all_measurement_types:
         value_str = form_data.get(m_type.name) # フォームからの入力はm_type.nameで取得
-        if value_str:
+        if value_str and value_str.strip():
             try:
                 value_float = float(value_str)
                 new_value = MeasurementValue(
@@ -102,14 +112,10 @@ def process_csv_upload(file_content, created_user):
             measurement_date = row.get('測定日', '').strip()
 
             # 権限に基づくステータス設定
-            status_value = "draft"
             if current_user.has_role("administer"):
-                status_input = row.get('承認', '').replace('\u3000', ' ').strip()
-                if status_input:
-                    # 日本語または英語の承認状態を英語に変換
-                    status_value = status_mapping.get(status_input, "draft")
-                    if status_input not in status_mapping:
-                        error_messages.append(f"行{row_num}: 無効な承認状態「{status_input}」です。使用可能な値: 下書き, コーチ待ち, 承認, 差し戻し")
+                status_value = "approved"
+            else:
+                status_value = "draft"
 
             # 必須フィールド検証
             if not csv_student_id:
@@ -138,6 +144,7 @@ def process_csv_upload(file_content, created_user):
             db.session.flush()
 
             # 測定値を個別に追加
+            missing_values = []
             for field_name, value in row.items():
                 field_name_stripped = field_name.strip()
                 if field_name_stripped in ['学生番号', '学年', '氏名', '測定日', '承認']:
@@ -159,14 +166,18 @@ def process_csv_upload(file_content, created_user):
                 # 値の解析
                 parsed_value = parse_float_or_none(value)
                 if parsed_value is None:
-                    continue
+                    missing_values.append(m_type.display_name)
+                else:
+                    # MeasurementValue作成
+                    db.session.add(MeasurementValue(
+                        record_id=record.id,
+                        type_id=m_type.id,
+                        value=parsed_value
+                    ))
 
-                # MeasurementValue作成
-                db.session.add(MeasurementValue(
-                    record_id=record.id,
-                    type_id=m_type.id,
-                    value=parsed_value
-                ))
+            # すべての測定値が入力されているかチェック
+            if missing_values:
+                raise ValueError(f"以下の測定値が入力されていません: {', '.join(missing_values)}")
 
             success_count += 1
 
@@ -193,16 +204,6 @@ def parse_date(date_str):
         except ValueError:
             continue
     return None
-
-
-def parse_float_or_none(value):
-    """文字列をfloatに変換（空欄や不正値はNone）"""
-    if not value or not value.strip():
-        return None
-    try:
-        return float(value.strip())
-    except ValueError:
-        return None
 
 
 def generate_csv_template_with_all_members():
@@ -242,56 +243,6 @@ def generate_csv_template_with_all_members():
         for m_type in measurement_types:
             row_values.append("")  # 測定値は空欄
         row_values.append(today_date_str)
-        example_rows.append(",".join(row_values))
-
-    example_data = "\n".join(example_rows)
-
-    return header + "\n" + example_data
-
-
-def generate_admin_csv_template_with_all_members():
-    """
-    全ての部員を含む管理者用CSVテンプレートの内容を文字列で返す。
-    承認状態の列を含む。
-    """
-    header_parts = ['学生番号', '学年', '氏名']
-    # 順番を保証するためにorder_byを使用し、すべてのMeasurementTypeを取得
-    measurement_types = MeasurementType.query.order_by(MeasurementType.id).all()
-    for m_type in measurement_types:
-        # display_nameとunitを組み合わせてCSVヘッダー名を生成
-        header_name = f"{m_type.display_name} [{m_type.unit}]" if m_type.unit else m_type.display_name
-        header_parts.append(header_name)
-
-    header_parts.append('測定日')
-    header_parts.append('承認')  # 管理者用テンプレートには承認列を追加
-
-    header = ",".join(header_parts)
-
-    # 全ての部員を取得（memberロールを持つアクティブなユーザー）
-    from db_models import Role
-    members = User.query.options(db.joinedload(User.roles)).filter(
-        User.roles.any(Role.name == "member"),
-        User.is_active == True
-    ).order_by(User.grade, User.name).all()
-
-    # 今日の日付をYYYY/MM/DD形式で取得
-    today_date_str = datetime.now().strftime('%Y/%m/%d')
-
-    # 日本語の承認状態リスト
-    status_options = ['下書き', 'コーチ待ち', '承認', '差し戻し']
-
-    # 部員データを動的に生成
-    example_rows = []
-    for i, member in enumerate(members):
-        student_id = member.get_student_id_display() or ""
-        grade = str(member.grade) if member.grade else ""
-        row_values = [student_id, grade, member.name]
-        for m_type in measurement_types:
-            row_values.append("")  # 測定値は空欄
-        row_values.append(today_date_str)
-        # 承認状態のサンプル値（日本語）
-        status_index = i % len(status_options)
-        row_values.append(status_options[status_index])
         example_rows.append(",".join(row_values))
 
     example_data = "\n".join(example_rows)
