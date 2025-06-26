@@ -1,7 +1,6 @@
 import statistics
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from app import app
 
 from werkzeug.security import generate_password_hash
 
@@ -84,7 +83,7 @@ def get_user_records(member_id, status='approved'):
 def calculate_rankings(member_id):
     """全測定項目のランキングを計算"""
     rankings = {}
-    measurement_types = MeasurementType.query.all()
+    measurement_types = MeasurementType.query.order_by(MeasurementType.id).all()
 
     for m_type in measurement_types:
         rankings[m_type.display_name] = calculate_rank(
@@ -172,7 +171,7 @@ def calculate_rank(user_id, metric_name, asc=True):
 def calculate_statuses():
     """全測定項目のランキングを計算"""
     rankings = {}
-    measurement_types = MeasurementType.query.all()
+    measurement_types = MeasurementType.query.order_by(MeasurementType.id).all()
 
     for m_type in measurement_types:
         rankings[m_type.display_name] = calculate_status(

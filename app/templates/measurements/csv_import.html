@@ -27,12 +27,54 @@
                             <li><span class="icon">📁</span> 文字コードは <strong>UTF-8</strong> で保存してください。</li>
                             <li><span class="icon">👤</span> 部員は「学年」と「氏名」で検索します。</li>
                             <li><span class="icon">📅</span> 測定日は「YYYY/MM/DD」または「YYYY-MM-DD」形式で入力してください。</li>
+                            {% if current_user.has_role("administer") %}
+                            <li><span class="icon">✅</span> <strong>管理者のみ：</strong>承認状態も指定できます（draft, pending_coach, approved, rejected）</li>
+                            <div class="admin-status-explanation">
+                                <h5>📋 承認状態の詳細説明</h5>
+                                <div class="status-details">
+                                    <div class="status-detail">
+                                        <div class="status-badge status-draft">draft</div>
+                                        <p><strong>下書き：</strong>マネージャーが入力した直後の状態。部員による確認が必要です。</p>
+                                    </div>
+                                    <div class="status-detail">
+                                        <div class="status-badge status-pending">pending_coach</div>
+                                        <p><strong>コーチ承認待ち：</strong>部員が承認した記録。コーチによる最終承認が必要です。</p>
+                                    </div>
+                                    <div class="status-detail">
+                                        <div class="status-badge status-approved">approved</div>
+                                        <p><strong>承認済み：</strong>全ての承認が完了した正式な記録。分析や統計に使用されます。</p>
+                                    </div>
+                                    <div class="status-detail">
+                                        <div class="status-badge status-rejected">rejected</div>
+                                        <p><strong>差し戻し：</strong>何らかの理由で差し戻された記録。修正後に再提出が必要です。</p>
+                                    </div>
+                                </div>
+                                <div class="admin-usage-notes">
+                                    <h6>💡 使用方法</h6>
+                                    <ul>
+                                        <li><strong>通常の入力：</strong>承認状態を空欄または「draft」にすると、通常の承認フローが開始されます</li>
+                                        <li><strong>即座に承認済み：</strong>「approved」を指定すると、承認フローをスキップして即座に正式記録として登録されます</li>
+                                        <li><strong>注意事項：</strong>「approved」を指定する場合は、十分に確認したのちに行ってください</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
-                <a href="{{ url_for('measurements.download_csv_template') }}" class="btn btn-primary mt-3">
-                    <span class="icon">📥</span> テンプレートファイルをダウンロード
-                </a>
+                <div class="template-downloads">
+                    <a href="{{ url_for('measurements.download_csv_template') }}" class="btn btn-primary mt-3">
+                        <span class="icon">📥</span> テンプレートファイルをダウンロード
+                    </a>
+                    {% if current_user.has_role("administer") %}
+                    <a href="{{ url_for('measurements.download_admin_csv_template') }}" class="btn btn-warning mt-3 ms-2">
+                        <span class="icon">👑</span> 管理者用テンプレートをダウンロード
+                    </a>
+                    <div class="admin-note mt-2">
+                        <small class="text-muted">※ 管理者用テンプレートには承認状態の列が含まれています</small>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -157,6 +199,112 @@
     margin-right: 0.5rem;
 }
 
+.template-downloads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.admin-note {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.admin-note small {
+    color: var(--warning);
+    font-weight: 500;
+}
+
+/* 管理者用承認状態説明のスタイル */
+.admin-status-explanation {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px solid var(--warning);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.admin-status-explanation h5 {
+    color: var(--warning);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.status-detail {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+}
+
+.status-detail .status-badge {
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.status-detail p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--gray-700);
+}
+
+.status-detail p strong {
+    color: var(--gray-800);
+    font-weight: 600;
+}
+
+.admin-usage-notes {
+    background: var(--white);
+    padding: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+}
+
+.admin-usage-notes h6 {
+    color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-usage-notes ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.admin-usage-notes li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+    color: var(--gray-700);
+}
+
+.admin-usage-notes li strong {
+    color: var(--gray-800);
+    font-weight: 600;
+}
+
 @media (max-width: 768px) {
     .csv-info {
         grid-template-columns: 1fr;
@@ -164,6 +312,24 @@
     .step-content {
         padding-left: 0;
         border-left: none;
+    }
+    .template-downloads {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .template-downloads .btn {
+        margin: 0.25rem 0;
+    }
+    .status-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .status-detail {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.5rem;
     }
 }
 </style>

@@ -19,11 +19,12 @@ def team():
 
     #チームの偏差値を計算
     team_stats = services.calculate_statuses()
-    print(team_stats)
+
+    # 測定項目を明示的な順序で取得
+    measurement_types = MeasurementType.query.order_by(MeasurementType.id).all()
 
     # 各メンバーの全種目偏差値を取得
     member_stddevs = {}
-    measurement_types = MeasurementType.query.all()
     for member in members_list:
         member_stddevs[member.user_id] = services.calculate_rankings(member.user_id)
 

@@ -65,7 +65,7 @@ def member_records(member_id):
 @login_required
 @roles_accepted("administer", "coach", "director")
 def push_team(member_id):
-    user = User.query.get(member_id)
+    user = db.session.get(User, member_id)
     if user:  # ユーザーが存在するかチェック
         user.team_status = True
         db.session.commit()  # 変更をデータベースに保存
@@ -79,7 +79,7 @@ def push_team(member_id):
 @login_required
 @roles_accepted("administer", "coach", "director")
 def delete_team(member_id):
-    user = User.query.get(member_id)
+    user = db.session.get(User, member_id)
     if user:  # ユーザーが存在するかチェック
         user.team_status = False
         db.session.commit()  # 変更をデータベースに保存

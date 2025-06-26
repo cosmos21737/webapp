@@ -15,7 +15,7 @@ def records_input():
     """
     測定記録入力フォームの表示
     """
-    user = User.query.get(current_user.get_id())
+    user = db.session.get(User, current_user.get_id())
     measurement_types = MeasurementType.query.all()
     return render_template('/measurements/records_input.html',
                            user=user,
@@ -104,7 +104,7 @@ def submit_record():
 def csv_import():
     """CSV一括インポート画面の表示とファイル処理"""
     if request.method == 'GET':
-        user = User.query.get(current_user.get_id())
+        user = db.session.get(User, current_user.get_id())
         return render_template('/measurements/csv_import.html', user=user)
 
     # POST処理：ファイルのバリデーション
@@ -158,4 +158,18 @@ def download_csv_template():
         template_content,
         mimetype="text/csv",
         headers={"Content-disposition": "attachment; filename=measurement_template.csv"}
+    )
+
+
+@measurements_bp.route('/download_admin_csv_template')
+@login_required
+@roles_accepted("administer")
+def download_admin_csv_template():
+    """管理者用CSVテンプレートファイルのダウンロード"""
+    # 管理者用テンプレート内容を取得
+    template_content = services.generate_admin_csv_template_content()
+    return Response(
+        template_content,
+        mimetype="text/csv",
+        headers={"Content-disposition": "attachment; filename=admin_measurement_template.csv"}
     )

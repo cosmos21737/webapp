@@ -66,11 +66,37 @@
                 </button>
             </div>
         </form>
-        <div class="mt-4 text-center">
-            {% if contact and contact.email %}
-            <p class="text-muted">ご不明な点があれば <a href="mailto:{{ contact.email }}">{{ contact.email }}</a> までお問い合わせください。</p>
-            {% endif %}
+
+        <!-- 問い合わせ先情報 -->
+        {% if contact %}
+        <div class="contact-info">
+            <h4>📞 お問い合わせ先</h4>
+            <div class="contact-details">
+                {% if contact.email %}
+                <div class="contact-item">
+                    <span class="contact-icon">📧</span>
+                    <span class="contact-label">メール:</span>
+                    <a href="mailto:{{ contact.email }}" class="contact-link">{{ contact.email }}</a>
+                </div>
+                {% endif %}
+                
+                {% if contact.phone %}
+                <div class="contact-item">
+                    <span class="contact-icon">📱</span>
+                    <span class="contact-label">電話:</span>
+                    <a href="tel:{{ contact.phone }}" class="contact-link">{{ contact.phone }}</a>
+                </div>
+                {% endif %}
+                
+                {% if contact.note %}
+                <div class="contact-note">
+                    <span class="contact-icon">💬</span>
+                    <span class="note-text">{{ contact.note }}</span>
+                </div>
+                {% endif %}
+            </div>
         </div>
+        {% endif %}
 
         <div class="login-footer">
             <div class="login-info">
@@ -186,6 +212,84 @@
 
 .login-form {
     margin-bottom: 2rem;
+}
+
+/* 問い合わせ先情報のスタイル */
+.contact-info {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+}
+
+.contact-info h4 {
+    color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.contact-icon {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.contact-label {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    font-weight: 500;
+    min-width: 60px;
+}
+
+.contact-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.contact-link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.contact-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    margin-top: 0.5rem;
+}
+
+.note-text {
+    color: var(--gray-700);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    flex: 1;
 }
 
 .form-label {
@@ -323,6 +427,20 @@
     .logo-icon {
         font-size: 2.5rem;
     }
+    
+    .contact-info {
+        padding: 1rem;
+    }
+    
+    .contact-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .contact-label {
+        min-width: auto;
+    }
 }
 
 @media (max-width: 480px) {
@@ -342,6 +460,15 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 0.25rem;
+    }
+    
+    .contact-info {
+        padding: 0.75rem;
+    }
+    
+    .contact-note {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
 </style>

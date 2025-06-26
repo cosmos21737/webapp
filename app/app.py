@@ -5,11 +5,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from pathlib import Path
 from dotenv import load_dotenv
 
-from flask import Flask
+from flask import Flask, g
 from flask_login import LoginManager, current_user
 from flask_security.core import Security
 from flask_security.datastore import SQLAlchemyUserDatastore
-import services
 
 from db_models import User, Role, db, MeasurementRecord, MeasurementType
 from blueprints.main import main_bp
@@ -22,6 +21,7 @@ from blueprints.profile import profile_bp
 from blueprints.notice import notice_bp
 from blueprints.news import news_bp
 from blueprints.admin import admin_bp
+from services.services import initialize_database
 
 # Load environment variables
 load_dotenv()
@@ -58,10 +58,9 @@ login_manager = LoginManager()
 login_manager.login_view = "auth.login"  # type: ignore
 login_manager.init_app(app)  # ← ここで初期化
 
-
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 # Blueprint の登録
@@ -104,7 +103,7 @@ if __name__ == '__main__':
         print("データベースファイルは存在します")
     else:
         print("データベースファイルが見つかりません - 新規作成します")
-        services.initialize_database(app)
+        initialize_database(app)
 
     print("アプリケーションを開始します...")
     app.run(debug=True)

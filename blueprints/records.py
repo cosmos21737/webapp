@@ -2,9 +2,9 @@ import csv
 import io
 from datetime import datetime
 
-from flask import request, Blueprint, render_template, send_file
+from flask import request, Blueprint, render_template, send_file, flash, redirect, url_for
 from flask_login import login_required
-from flask_security import  roles_accepted
+from flask_security.decorators import roles_accepted
 from db_models import db, User, MeasurementRecord, MeasurementType
 from services import services
 
@@ -86,3 +86,36 @@ def export_csv(member_id):
         download_name=filename,
         etag=False
     )
+
+
+@records_bp.route('/toggle_active/<int:member_id>', methods=['POST'])
+@login_required
+@roles_accepted("administer", "coach", "director")
+def toggle_active(member_id):
+    """部員のis_activeを切り替える"""
+    user = db.session.get(User, member_id)
+    if not user:
+        flash('部員が見つかりません。', 'danger')
+        return redirect(url_for('records.records', member_id=member_id))
+    
+    try:
+        # is_activeを反転
+        current_status = user.is_active
+        setattr(user, 'is_active', not current_status)
+        
+        # 引退にした場合、チームからも削除
+        if not user.is_active and user.team_status:
+            user.team_status = False
+            flash(f'{user.name}さんを引退にし、チームからも削除しました。', 'success')
+        else:
+            status = "現役" if user.is_active else "引退"
+            flash(f'{user.name}さんの活動状況を「{status}」に変更しました。', 'success')
+        
+        user.updated_at = datetime.now()
+        db.session.commit()
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'活動状況の変更中にエラーが発生しました: {str(e)}', 'danger')
+    
+    return redirect(url_for('records.records', member_id=member_id))
