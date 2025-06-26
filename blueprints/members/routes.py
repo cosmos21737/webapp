@@ -89,6 +89,34 @@ def delete_team(member_id):
     return redirect(url_for('members.members'))
 
 
+@members_bp.route('/retire/<int:member_id>', methods=['POST'])
+@login_required
+@roles_accepted("administer", "coach", "director")
+def retire_member(member_id):
+    user = User.query.get(member_id)
+    if user:
+        user.is_active = False
+        db.session.commit()
+        flash(f'{user.name}さんを引退にしました', 'success')
+    else:
+        flash('ユーザーが見つかりません', 'error')
+    return redirect(url_for('members.members'))
+
+
+@members_bp.route('/activate/<int:member_id>', methods=['POST'])
+@login_required
+@roles_accepted("administer", "coach", "director")
+def activate_member(member_id):
+    user = User.query.get(member_id)
+    if user:
+        user.is_active = True
+        db.session.commit()
+        flash(f'{user.name}さんを現役に戻しました', 'success')
+    else:
+        flash('ユーザーが見つかりません', 'error')
+    return redirect(url_for('members.members'))
+
+
 @members_bp.route('/delete/<int:member_id>', methods=['POST'])
 @login_required
 @roles_accepted("administer", "coach", "director")

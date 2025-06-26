@@ -74,37 +74,149 @@
         <div class="approval-guide">
             <div class="approval-overview" style="margin-bottom:2rem;">
                 <h4>📋 測定記録登録の流れ</h4>
-                <div class="registration-flow">
-                    <div class="flow-step-simple">
-                        <div class="step-number-simple">1</div>
-                        <div class="step-content-simple">
-                            <h6>📝 マネージャーが測定記録を作成、提出します</h6>
+                
+                <!-- 承認フローチャート -->
+                <div class="approval-flowchart">
+                    <!-- Step 1: マネージャー入力 -->
+                    <div class="flow-step manager-step">
+                        <div class="step-header">
+                            <div class="step-icon">📝</div>
+                            <div class="step-title">Step 1</div>
+                        </div>
+                        <div class="step-content">
+                            <h5>マネージャーが測定記録を作成・提出</h5>
+                            <div class="step-details">
+                                <p>• 個別記録入力またはCSV一括入力</p>
+                                <p>• 測定日、部員、各項目の数値を入力</p>
+                                <p>• 記録を提出すると部員に通知</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="flow-arrow">↓</div>
-                    <div class="flow-step-simple">
-                        <div class="step-number-simple">2</div>
-                        <div class="step-content-simple">
-                            <h6>👤 部員が測定記録を確認、承認します</h6>
+
+                    <!-- Arrow 1 -->
+                    <div class="flow-arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-head"></div>
+                    </div>
+
+                    <!-- Step 2: 部員確認 -->
+                    <div class="flow-step member-step">
+                        <div class="step-header">
+                            <div class="step-icon">👤</div>
+                            <div class="step-title">Step 2</div>
+                        </div>
+                        <div class="step-content">
+                            <h5>部員が測定記録を確認・承認</h5>
+                            <div class="step-details">
+                                <p>• 自分の記録が正しいか確認</p>
+                                <p>• 承認または差し戻しを選択</p>
+                                <p>• 差し戻し時はコメントを記入</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="flow-arrow">↓</div>
-                    <div class="flow-step-simple">
-                        <div class="step-number-simple">3</div>
-                        <div class="step-content-simple">
-                            <h6>🏆 コーチが測定記録を確認、承認します</h6>
+
+                    <!-- Arrow 2 -->
+                    <div class="flow-arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-head"></div>
+                    </div>
+
+                    <!-- Step 3: コーチ承認 -->
+                    <div class="flow-step coach-step">
+                        <div class="step-header">
+                            <div class="step-icon">🏆</div>
+                            <div class="step-title">Step 3</div>
+                        </div>
+                        <div class="step-content">
+                            <h5>コーチが最終確認・承認</h5>
+                            <div class="step-details">
+                                <p>• 部員承認済み記録を最終確認</p>
+                                <p>• 承認または差し戻しを選択</p>
+                                <p>• 差し戻し時はコメントを記入</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="flow-arrow">↓</div>
-                    <div class="flow-step-simple">
-                        <div class="step-number-simple">4</div>
-                        <div class="step-content-simple">
-                            <h6>✅ 記録が承認され、正式な記録として登録されます</h6>
+
+                    <!-- Arrow 3 -->
+                    <div class="flow-arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-head"></div>
+                    </div>
+
+                    <!-- Step 4: 完了 -->
+                    <div class="flow-step complete-step">
+                        <div class="step-header">
+                            <div class="step-icon">✅</div>
+                            <div class="step-title">Step 4</div>
+                        </div>
+                        <div class="step-content">
+                            <h5>記録が正式登録</h5>
+                            <div class="step-details">
+                                <p>• 正式な測定記録として保存</p>
+                                <p>• 成長分析に反映</p>
+                                <p>• チーム分析に反映</p>
+                            </div>
+                        </div>
+                        <div class="step-status completed">完了</div>
+                    </div>
+                </div>
+
+                <!-- 差し戻しフロー -->
+                <div class="rejection-flow">
+                    <h5>🔄 差し戻しフロー</h5>
+                    <div class="rejection-steps">
+                        <div class="rejection-step">
+                            <div class="rejection-icon">❌</div>
+                            <div class="rejection-content">
+                                <h6>差し戻し発生</h6>
+                                <p>部員またはコーチが記録を差し戻し</p>
+                            </div>
+                        </div>
+                        <div class="rejection-arrow">→</div>
+                        <div class="rejection-step">
+                            <div class="rejection-icon">📧</div>
+                            <div class="rejection-content">
+                                <h6>通知送信</h6>
+                                <p>マネージャーに差し戻し通知</p>
+                            </div>
+                        </div>
+                        <div class="rejection-arrow">→</div>
+                        <div class="rejection-step">
+                            <div class="rejection-icon">📝</div>
+                            <div class="rejection-content">
+                                <h6>修正・再提出</h6>
+                                <p>マネージャーが修正して再提出</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="flow-notes">
-                    <p><strong>差し戻しについて：</strong>記録に間違いがあった場合、部員、コーチは測定記録を差し戻しできます。差し戻された記録はマネージャーに通知されるので確認後、再提出を行ってください。</p>
+
+                <!-- 重要な注意事項 -->
+                <div class="approval-notes">
+                    <h5>📌 重要な注意事項</h5>
+                    <div class="notes-grid">
+                        <div class="note-item">
+                            <div class="note-icon">⏰</div>
+                            <div class="note-content">
+                                <h6>承認期限</h6>
+                                <p>記録は承認されるまで正式記録として扱われません</p>
+                            </div>
+                        </div>
+                        <div class="note-item">
+                            <div class="note-icon">🔍</div>
+                            <div class="note-content">
+                                <h6>確認の重要性</h6>
+                                <p>各ステップで慎重に確認を行い、正確な記録を維持</p>
+                            </div>
+                        </div>
+                        <div class="note-item">
+                            <div class="note-icon">📱</div>
+                            <div class="note-content">
+                                <h6>通知システム</h6>
+                                <p>承認待ちや差し戻しはリアルタイムで通知</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -771,6 +883,287 @@
     left: 0;
     color: var(--success);
     font-weight: bold;
+}
+
+/* 承認フロー詳細ガイド用スタイル */
+.approval-flowchart {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.flow-step {
+    display: flex;
+    align-items: stretch;
+    background: var(--white);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    position: relative;
+}
+
+.flow-step:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.manager-step {
+    border-left: 4px solid #3b82f6;
+}
+
+.member-step {
+    border-left: 4px solid #10b981;
+}
+
+.coach-step {
+    border-left: 4px solid #f59e0b;
+}
+
+.complete-step {
+    border-left: 4px solid #8b5cf6;
+}
+
+.step-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--gray-50);
+    padding: 1.5rem 1rem;
+    min-width: 120px;
+    border-right: 1px solid var(--gray-200);
+}
+
+.step-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.step-title {
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+}
+
+.step-content {
+    flex: 1;
+    padding: 1.5rem;
+}
+
+.step-content h5 {
+    color: var(--gray-800);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
+}
+
+.step-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.step-details p {
+    color: var(--gray-600);
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.step-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    min-width: 100px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.step-status.pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.step-status.completed {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.flow-arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    position: relative;
+}
+
+.arrow-line {
+    width: 2px;
+    height: 30px;
+    background: var(--gray-300);
+}
+
+.arrow-head {
+    position: absolute;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--gray-300);
+}
+
+/* 差し戻しフロー */
+.rejection-flow {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 2px solid #fecaca;
+    border-radius: var(--radius);
+}
+
+.rejection-flow h5 {
+    color: #dc2626;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rejection-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.rejection-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--white);
+    padding: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid #fecaca;
+    min-width: 150px;
+}
+
+.rejection-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.rejection-content h6 {
+    color: var(--gray-800);
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    font-size: 0.875rem;
+}
+
+.rejection-content p {
+    color: var(--gray-600);
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.rejection-arrow {
+    color: #dc2626;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+/* 重要な注意事項 */
+.approval-notes {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #bae6fd;
+    border-radius: var(--radius);
+}
+
+.approval-notes h5 {
+    color: #0369a1;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.note-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: var(--white);
+    padding: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid #bae6fd;
+}
+
+.note-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.note-content h6 {
+    color: var(--gray-800);
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    font-size: 0.875rem;
+}
+
+.note-content p {
+    color: var(--gray-600);
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .flow-step {
+        flex-direction: column;
+    }
+    
+    .step-header {
+        flex-direction: row;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        border-right: none;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .step-status {
+        min-width: auto;
+        padding: 0.75rem;
+    }
+    
+    .rejection-steps {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .rejection-arrow {
+        transform: rotate(90deg);
+    }
+    
+    .notes-grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 {% endblock %}

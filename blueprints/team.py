@@ -32,6 +32,7 @@ def team():
                            team=members_list, # ここを pagination.items から members_list に変更
                            team_stats=team_stats,
                            member_stddevs=member_stddevs,
-                           measurement_types=measurement_types
+                           measurement_types=measurement_types,
+                           get_member_category_evaluations=services.calculate_category_evaluations
                            )
 

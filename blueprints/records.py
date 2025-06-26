@@ -23,13 +23,18 @@ def records(member_id):
 
     # ランキングデータを取得
     rankings = services.calculate_rankings(member_id)
+    
+    # カテゴリ別評価（偏差値平均とS/A/B/C評価）を取得
+    category_evaluations = services.calculate_category_evaluations(member_id)
 
     # すべてのレコードをフロントエンドに渡す
     return render_template('records.html',
                            user=user,
                            records=records_list,
                            rankings=rankings,
-                           measurement_types=measurement_types)
+                           measurement_types=measurement_types,
+                           category_evaluations=category_evaluations,
+                           get_record_category_evaluations=services.get_record_category_evaluations)
 
 
 @records_bp.route('/my/records/export_csv/<int:member_id>')

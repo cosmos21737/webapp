@@ -4,31 +4,29 @@
 {% block content %}
 <div class="member-header">
     <h2>{{ user.name }} さんの測定記録</h2>
-    
-    <div class="member-status">
-        {% if user.is_active %}
-        <div class="status-badge active">
-            <i class="fas fa-user-check"></i>
-            <span>現役</span>
-        </div>
-        {% else %}
-        <div class="status-badge retired">
-            <i class="fas fa-user-times"></i>
-            <span>引退</span>
-        </div>
-        {% endif %}
-    </div>
 
     {% if current_user.has_any_role('coach', 'director', "administer") %}
     <div class="member-actions">
-        <form method="POST" action="{{ url_for('records.toggle_active', member_id=user.user_id) }}"
-              onsubmit="return confirm('{{ user.name }}さんの活動状況を変更しますか？');">
+        <!-- 引退・現役変更機能 -->
+        <div class="status-actions me-3">
             {% if user.is_active %}
-            <button type="submit" class="btn btn-warning">引退にする</button>
+                <form method="POST" action="{{ url_for('members.retire_member', member_id=user.user_id) }}" 
+                      style="display: inline;" onsubmit="return confirm('{{ user.name }}さんを引退にしますか？');">
+                    <button type="submit" class="btn btn-warning">
+                        <span class="icon">👋</span> 引退にする
+                    </button>
+                </form>
             {% else %}
-            <button type="submit" class="btn btn-success">現役に戻す</button>
+                <form method="POST" action="{{ url_for('members.activate_member', member_id=user.user_id) }}" 
+                      style="display: inline;" onsubmit="return confirm('{{ user.name }}さんを現役に戻しますか？');">
+                    <button type="submit" class="btn btn-success">
+                        <span class="icon">🔄</span> 現役に戻す
+                    </button>
+                </form>
             {% endif %}
-        </form>
+        </div>
+        
+        <!-- 既存の操作 -->
         <form method="POST" action="{{ url_for('members.delete_member', member_id=user.user_id) }}"
               onsubmit="return confirm('本当に削除しますか？');">
             <button type="submit" class="btn btn-danger">部員を削除</button>
@@ -51,6 +49,59 @@
     <a href="{{ url_for('records.export_csv', member_id=user.user_id) }}" class="btn btn-secondary">
         <i class="fas fa-download"></i> CSV出力
     </a>
+</div>
+
+<!-- カテゴリ別評価セクション -->
+<div class="card category-evaluation-section mb-4">
+    <div class="card-header">
+        <h3>カテゴリ別評価</h3>
+    </div>
+    <div class="card-body">
+        {% if category_evaluations %}
+            <!-- レーダーチャート -->
+            <div class="radar-chart-container mb-4">
+                <canvas id="categoryRadarChart" width="400" height="400"></canvas>
+            </div>
+            
+            
+            <!-- カード表示 -->
+            <div class="category-evaluations-grid">
+                {% for category, evaluation in category_evaluations.items() %}
+                <div class="category-evaluation-card 
+                    {% if evaluation.grade == 'S' %}s-grade{% endif %}
+                    {% if evaluation.grade == 'A' %}a-grade{% endif %}
+                    {% if evaluation.grade == 'B' %}b-grade{% endif %}
+                    {% if evaluation.grade == 'C' %}c-grade{% endif %}">
+                    <div class="category-header">
+                        <h5 class="category-title">{{ category }}</h5>
+                        <div class="grade-badge">
+                            <span class="badge bg-{{ evaluation.grade_color }} fs-4 grade-text">{{ evaluation.grade }}</span>
+                            <div class="grade-description">
+                                {% if evaluation.grade == 'S' %}優秀{% endif %}
+                                {% if evaluation.grade == 'A' %}良好{% endif %}
+                                {% if evaluation.grade == 'B' %}平均{% endif %}
+                                {% if evaluation.grade == 'C' %}要改善{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="category-details">
+                        <div class="evaluation-item main-value">
+                            <span class="evaluation-label">偏差値平均:</span>
+                            <span class="evaluation-value">{{ evaluation.average_stddev }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">評価データがありません。</p>
+        {% endif %}
+        <div class="evaluation-legend mt-3">
+            <small class="text-muted">
+                <strong>評価基準:</strong> S: 偏差値60以上 | A: 偏差値52～59 | B: 偏差値40～51 | C: 偏差値39以下
+            </small>
+        </div>
+    </div>
 </div>
 
 <div class="card rankings-section">
@@ -95,35 +146,50 @@
     <div class="card-header">
         <h3>詳細記録</h3>
     </div>
-    <div class="card-body">
-        <div class="table-container">
-            <table id="detailedRecordsTable" class="table table-striped table-hover display"> {# id="detailedRecordsTable"とclass="display"を追加 #}
-                <thead class="table-light">
-                    <tr>
-                        <th>測定日</th>
-                        {% for m_type in measurement_types %}
-                        <th>{{ m_type.display_name }} ({{ m_type.unit }})</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for record in records %}
-                    <tr>
-                        <td>{{ record.measurement_date.strftime('%Y/%m/%d') }}</td>
-                        {% for m_type in measurement_types %}
-                        <td>
-                            {% for value in record.values if value.type_id == m_type.id %}
-                                {{ value.value }}
-                            {% else %}
-                                -
-                            {% endfor %}
-                        </td>
-                        {% endfor %}
-                    </tr>
+    <div class="card-body table-responsive">
+        <table id="detailedRecordsTable" class="table table-striped table-hover display"> {# id="detailedRecordsTable"とclass="display"を追加 #}
+            <thead class="table-light">
+                <tr>
+                    <th>測定日</th>
+                    {% for m_type in measurement_types %}
+                    <th>{{ m_type.display_name }} ({{ m_type.unit }})</th>
                     {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    <th>カテゴリ評価(偏差値平均)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.measurement_date.strftime('%Y/%m/%d') }}</td>
+                    {% for m_type in measurement_types %}
+                    <td>
+                        {% for value in record.values if value.type_id == m_type.id %}
+                            {{ value.value }}
+                        {% else %}
+                            -
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+                    <td>
+                        {% set record_evaluations = get_record_category_evaluations(record.id) %}
+                        {% if record_evaluations %}
+                            <div class="record-category-evaluations">
+                                {% for category, evaluation in record_evaluations.items() %}
+                                <div class="record-evaluation-item">
+                                    <span class="record-category-name">{{ category }}:</span>
+                                    <span class="badge bg-{{ evaluation.grade_color }} record-grade">{{ evaluation.grade }}</span>
+                                    <span class="record-stddev">({{ evaluation.average_stddev }})</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -289,11 +355,117 @@ document.addEventListener('DOMContentLoaded', function() {
                 "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Japanese.json"
             },
             "order": [[0, 'desc']], // 測定日（0列目）をデフォルトで降順ソート
-            "scrollX": true, // 横スクロールを有効にする
+            "scrollX": true, // 横スクロールを有効化
             "scrollCollapse": true,
-            "autoWidth": true, // 自動幅調整を有効化
-            "responsive": false // レスポンシブ機能を無効化
+            "autoWidth": false,
+            "responsive": false, // レスポンシブ機能を無効化（横スクロールと競合するため）
+            "columnDefs": [
+                { "width": "120px", "targets": 0 }, // 測定日列の幅
+                { "width": "100px", "targets": [1,2,3,4,5,6,7,8] }, // 測定値列の幅
+                { "width": "350px", "targets": 9 } // カテゴリ評価列の幅（拡張）
+            ]
         });
+
+        // レーダーチャートの初期化
+        {% if category_evaluations %}
+        const radarCtx = document.getElementById('categoryRadarChart').getContext('2d');
+        
+        // カテゴリ評価データを準備
+        const categoryLabels = [];
+        const categoryValues = [];
+        const categoryColors = [];
+        
+        {% for category, evaluation in category_evaluations.items() %}
+        categoryLabels.push('{{ category }}');
+        categoryValues.push({{ evaluation.average_stddev }});
+        
+        // 評価に応じて色を設定
+        {% if evaluation.grade == 'S' %}
+        categoryColors.push('rgba(220, 38, 38, 0.8)'); // 赤色
+        {% elif evaluation.grade == 'A' %}
+        categoryColors.push('rgba(245, 158, 11, 0.8)'); // オレンジ色
+        {% elif evaluation.grade == 'B' %}
+        categoryColors.push('rgba(59, 130, 246, 0.8)'); // 青色
+        {% else %}
+        categoryColors.push('rgba(107, 114, 128, 0.8)'); // グレー色
+        {% endif %}
+        {% endfor %}
+        
+        const radarChart = new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    label: '{{ user.name }}さんの偏差値',
+                    data: categoryValues,
+                    backgroundColor: categoryColors.map(color => color.replace('0.8', '0.2')),
+                    borderColor: categoryColors,
+                    borderWidth: 3,
+                    pointBackgroundColor: categoryColors,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'カテゴリ別偏差値',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.r + ' (偏差値)';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: false,
+                        min: 0,
+                        max: 80,
+                        ticks: {
+                            stepSize: 20,
+                            color: '#6b7280',
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(107, 114, 128, 0.2)'
+                        },
+                        angleLines: {
+                            color: 'rgba(107, 114, 128, 0.2)'
+                        },
+                        pointLabels: {
+                            color: '#374151',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    line: {
+                        tension: 0.4
+                    }
+                }
+            }
+        });
+        {% endif %}
 
     } catch (error) {
         console.error('グラフまたはDataTables初期化エラー:', error);
@@ -309,50 +481,6 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-bottom: 20px;
     }
 
-    .member-status {
-        margin-right: 20px;
-    }
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
-
-    .status-badge.active {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        border: 2px solid #28a745;
-    }
-
-    .status-badge.active:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
-    }
-
-    .status-badge.retired {
-        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-        color: white;
-        border: 2px solid #6c757d;
-    }
-
-    .status-badge.retired:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
-    }
-
-    .status-badge i {
-        font-size: 16px;
-    }
-
     .member-actions {
         display: flex;
         gap: 10px;
@@ -360,42 +488,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     .export-section {
         margin-bottom: 20px;
-    }
-
-    /* テーブルコンテナのスタイル */
-    .table-container {
-        width: 100%;
-        overflow-x: auto;
-        margin-bottom: 20px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    /* テーブルの基本スタイル */
-    #detailedRecordsTable {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: white;
-    }
-
-    #detailedRecordsTable th,
-    #detailedRecordsTable td {
-        padding: 8px 12px;
-        text-align: right;
-        border-bottom: 1px solid #ddd;
-        white-space: nowrap; /* テキストの折り返しを防ぐ */
-    }
-
-    #detailedRecordsTable th {
-        background-color: #f8f9fa;
-        font-weight: bold;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-
-    #detailedRecordsTable tbody tr:hover {
-        background-color: #f5f5f5;
     }
 
     .rankings-grid {
@@ -438,6 +530,232 @@ document.addEventListener('DOMContentLoaded', function() {
         position: relative;
         height: 400px;
         margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .member-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .rankings-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    /* カテゴリ別評価セクションのスタイル */
+    .category-evaluation-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #dee2e6;
+    }
+
+    .category-evaluations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .category-evaluation-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 4px solid #007bff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .category-evaluation-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .category-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .category-title {
+        margin: 0;
+        color: #495057;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .grade-badge {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .grade-text {
+        font-size: 1.5rem !important;
+        font-weight: bold;
+        padding: 8px 12px;
+        border-radius: 8px;
+        min-width: 50px;
+        text-align: center;
+    }
+
+    .grade-description {
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: #6c757d;
+        text-align: center;
+    }
+
+    .category-details {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .evaluation-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+    }
+
+    .evaluation-item.main-value {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+        margin-bottom: 5px;
+    }
+
+    .evaluation-label {
+        font-weight: bold;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .evaluation-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .evaluation-count {
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: bold;
+    }
+
+    .evaluation-criteria {
+        font-weight: bold;
+        color: #007bff;
+        font-size: 0.9rem;
+    }
+
+    .evaluation-legend {
+        border-top: 1px solid #dee2e6;
+        padding-top: 15px;
+    }
+
+    @media (max-width: 768px) {
+        .category-evaluations-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .category-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+    }
+
+    /* レーダーチャート説明セクションのスタイル */
+    .radar-chart-explanation {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .explanation-header {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #007bff;
+    }
+
+    .explanation-header h5 {
+        color: #495057;
+        margin: 0;
+        font-weight: bold;
+    }
+
+    .explanation-header i {
+        color: #007bff;
+        margin-right: 8px;
+    }
+
+    .explanation-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .explanation-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .explanation-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .explanation-icon {
+        font-size: 2rem;
+        flex-shrink: 0;
+        width: 50px;
+        text-align: center;
+    }
+
+    .explanation-text {
+        flex: 1;
+        line-height: 1.6;
+    }
+
+    .explanation-text strong {
+        color: #495057;
+        font-size: 1.1rem;
+    }
+
+    .explanation-text br {
+        margin-bottom: 5px;
+    }
+
+    @media (max-width: 768px) {
+        .explanation-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .explanation-item {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+        
+        .explanation-icon {
+            width: auto;
+        }
     }
 </style>
 {% endblock %}

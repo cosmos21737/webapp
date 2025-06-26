@@ -45,7 +45,7 @@ class User(db.Model, UserMixin):
 
     user_id = db.Column(db.Integer, primary_key=True)
     fs_uniquifier = db.Column(db.String(64), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))  # 追加
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     grade = db.Column(db.Integer, nullable=True)
     is_active = db.Column(db.Boolean, default=True)
@@ -84,6 +84,7 @@ class MeasurementType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)  # プログラム内で使用する識別子 (例: 'run_50m')
     display_name = db.Column(db.String(100), nullable=False)  # 表示用名称 (例: '50m走')
+    category = db.Column(db.String(50), nullable=True)  # 大項目分類 (例: '走力', '投力', '筋力')
     unit = db.Column(db.String(20))  # 単位 (例: '秒', 'km/h', 'm')
     evaluation_direction = db.Column(                            # 評価方向
         db.Enum('asc', 'desc', name='evaluation_direction_enum'),
