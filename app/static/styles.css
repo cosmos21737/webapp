@@ -1463,3 +1463,472 @@ footer p {
     font-size: 2rem;
   }
 }
+
+/* ========================================
+   管理者ページ専用スタイル
+   ======================================== */
+
+/* 管理者ページヘッダー */
+.admin-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  border-radius: var(--radius-lg);
+  color: var(--white);
+  box-shadow: var(--shadow-lg);
+}
+
+.admin-header h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.admin-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* 管理者セクション */
+.admin-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.admin-section {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-200);
+  overflow: hidden;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  margin: 0;
+  background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+  border-bottom: 1px solid var(--gray-200);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.section-icon {
+  font-size: 1.75rem;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* システム管理カード */
+.system-management-card {
+  padding: 2rem;
+}
+
+.management-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.management-item {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  background: var(--white);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--gray-800);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.management-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.management-item:hover::before {
+  left: 100%;
+}
+
+.management-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+}
+
+.management-item.contact-item:hover {
+  border-color: var(--info);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.1) 100%);
+}
+
+.management-item.danger-item:hover {
+  border-color: var(--secondary-color);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(220, 38, 38, 0.1) 100%);
+}
+
+.item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: var(--primary-color);
+  border-radius: var(--radius-md);
+  margin-right: 1.5rem;
+  color: var(--white);
+  font-size: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.management-item:hover .item-icon {
+  transform: scale(1.1);
+}
+
+.item-icon.danger {
+  background: var(--secondary-color);
+}
+
+.item-content {
+  flex: 1;
+}
+
+.item-content h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--gray-800);
+}
+
+.item-content p {
+  color: var(--gray-600);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.item-arrow {
+  color: var(--gray-400);
+  font-size: 1.25rem;
+  transition: var(--transition);
+}
+
+.management-item:hover .item-arrow {
+  color: var(--primary-color);
+  transform: translateX(5px);
+}
+
+/* カテゴリフィルター */
+.category-filter {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--gray-200);
+  background: var(--gray-50);
+}
+
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  padding: 0.5rem 1rem;
+  background: var(--white);
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius);
+  color: var(--gray-700);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.filter-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.filter-btn.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--white);
+}
+
+/* 測定テーブル */
+.measurement-table-container {
+  padding: 2rem;
+  overflow-x: auto;
+}
+
+.measurement-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.measurement-table th,
+.measurement-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.measurement-table th {
+  background: var(--gray-50);
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.measurement-table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+.measurement-table td code {
+  background: var(--gray-100);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--gray-700);
+}
+
+/* カテゴリバッジ */
+.category-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--primary-color);
+  color: var(--white);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.no-category {
+  color: var(--gray-500);
+  font-style: italic;
+}
+
+/* 評価方向バッジ */
+.direction-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.direction-badge.asc {
+  background: var(--success);
+  color: var(--white);
+}
+
+.direction-badge.desc {
+  background: var(--warning);
+  color: var(--white);
+}
+
+/* 削除ボタン */
+.delete-btn {
+  background: var(--secondary-color);
+  color: var(--white);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delete-btn:hover {
+  background: var(--secondary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+/* 空の状態 */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--gray-500);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state h4 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--gray-600);
+}
+
+.empty-state p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* 測定項目追加フォーム */
+.add-measurement-form {
+  padding: 2rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--gray-700);
+}
+
+.form-group small {
+  color: var(--gray-500);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  text-align: center;
+}
+
+.add-btn {
+  background: var(--success);
+  color: var(--white);
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: var(--shadow);
+}
+
+.add-btn:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.add-btn i {
+  font-size: 1.2rem;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+  .admin-header h2 {
+    font-size: 2rem;
+  }
+  
+  .section-title {
+    padding: 1rem 1.5rem;
+    font-size: 1.25rem;
+  }
+  
+  .management-item {
+    padding: 1rem;
+  }
+  
+  .item-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+    margin-right: 1rem;
+  }
+  
+  .item-content h4 {
+    font-size: 1.1rem;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .measurement-table-container {
+    padding: 1rem;
+  }
+  
+  .measurement-table th,
+  .measurement-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .filter-buttons {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-header {
+    padding: 1.5rem 1rem;
+  }
+  
+  .admin-header h2 {
+    font-size: 1.75rem;
+  }
+  
+  .management-item {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .item-icon {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .item-arrow {
+    display: none;
+  }
+  
+  .section-title {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}

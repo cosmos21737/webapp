@@ -42,11 +42,12 @@ def new_member():
 @roles_accepted("administer", "coach", "director")
 def register_member():
     name = request.form.get('name')
+    student_id = request.form.get('student_id', '').strip()  # 学生番号を取得
     grade = request.form.get('member_grade')
     member_role = request.form.get('member_role')
     password = "password123"  # 固定パスワード
 
-    success, message = services.register_new_member(name, grade, member_role, password)
+    success, message = services.register_new_member(name, grade, member_role, password, student_id)
     if success:
         flash(message, 'success')
     else:
@@ -190,6 +191,7 @@ def export_csv():
 
     # ヘッダー行
     headers = [
+        '学生番号',
         '氏名',
         '学年',
         '活動状況',
@@ -201,6 +203,7 @@ def export_csv():
     # データ行
     for member in members_list:
         row = [
+            member.get_student_id_display(),
             member.name,
             f"{member.grade}年" if member.grade else '',
             '現役' if member.is_active else '引退',

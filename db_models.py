@@ -45,6 +45,7 @@ class User(db.Model, UserMixin):
 
     user_id = db.Column(db.Integer, primary_key=True)
     fs_uniquifier = db.Column(db.String(64), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))  # 追加
+    student_id = db.Column(db.String(20),  nullable=True)  # 学生番号 (例: "2024001")
     name = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     grade = db.Column(db.Integer, nullable=True)
@@ -70,7 +71,17 @@ class User(db.Model, UserMixin):
 
     # ユーザーの学年表示用
     def get_grade_display(self):
-        return f"{self.grade}年生" if self.grade else "未設定"
+        return f"{self.grade}年生" if self.grade else "学生以外"
+
+    # 学生番号表示用
+    def get_student_id_display(self):
+        return self.student_id if self.student_id else "未設定"
+
+    # 表示名（学生番号 + 名前）
+    def get_display_name(self):
+        if self.student_id:
+            return f"{self.student_id} - {self.name}"
+        return self.name
 
     def has_any_role(self, *roles):
         return any(role.name in roles for role in self.roles)

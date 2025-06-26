@@ -5,13 +5,6 @@
 {% block content %}
 <h2>チーム一覧</h2>
 
-<nav>
-    <ul>
-        <li><a href="{{ url_for('members.new_member') }}" style="color: black;">新しい部員を登録</a></li>
-        <li><a href="{{ url_for('members.export_csv') }}" style="color: black;">CSV出力</a></li>
-    </ul>
-</nav>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="radar-chart-container mb-4">
   <canvas id="teamRadarChart" width="400" height="400"></canvas>
@@ -321,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
       {% for member in team %}
       <tr>
         <td><a href="{{ url_for('members.member_records', member_id=member.user_id) }}">{{ member.name }}</a></td>
-        <td>{{ member.grade }}</td>
+        <td>{{ member.get_grade_display() }}</td>
         {% for m_type in measurement_types %}
           <td>
             {% set stddev = member_stddevs[member.user_id][m_type.display_name]['stddev'] %}

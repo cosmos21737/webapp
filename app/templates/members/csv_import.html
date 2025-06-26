@@ -22,35 +22,48 @@
                 <p>以下の形式に合わせたCSVファイルをご用意ください。テンプレートをダウンロードして編集すると便利です。</p>
                 <div class="csv-info">
                     <div class="csv-rules">
-                        <h4>CSVファイルのルール</h4>
-                        <ul>
-                            <li>
-                                <span class="icon-container"><span class="icon">📁</span></span>
-                                <span class="text-container">文字コードは <strong>UTF-8</strong> で保存してください。</span>
-                            </li>
-                            <li>
-                                <span class="icon-container"><span class="icon">📄</span></span>
-                                <span class="text-container">1行目はヘッダーとして扱われます。</span>
-                            </li>
-                            <li>
-                                <span class="icon-container"><span class="icon">📛</span></span>
-                                <span class="text-container"><strong>氏名</strong>は必須項目です。</span>
-                            </li>
-                            <li>
-                                <span class="icon-container"><span class="icon">🏷️</span></span>
-                                <span class="text-container"><strong>役割</strong>は「部員」「マネージャー」「コーチ」「監督」のいずれかを指定してください。</span>
-                            </li>
-                            <li>
-                                <span class="icon-container"><span class="icon">🎓</span></span>
-                                <span class="text-container"><strong>学年</strong>は学生の場合のみ数字で入力します（任意）。</span>
-                            </li>
-                        </ul>
+                        <h4>📋 CSVファイルのルール</h4>
+                        <div class="rules-grid">
+                            <div class="rule-item">
+                                <div class="rule-icon">📁</div>
+                                <div class="rule-content">
+                                    <h5>文字コード</h5>
+                                    <p><strong>UTF-8</strong> で保存してください</p>
+                                </div>
+                            </div>
+                            <div class="rule-item">
+                                <div class="rule-icon">📄</div>
+                                <div class="rule-content">
+                                    <h5>ヘッダー行</h5>
+                                    <p>1行目はヘッダーとして扱われます</p>
+                                </div>
+                            </div>
+                            <div class="rule-item">
+                                <div class="rule-icon">📛</div>
+                                <div class="rule-content">
+                                    <h5>学生番号</h5>
+                                    <p>学生以外の場合は未使用の任意のIDを入力（例：C0031）</p>
+                                </div>
+                            </div>
+                            <div class="rule-item">
+                                <div class="rule-icon">🏷️</div>
+                                <div class="rule-content">
+                                    <h5>役割</h5>
+                                    <p>「部員」「マネージャー」「コーチ」「監督」のいずれかを指定</p>
+                                </div>
+                            </div>
+                            <div class="rule-item">
+                                <div class="rule-icon">🎓</div>
+                                <div class="rule-content">
+                                    <h5>学年</h5>
+                                    <p>学生の場合のみ数字で入力します</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="alert alert-warning mt-3">
                     <strong>ご注意：</strong><br>
-                    ・<strong>同じ氏名のユーザーは登録できません。</strong>学年やイニシャルを加えて必ず別名になるようにしてください。<br>
-                    例: <code>山田太郎(2年)</code>、<code>山田太郎A</code> など<br>
                     ・<strong>初期パスワードは「password123」です。</strong>登録後は必ず各自でパスワードを変更してください。
                 </div>
                 <a href="{{ url_for('members.download_csv_template') }}" class="btn btn-primary mt-3">
@@ -149,6 +162,56 @@
     font-weight: 600;
 }
 
+.rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    transition: all 0.2s ease;
+}
+
+.rule-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rule-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+}
+
+.rule-content h5 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.rule-content p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--gray-700);
+}
+
 .csv-rules ul {
     list-style: none;
     padding: 0;
@@ -174,16 +237,6 @@
     flex-shrink: 0;
 }
 
-.csv-example pre {
-    background-color: var(--gray-800);
-    color: var(--gray-100);
-    padding: 1rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.875rem;
-    white-space: pre-wrap;
-    word-break: break-all;
-}
-
 .form-buttons {
     display: flex;
     justify-content: center;
@@ -200,6 +253,18 @@
     .step-content {
         padding-left: 0;
         border-left: none;
+    }
+    .rules-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    .rule-item {
+        padding: 0.75rem;
+    }
+    .rule-icon {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1.25rem;
     }
 }
 </style>

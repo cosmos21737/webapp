@@ -24,6 +24,7 @@
             <table id="memberTable" class="table table-hover" style="width:100%">
                 <thead>
                     <tr>
+                        <th>学生番号</th>
                         <th>氏名</th>
                         <th>学年</th>
                         <th>役割</th>
@@ -33,8 +34,9 @@
                 <tbody>
                     {% for member in members %}
                     <tr>
+                        <td>{{ member.get_student_id_display() }}</td>
                         <td><a href="{{ url_for('records.records', member_id=member.user_id) }}">{{ member.name }}</a></td>
-                        <td>{{ member.grade or '-' }}</td>
+                        <td>{{ member.get_grade_display() }}</td>
                         <td>
                             {% for role in member.roles %}
                                 <span class="badge badge-primary">{{ role.display_name or role.name }}</span>
@@ -67,15 +69,16 @@ $(document).ready(function() {
             "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Japanese.json"
         },
         "columnDefs": [
-            { "orderable": true, "targets": 0 }, // 氏名
-            { "orderable": true, "targets": 1 }, // 学年
-            { "orderable": true, "targets": 2 }, // 役割
-            { "orderable": true, "targets": 3 }  // 活動状況
+            { "orderable": true, "targets": 0 }, // 学生番号
+            { "orderable": true, "targets": 1 }, // 氏名
+            { "orderable": true, "targets": 2 }, // 学年
+            { "orderable": true, "targets": 3 }, // 役割
+            { "orderable": true, "targets": 4 }  // 活動状況
         ],
         "responsive": {
             "details": {
                 "type": "column",
-                "target": 4
+                "target": 5
             }
         },
         "autoWidth": false,

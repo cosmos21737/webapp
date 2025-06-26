@@ -79,9 +79,9 @@ def manage_contact():
     # 常に最初のレコードを対象とする
     contact = AdminContact.query.first()
     if not contact:
-        # もしデータがなければ、空のデータを作成してセッションに追加
+        # もしデータがなければ、デフォルト値でデータを作成してセッションに追加
         contact = AdminContact()
-        contact.email=""
+        contact.email="baseball_support@example.com"
         contact.phone=""
         contact.note=""
         db.session.add(contact)
