@@ -12,9 +12,23 @@ admin_bp = Blueprint('admin', __name__)
 @login_required
 @roles_required("administer")
 def admin():
-    measurement_types = MeasurementType.query.all()
+    # カテゴリフィルターの取得
+    category_filter = request.args.get('category', '')
+    
+    # 測定タイプの取得（カテゴリフィルター適用）
+    if category_filter:
+        measurement_types = MeasurementType.query.filter_by(category=category_filter).all()
+    else:
+        measurement_types = MeasurementType.query.all()
+    
+    # 利用可能なカテゴリ一覧を取得
+    categories = db.session.query(MeasurementType.category).distinct().filter(MeasurementType.category.isnot(None)).all()
+    categories = [cat[0] for cat in categories]
+    
     return render_template('admin.html',
-                           measurement_types=measurement_types
+                           measurement_types=measurement_types,
+                           categories=categories,
+                           current_category=category_filter
                            )
 
 
@@ -100,6 +114,7 @@ def manage_contact():
 def add_measurement_type():
     name = request.form.get('name')
     display_name = request.form.get('display_name')
+    category = request.form.get('category')
     unit = request.form.get('unit')
     evaluation_direction = request.form.get('evaluation_direction')
     description = request.form.get('description')
@@ -117,6 +132,7 @@ def add_measurement_type():
         new_type = MeasurementType()
         new_type.name=name
         new_type.display_name=display_name
+        new_type.category=category if category else None
         new_type.unit=unit if unit else None
         new_type.evaluation_direction=evaluation_direction
         new_type.description=description if description else None

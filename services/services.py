@@ -312,20 +312,30 @@ def register_administer():
 
 def init_measurement_types():
     types = [
-        {'name': 'run_50m', 'display_name': '50m走', 'unit': '秒', 'evaluation_direction': 'desc'},  # 速いほど良い→降順
-        {'name': 'base_running', 'display_name': 'ベースランニング', 'unit': '秒', 'evaluation_direction': 'desc'},
-        {'name': 'long_throw', 'display_name': '遠投', 'unit': 'm', 'evaluation_direction': 'asc'},
-        {'name': 'straight_speed', 'display_name': 'ストレート球速', 'unit': 'km/h', 'evaluation_direction': 'asc'},
-        {'name': 'hit_speed', 'display_name': '打球速度', 'unit': 'km/h', 'evaluation_direction': 'asc'},
-        {'name': 'swing_speed', 'display_name': 'スイング速度', 'unit': 'km/h', 'evaluation_direction': 'asc'},
-        {'name': 'bench_press', 'display_name': 'ベンチプレス', 'unit': 'kg', 'evaluation_direction': 'asc'},
-        {'name': 'squat', 'display_name': 'スクワット', 'unit': 'kg', 'evaluation_direction': 'asc'}
+        # 走力
+        {'name': 'run_50m', 'display_name': '50m走', 'category': '走力', 'unit': '秒', 'evaluation_direction': 'asc'},  # 速いほど良い→昇順
+        {'name': 'base_running', 'display_name': 'ベースランニング', 'category': '走力', 'unit': '秒', 'evaluation_direction': 'asc'},
+        # 肩力
+        {'name': 'throw_distance', 'display_name': '遠投', 'category': '肩力', 'unit': 'm', 'evaluation_direction': 'desc'},
+        {'name': 'pitch_speed', 'display_name': 'ストレート球速', 'category': '肩力', 'unit': 'km/h', 'evaluation_direction': 'desc'},
+        # 打力
+        {'name': 'hit_speed', 'display_name': '打球速度', 'category': '打力', 'unit': 'km/h', 'evaluation_direction': 'desc'},
+        {'name': 'swing_speed', 'display_name': 'スイング速度', 'category': '打力', 'unit': 'km/h', 'evaluation_direction': 'desc'},
+        # 筋力
+        {'name': 'bench_press', 'display_name': 'ベンチプレス', 'category': '筋力', 'unit': 'kg', 'evaluation_direction': 'desc'},
+        {'name': 'squat', 'display_name': 'スクワット', 'category': '筋力', 'unit': 'kg', 'evaluation_direction': 'desc'}
     ]
 
     for type_data in types:
-        if not MeasurementType.query.filter_by(name=type_data['name']).first():
+        existing_type = MeasurementType.query.filter_by(name=type_data['name']).first()
+        if not existing_type:
             new_type = MeasurementType(**type_data)
             db.session.add(new_type)
+            print(f"測定タイプを作成: {type_data['display_name']} ({type_data['category']})")
+        else:
+            # 既存データのカテゴリを更新
+            existing_type.category = type_data['category']
+            print(f"測定タイプを更新: {type_data['display_name']} -> {type_data['category']}")
 
     db.session.commit()
     print("記録項目を登録しました。")
@@ -356,3 +366,210 @@ def create_default_roles():
         print(f"デフォルトのロール {created_count}個を登録しました！")
     else:
         print("すべてのデフォルトロールは既に存在します")
+
+
+def calculate_category_evaluations(user_id):
+    """カテゴリ別の偏差値平均を計算し、S/A/B/C評価を返す"""
+    try:
+        # 全測定項目のランキングを取得
+        rankings = calculate_rankings(user_id)
+        
+        # カテゴリ別に偏差値をグループ化
+        category_stddevs = {}
+        measurement_types = MeasurementType.query.all()
+        
+        # display_nameからカテゴリへのマッピングを作成
+        display_name_to_category = {mt.display_name: mt.category for mt in measurement_types}
+        
+        for metric_name, data in rankings.items():
+            if isinstance(data, dict) and 'stddev' in data and data['stddev'] != "N/A" and data['stddev'] != "Error":
+                try:
+                    # display_nameからカテゴリを取得
+                    category = display_name_to_category.get(metric_name)
+                    if category:
+                        if category not in category_stddevs:
+                            category_stddevs[category] = []
+                        category_stddevs[category].append(float(data['stddev']))
+                except (ValueError, TypeError):
+                    continue
+        
+        # カテゴリ別の評価を計算
+        category_evaluations = {}
+        for category, stddev_values in category_stddevs.items():
+            if stddev_values:
+                average_stddev = sum(stddev_values) / len(stddev_values)
+                
+                # S/A/B/C評価を判定
+                if average_stddev >= 60:
+                    grade = "S"
+                    grade_color = "danger"  # 赤色
+                elif average_stddev >= 52:
+                    grade = "A"
+                    grade_color = "warning"  # オレンジ色
+                elif average_stddev >= 40:
+                    grade = "B"
+                    grade_color = "primary"  # 青色
+                else:
+                    grade = "C"
+                    grade_color = "secondary"  # グレー色
+                
+                category_evaluations[category] = {
+                    'average_stddev': round(average_stddev, 1),
+                    'grade': grade,
+                    'grade_color': grade_color,
+                    'count': len(stddev_values)  # 評価に使用した測定項目数
+                }
+        
+        return category_evaluations
+        
+    except Exception as e:
+        print(f"Error in calculate_category_evaluations: {str(e)}")
+        return {}
+
+
+def calculate_overall_evaluation(user_id):
+    """全測定項目の偏差値平均を計算し、S/A/B/C評価を返す"""
+    try:
+        # 全測定項目のランキングを取得
+        rankings = calculate_rankings(user_id)
+        
+        # 偏差値のみを抽出
+        stddev_values = []
+        for metric, data in rankings.items():
+            if isinstance(data, dict) and 'stddev' in data and data['stddev'] != "N/A" and data['stddev'] != "Error":
+                try:
+                    stddev_values.append(float(data['stddev']))
+                except (ValueError, TypeError):
+                    continue
+        
+        if not stddev_values:
+            return {
+                'average_stddev': "N/A",
+                'grade': "N/A",
+                'grade_color': "secondary"
+            }
+        
+        # 偏差値の平均を計算
+        average_stddev = sum(stddev_values) / len(stddev_values)
+        
+        # S/A/B/C評価を判定
+        if average_stddev >= 60:
+            grade = "S"
+            grade_color = "danger"  # 赤色
+        elif average_stddev >= 52:
+            grade = "A"
+            grade_color = "warning"  # オレンジ色
+        elif average_stddev >= 40:
+            grade = "B"
+            grade_color = "primary"  # 青色
+        else:
+            grade = "C"
+            grade_color = "secondary"  # グレー色
+        
+        return {
+            'average_stddev': round(average_stddev, 1),
+            'grade': grade,
+            'grade_color': grade_color
+        }
+        
+    except Exception as e:
+        print(f"Error in calculate_overall_evaluation: {str(e)}")
+        return {
+            'average_stddev': "Error",
+            'grade': "Error",
+            'grade_color': "secondary"
+        }
+
+
+def get_record_category_evaluations(record_id):
+    """特定の記録IDに対するカテゴリ評価を計算"""
+    try:
+        # 記録を取得
+        record = MeasurementRecord.query.get(record_id)
+        if not record:
+            return {}
+        
+        # 記録の測定値を取得
+        record_values = {}
+        for value in record.values:
+            measurement_type = MeasurementType.query.get(value.type_id)
+            if measurement_type:
+                record_values[measurement_type.display_name] = value.value
+        
+        if not record_values:
+            return {}
+        
+        # カテゴリ別に偏差値を計算
+        category_stddevs = {}
+        measurement_types = MeasurementType.query.all()
+        
+        # display_nameからカテゴリへのマッピングを作成
+        display_name_to_category = {mt.display_name: mt.category for mt in measurement_types}
+        
+        for metric_name, value in record_values.items():
+            if value is not None:
+                try:
+                    # その測定項目の全ユーザーの値を取得して偏差値を計算
+                    all_values = db.session.query(MeasurementValue.value).join(
+                        MeasurementRecord,
+                        MeasurementValue.record_id == MeasurementRecord.id
+                    ).join(
+                        MeasurementType,
+                        MeasurementValue.type_id == MeasurementType.id
+                    ).filter(
+                        MeasurementRecord.status == 'approved',
+                        MeasurementType.display_name == metric_name,
+                        MeasurementValue.value.isnot(None)
+                    ).all()
+                    
+                    if all_values:
+                        values_list = [v[0] for v in all_values]
+                        avg = sum(values_list) / len(values_list)
+                        variance = sum((x - avg) ** 2 for x in values_list) / len(values_list)
+                        stddev = variance ** 0.5
+                        
+                        if stddev != 0:
+                            # 偏差値を計算
+                            std_score = 50 + 10 * (value - avg) / stddev
+                            
+                            # カテゴリを取得
+                            category = display_name_to_category.get(metric_name)
+                            if category:
+                                if category not in category_stddevs:
+                                    category_stddevs[category] = []
+                                category_stddevs[category].append(std_score)
+                except (ValueError, TypeError, ZeroDivisionError):
+                    continue
+        
+        # カテゴリ別の評価を計算
+        category_evaluations = {}
+        for category, stddev_values in category_stddevs.items():
+            if stddev_values:
+                average_stddev = sum(stddev_values) / len(stddev_values)
+                
+                # S/A/B/C評価を判定
+                if average_stddev >= 60:
+                    grade = "S"
+                    grade_color = "danger"  # 赤色
+                elif average_stddev >= 52:
+                    grade = "A"
+                    grade_color = "warning"  # オレンジ色
+                elif average_stddev >= 40:
+                    grade = "B"
+                    grade_color = "primary"  # 青色
+                else:
+                    grade = "C"
+                    grade_color = "secondary"  # グレー色
+                
+                category_evaluations[category] = {
+                    'average_stddev': round(average_stddev, 1),
+                    'grade': grade,
+                    'grade_color': grade_color,
+                    'count': len(stddev_values)  # 評価に使用した測定項目数
+                }
+        
+        return category_evaluations
+        
+    except Exception as e:
+        print(f"Error in get_record_category_evaluations: {str(e)}")
+        return {}

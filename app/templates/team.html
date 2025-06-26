@@ -13,67 +13,344 @@
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<canvas id="teamRadarChart" width="400" height="400"></canvas>
+<div class="radar-chart-container mb-4">
+  <canvas id="teamRadarChart" width="400" height="400"></canvas>
+</div>
+
+
+<!-- チーム平均評価サマリー -->
+<div class="card category-evaluation-section mb-4">
+    <div class="card-header">
+        <h3>チーム平均評価</h3>
+    </div>
+    <div class="card-body">
+        {% set team_averages = {} %}
+        {% for member in team %}
+            {% set member_category_evaluations = get_member_category_evaluations(member.user_id) %}
+            {% if member_category_evaluations %}
+                {% for category, evaluation in member_category_evaluations.items() %}
+                    {% if category not in team_averages %}
+                        {% set _ = team_averages.update({category: []}) %}
+                    {% endif %}
+                    {% set _ = team_averages[category].append(evaluation.average_stddev) %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        
+        {% if team_averages %}
+            
+            <!-- カード表示 -->
+            <div class="category-evaluations-grid">
+                {% for category, values in team_averages.items() %}
+                    {% if values %}
+                        {% set avg_value = (values|sum / values|length)|round(1) %}
+                        {% if avg_value >= 60 %}
+                            {% set grade = "S" %}
+                            {% set grade_color = "danger" %}
+                        {% elif avg_value >= 52 %}
+                            {% set grade = "A" %}
+                            {% set grade_color = "warning" %}
+                        {% elif avg_value >= 40 %}
+                            {% set grade = "B" %}
+                            {% set grade_color = "primary" %}
+                        {% else %}
+                            {% set grade = "C" %}
+                            {% set grade_color = "secondary" %}
+                        {% endif %}
+                        
+                        <div class="category-evaluation-card 
+                            {% if grade == 'S' %}s-grade{% endif %}
+                            {% if grade == 'A' %}a-grade{% endif %}
+                            {% if grade == 'B' %}b-grade{% endif %}
+                            {% if grade == 'C' %}c-grade{% endif %}">
+                            <div class="category-header">
+                                <h5 class="category-title">{{ category }}</h5>
+                                <div class="grade-badge">
+                                    <span class="badge bg-{{ grade_color }} fs-4 grade-text">{{ grade }}</span>
+                                    <div class="grade-description">
+                                        {% if grade == 'S' %}優秀{% endif %}
+                                        {% if grade == 'A' %}良好{% endif %}
+                                        {% if grade == 'B' %}平均{% endif %}
+                                        {% if grade == 'C' %}要改善{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="category-details">
+                                <div class="evaluation-item main-value">
+                                    <span class="evaluation-label">チーム平均偏差値:</span>
+                                    <span class="evaluation-value">{{ avg_value }}</span>
+                                </div>
+                                <div class="evaluation-item">
+                                    <span class="evaluation-label">評価対象:</span>
+                                    <span class="evaluation-count">{{ values|length }}名</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">評価データがありません。</p>
+        {% endif %}
+        <div class="evaluation-legend mt-3">
+            <small class="text-muted">
+                <strong>評価基準:</strong> S: 偏差値60以上 | A: 偏差値52～59 | B: 偏差値40～51 | C: 偏差値39以下
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- チーム統計セクション -->
+<div class="card team-stats-section mb-4">
+    <div class="card-header">
+        <h3>チーム統計</h3>
+    </div>
+    <div class="card-body">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ team|length }}</div>
+                    <div class="stat-label">チームメンバー数</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ measurement_types|length }}</div>
+                    <div class="stat-label">測定項目数</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-content">
+                    <div class="stat-value">
+                        {% set avg_grade = team|map('attr', 'grade')|reject('none')|list %}
+                        {% if avg_grade %}
+                            {{ (avg_grade|sum / avg_grade|length)|round(1) }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                    <div class="stat-label">平均学年</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- メンバー概要情報 -->
+        <div class="overview-section mt-4">
+            <div class="overview-grid">
+                <div class="overview-item">
+                    <h5><i class="fas fa-users"></i> 学年別分布</h5>
+                    <div class="grade-distribution">
+                        {% set grades = team|map('attr', 'grade')|reject('none')|list %}
+                        {% set grade_counts = {} %}
+                        {% for grade in grades %}
+                            {% if grade in grade_counts %}
+                                {% set _ = grade_counts.update({grade: grade_counts[grade] + 1}) %}
+                            {% else %}
+                                {% set _ = grade_counts.update({grade: 1}) %}
+                            {% endif %}
+                        {% endfor %}
+                        {% for grade, count in grade_counts.items()|sort %}
+                        <div class="grade-item">
+                            <span class="grade-label">{{ grade }}年</span>
+                            <span class="grade-count">{{ count }}名</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-  const ctx = document.getElementById('teamRadarChart');
-
-  const data = {
-    labels: {{ team_stats.keys()|list|tojson }},
-    datasets: [{
-      label: 'チーム偏差値',
-      data: {{ team_stats.values()|map(attribute='stddev')|list|tojson }},
-      fill: true,
-      backgroundColor: 'rgba(54, 162, 235, 0.2)',
-      borderColor: 'rgba(54, 162, 235, 1)',
-      pointBackgroundColor: 'rgba(54, 162, 235, 1)'
-    }]
-  };
-
-  new Chart(ctx, {
-    type: 'radar',
-    data: data,
-    options: {
-      scales: {
-        r: {
-          suggestedMin: 30,
-          suggestedMax: 70
-        }
-      },
-      plugins: {
-        title: {
-          display: true,
-          text: 'チーム偏差値レーダーチャート'
-        }
-      }
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('teamRadarChart');
+    
+    if (!ctx) {
+        console.error('レーダーチャートのcanvas要素が見つかりません');
+        return;
     }
-  });
+
+    // カテゴリ評価データを準備
+    const categoryLabels = [];
+    const categoryValues = [];
+    
+    // まず、すべてのメンバーからカテゴリを収集
+    const allCategories = new Set();
+    {% for member in team %}
+        {% set member_category_evaluations = get_member_category_evaluations(member.user_id) %}
+        {% if member_category_evaluations %}
+            {% for category, evaluation in member_category_evaluations.items() %}
+                allCategories.add('{{ category }}');
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+    
+    // カテゴリラベルを配列に変換
+    categoryLabels.push(...Array.from(allCategories));
+    
+    // 各カテゴリの平均偏差値を計算
+    const categoryAverages = {};
+    {% for member in team %}
+        {% set member_category_evaluations = get_member_category_evaluations(member.user_id) %}
+        {% if member_category_evaluations %}
+            {% for category, evaluation in member_category_evaluations.items() %}
+                if (!categoryAverages['{{ category }}']) {
+                    categoryAverages['{{ category }}'] = [];
+                }
+                categoryAverages['{{ category }}'].push({{ evaluation.average_stddev }});
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+    
+    // 各カテゴリの平均値を計算
+    for (const category of categoryLabels) {
+        if (categoryAverages[category] && categoryAverages[category].length > 0) {
+            const avg = categoryAverages[category].reduce((a, b) => a + b, 0) / categoryAverages[category].length;
+            categoryValues.push(Math.round(avg * 10) / 10); // 小数点第1位まで
+        } else {
+            categoryValues.push(0);
+        }
+    }
+
+    console.log('カテゴリラベル:', categoryLabels);
+    console.log('カテゴリ値:', categoryValues);
+    console.log('カテゴリアベレージ:', categoryAverages);
+
+    // データが空の場合は処理を終了
+    if (categoryLabels.length === 0) {
+        console.warn('カテゴリデータがありません');
+        return;
+    }
+
+    const data = {
+        labels: categoryLabels,
+        datasets: [{
+            label: 'チーム平均偏差値',
+            data: categoryValues,
+            fill: true,
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
+        }]
+    };
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: false,
+                    min: 0,
+                    max: 80,
+                    ticks: {
+                        stepSize: 20,
+                        color: '#6b7280',
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(107, 114, 128, 0.2)'
+                    },
+                    angleLines: {
+                        color: 'rgba(107, 114, 128, 0.2)'
+                    },
+                    pointLabels: {
+                        color: '#374151',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'チームカテゴリ別平均偏差値',
+                    font: {
+                        size: 16,
+                        weight: 'bold'
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.r + ' (偏差値)';
+                        }
+                    }
+                }
+            },
+            elements: {
+                line: {
+                    tension: 0.4
+                }
+            }
+        }
+    });
+});
 </script>
 
-<table id="teamMemberTable" class="member-table display">
-  <thead>
-    <tr>
-      <th>氏名</th>
-      <th>学年</th>
-      {% for m_type in measurement_types %}
-        <th>{{ m_type.display_name }}<br><span style="font-size:0.8em;">(偏差値)</span></th>
-      {% endfor %}
-    </tr>
-  </thead>
-  <tbody>
-    {% for member in team %}
-    <tr>
-      <td><a href="{{ url_for('members.member_records', member_id=member.user_id) }}">{{ member.name }}</a></td>
-      <td>{{ member.grade }}</td>
-      {% for m_type in measurement_types %}
+<div class="table-responsive">
+  <table id="teamMemberTable" class="member-table display">
+    <thead>
+      <tr>
+        <th>氏名</th>
+        <th>学年</th>
+        {% for m_type in measurement_types %}
+          <th>{{ m_type.display_name }}<br><span style="font-size:0.8em;">(偏差値)</span></th>
+        {% endfor %}
+        <th>カテゴリ評価(偏差値平均)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for member in team %}
+      <tr>
+        <td><a href="{{ url_for('members.member_records', member_id=member.user_id) }}">{{ member.name }}</a></td>
+        <td>{{ member.grade }}</td>
+        {% for m_type in measurement_types %}
+          <td>
+            {% set stddev = member_stddevs[member.user_id][m_type.display_name]['stddev'] %}
+            {{ stddev if stddev != 'N/A' else '-' }}
+          </td>
+        {% endfor %}
         <td>
-          {% set stddev = member_stddevs[member.user_id][m_type.display_name]['stddev'] %}
-          {{ stddev if stddev != 'N/A' else '-' }}
+          {% set member_category_evaluations = get_member_category_evaluations(member.user_id) %}
+          {% if member_category_evaluations %}
+            <div class="record-category-evaluations">
+              {% for category, evaluation in member_category_evaluations.items() %}
+              <div class="record-evaluation-item">
+                <span class="record-category-name">{{ category }}:</span>
+                <div class="record-grade-container">
+                    <span class="badge bg-{{ evaluation.grade_color }} record-grade">{{ evaluation.grade }}</span>
+                    <span class="record-stddev">({{ evaluation.average_stddev }})</span>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <span class="text-muted">-</span>
+          {% endif %}
         </td>
+      </tr>
       {% endfor %}
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </tbody>
+  </table>
+</div>
 
 {# ページネーションのHTMLブロックはDataTablesが自動生成するため削除 #}
 {# <div class="pagination">...</div> #}
@@ -93,9 +370,607 @@ document.addEventListener('DOMContentLoaded', function() {
         "language": {
             "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Japanese.json"
         },
-        "order": [[1, 'asc']] // 学年（1列目）をデフォルトで昇順ソート
+        "order": [[1, 'asc']], // 学年（1列目）をデフォルトで昇順ソート
+        "scrollX": true, // 横スクロールを有効化
+        "scrollCollapse": true,
+        "autoWidth": false,
+        "responsive": false, // レスポンシブ機能を無効化（横スクロールと競合するため）
+        "columnDefs": [
+            { "width": "120px", "targets": 0 }, // 氏名列の幅
+            { "width": "80px", "targets": 1 }, // 学年列の幅
+            { "width": "100px", "targets": [2,3,4,5,6,7,8,9] }, // 測定値列の幅
+            { "width": "350px", "targets": 10 } // カテゴリ評価列の幅
+        ]
     });
 });
 </script>
+
+<style>
+.radar-chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 2px solid #dee2e6;
+}
+
+.radar-chart-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #007bff, #28a745);
+}
+
+.member-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.member-table th,
+.member-table td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.member-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.record-category-evaluations {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.record-evaluation-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.8rem;
+    padding: 4px 6px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #007bff;
+}
+
+.record-category-name {
+    font-weight: bold;
+    color: #495057;
+    flex-shrink: 0;
+}
+
+.record-grade-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.record-grade {
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 4px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.record-stddev {
+    color: #007bff;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .radar-chart-container {
+        height: 300px;
+        padding: 10px;
+    }
+    
+    .record-evaluation-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+}
+
+/* レーダーチャート説明セクションのスタイル */
+.radar-chart-explanation {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.explanation-header {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+}
+
+.explanation-header h5 {
+    color: #495057;
+    margin: 0;
+    font-weight: bold;
+}
+
+.explanation-header i {
+    color: #007bff;
+    margin-right: 8px;
+}
+
+.explanation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.explanation-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.explanation-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.explanation-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    width: 50px;
+    text-align: center;
+}
+
+.explanation-text {
+    flex: 1;
+    line-height: 1.6;
+}
+
+.explanation-text strong {
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+.explanation-text br {
+    margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+    .explanation-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .explanation-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .explanation-icon {
+        width: auto;
+    }
+}
+
+/* チーム統計セクションのスタイル */
+.team-stats-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+    width: 60px;
+    text-align: center;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #007bff;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* メンバー概要情報のスタイル */
+.overview-section {
+    border-top: 2px solid #dee2e6;
+    padding-top: 20px;
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.overview-item {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.overview-item h5 {
+    color: #495057;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.overview-item h5 i {
+    color: #007bff;
+}
+
+.grade-distribution {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.grade-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid #007bff;
+}
+
+.grade-label {
+    font-weight: bold;
+    color: #495057;
+}
+
+.grade-count {
+    background: #007bff;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .overview-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .stat-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .stat-icon {
+        width: auto;
+    }
+}
+
+/* チーム平均評価サマリーのスタイル */
+.team-average-summary {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    border-left: 5px solid #007bff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.summary-category {
+    margin: 0;
+    color: #495057;
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.summary-grade {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.grade-badge {
+    font-size: 1.8rem !important;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 10px;
+    min-width: 60px;
+    text-align: center;
+}
+
+.grade-description {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #6c757d;
+    text-align: center;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summary-value {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.value-label {
+    font-weight: bold;
+    color: #495057;
+    font-size: 1rem;
+}
+
+.value-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #007bff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.summary-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.summary-info:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: bold;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.info-value {
+    font-weight: bold;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .summary-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .summary-value {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+    
+    .value-number {
+        font-size: 1.8rem;
+    }
+}
+
+/* カテゴリ別評価セクションのスタイル（records.htmlと同じ） */
+.category-evaluation-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+}
+
+.category-evaluations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.category-evaluation-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid #007bff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.category-evaluation-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.category-title {
+    margin: 0;
+    color: #495057;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.grade-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.grade-text {
+    font-size: 1.5rem !important;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 8px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.grade-description {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #6c757d;
+    text-align: center;
+}
+
+.category-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.evaluation-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.evaluation-item.main-value {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+    margin-bottom: 5px;
+}
+
+.evaluation-label {
+    font-weight: bold;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.evaluation-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.evaluation-count {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.evaluation-legend {
+    border-top: 1px solid #dee2e6;
+    padding-top: 15px;
+}
+
+@media (max-width: 768px) {
+    .category-evaluations-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+</style>
 
 {% endblock %}

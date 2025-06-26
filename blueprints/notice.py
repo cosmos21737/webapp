@@ -16,7 +16,7 @@ def notice():
 
     if current_user.has_role("member"):
         records = MeasurementRecord.query.filter_by(user_id=user_id, status='draft').all()
-    if current_user.has_role("coach"):
+    if current_user.has_any_role("administer", "coach"):
         records = MeasurementRecord.query.filter_by(status='pending_coach').all()
     if current_user.has_role("manager"):
         records = MeasurementRecord.query.filter_by(created_by=current_user.user_id, status='rejected').all()
@@ -46,7 +46,7 @@ def approve_records():
                 record.comment = record.user.name + "：" + comment
             elif current_user.has_role("member"):
                 record.status = 'pending_coach'  # 承認フラグを更新
-            elif current_user.has_role("coach"):
+            elif current_user.has_any_role("administer", "coach"):
                 record.status = 'approved'
             elif current_user.has_role("manager"):
                 db.session.delete(record)

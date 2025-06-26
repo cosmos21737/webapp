@@ -706,3 +706,653 @@ footer p {
     --gray-900: #f9fafb;
   }
 }
+
+/* ========================================
+   カテゴリ評価セクション
+   ======================================== */
+.category-evaluation-section {
+  background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+}
+
+.category-evaluation-section:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.category-evaluations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.category-evaluation-card {
+  background: var(--white);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.category-evaluation-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* C評価の強調スタイル */
+.category-evaluation-card.c-grade {
+  border-color: var(--error);
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+  animation: pulse-warning 2s infinite;
+}
+
+.category-evaluation-card.c-grade::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--error), #fca5a5);
+}
+
+.category-evaluation-card.c-grade:hover {
+  border-color: var(--secondary-dark);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+  transform: translateY(-5px);
+}
+
+/* S評価の強調スタイル */
+.category-evaluation-card.s-grade {
+  border-color: var(--error);
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  animation: pulse-excellent 2s infinite;
+}
+
+.category-evaluation-card.s-grade::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--error), #fca5a5);
+}
+
+.category-evaluation-card.s-grade:hover {
+  border-color: var(--secondary-dark);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+  transform: translateY(-5px);
+}
+
+/* A評価の強調スタイル */
+.category-evaluation-card.a-grade {
+  border-color: var(--accent-color);
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+  animation: pulse-good 2s infinite;
+}
+
+.category-evaluation-card.a-grade::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-color), #fbbf24);
+}
+
+.category-evaluation-card.a-grade:hover {
+  border-color: #d97706;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+  transform: translateY(-5px);
+}
+
+/* B評価の強調スタイル */
+.category-evaluation-card.b-grade {
+  border-color: var(--primary-color);
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  animation: pulse-average 2s infinite;
+}
+
+.category-evaluation-card.b-grade::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), #93c5fd);
+}
+
+.category-evaluation-card.b-grade:hover {
+  border-color: var(--primary-dark);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+  transform: translateY(-5px);
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.category-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin: 0;
+}
+
+.category-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.evaluation-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.evaluation-label {
+  font-weight: 600;
+  color: var(--gray-600);
+  font-size: 0.9rem;
+}
+
+.evaluation-value {
+  font-weight: 700;
+  color: var(--gray-800);
+  font-size: 1.1rem;
+}
+
+.evaluation-count {
+  font-weight: 600;
+  color: var(--gray-500);
+  font-size: 0.9rem;
+}
+
+/* C評価のバッジスタイル */
+.badge.bg-secondary {
+  background: linear-gradient(135deg, var(--error) 0%, #fca5a5 100%) !important;
+  color: var(--white) !important;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+  animation: pulse-badge 2s infinite;
+}
+
+/* S評価のバッジスタイル */
+.badge.bg-danger {
+  background: linear-gradient(135deg, var(--error) 0%, #fca5a5 100%) !important;
+  color: var(--white) !important;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.4);
+  animation: pulse-badge 2s infinite;
+}
+
+/* A評価のバッジスタイル */
+.badge.bg-warning {
+  background: linear-gradient(135deg, var(--accent-color) 0%, #fbbf24 100%) !important;
+  color: var(--white) !important;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+  animation: pulse-badge 2s infinite;
+}
+
+/* B評価のバッジスタイル */
+.badge.bg-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #93c5fd 100%) !important;
+  color: var(--white) !important;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  animation: pulse-badge 2s infinite;
+}
+
+/* パルスアニメーション */
+@keyframes pulse-warning {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+  }
+}
+
+@keyframes pulse-excellent {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.5);
+  }
+}
+
+@keyframes pulse-good {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+  }
+}
+
+@keyframes pulse-average {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+  }
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* 評価凡例のスタイル */
+.evaluation-legend {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+.evaluation-legend small {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .category-evaluations-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .category-evaluation-card {
+    padding: 1rem;
+  }
+  
+  .category-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* ========================================
+   レーダーチャート
+   ======================================== */
+.radar-chart-container {
+  background: var(--white);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.radar-chart-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+}
+
+.radar-chart-container canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+
+/* レーダーチャートのレスポンシブ対応 */
+@media (max-width: 768px) {
+  .radar-chart-container {
+    padding: 1rem;
+  }
+  
+  .radar-chart-container canvas {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .radar-chart-container canvas {
+    max-height: 250px;
+  }
+}
+
+/* ========================================
+   詳細記録テーブルのカテゴリ評価
+   ======================================== */
+.record-category-evaluations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 280px;
+}
+
+.record-evaluation-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  padding: 0.25rem 0;
+}
+
+.record-category-name {
+  font-weight: 600;
+  color: var(--gray-700);
+  min-width: 50px;
+  flex-shrink: 0;
+}
+
+.record-grade {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  font-weight: 700;
+  min-width: 25px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.record-stddev {
+  font-size: 0.85rem;
+  color: var(--gray-600);
+  font-weight: 500;
+  flex-grow: 1;
+}
+
+/* テーブルセルのスタイル調整 */
+#detailedRecordsTable td:last-child {
+  min-width: 150px;
+  max-width: 200px;
+  vertical-align: middle;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .record-category-evaluations {
+    min-width: 100px;
+  }
+  
+  .record-evaluation-item {
+    font-size: 0.75rem;
+    gap: 0.25rem;
+  }
+  
+  .record-category-name {
+    min-width: 35px;
+  }
+  
+  .record-grade {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.3rem;
+  }
+  
+  .record-stddev {
+    font-size: 0.65rem;
+  }
+  
+  #detailedRecordsTable td:last-child {
+    min-width: 120px;
+    max-width: 150px;
+  }
+}
+
+/* ========================================
+   測定記録ページのメンバーヘッダー
+   ======================================== */
+.member-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.member-header h2 {
+  margin: 0;
+  color: var(--primary-color);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.member-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.status-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-actions .btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+
+.status-actions .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.status-actions .btn-warning {
+  background: linear-gradient(135deg, var(--accent-color) 0%, #fbbf24 100%);
+  border-color: var(--accent-color);
+  color: var(--white);
+}
+
+.status-actions .btn-success {
+  background: linear-gradient(135deg, var(--success) 0%, #34d399 100%);
+  border-color: var(--success);
+  color: var(--white);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .member-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .member-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .member-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .status-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  
+  .status-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ========================================
+   詳細記録テーブルの横スクロール
+   ======================================== */
+.table-responsive {
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+#detailedRecordsTable {
+  min-width: 800px; /* 最小幅を設定 */
+  margin-bottom: 0;
+}
+
+#detailedRecordsTable th,
+#detailedRecordsTable td {
+  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+#detailedRecordsTable th {
+  background: var(--gray-50);
+  font-weight: 600;
+  color: var(--gray-700);
+  border-bottom: 2px solid var(--gray-200);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#detailedRecordsTable td {
+  border-bottom: 1px solid var(--gray-100);
+}
+
+#detailedRecordsTable tbody tr:hover {
+  background-color: var(--gray-50);
+}
+
+/* カテゴリ評価列のスタイル調整 */
+#detailedRecordsTable th:last-child,
+#detailedRecordsTable td:last-child {
+  min-width: 300px;
+  max-width: 350px;
+  white-space: normal; /* カテゴリ評価列は改行を許可 */
+}
+
+/* 測定値列のスタイル */
+#detailedRecordsTable td:not(:last-child) {
+  text-align: center;
+  font-weight: 500;
+}
+
+/* 測定日列のスタイル */
+#detailedRecordsTable td:first-child {
+  text-align: left;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .table-responsive {
+    margin: 0 -1rem;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+  }
+  
+  #detailedRecordsTable {
+    min-width: 600px;
+  }
+  
+  #detailedRecordsTable th,
+  #detailedRecordsTable td {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  /* モバイルでのカテゴリ評価列の調整 */
+  #detailedRecordsTable th:last-child,
+  #detailedRecordsTable td:last-child {
+    min-width: 250px;
+    max-width: 300px;
+  }
+  
+  .record-category-evaluations {
+    min-width: 230px;
+    gap: 0.375rem;
+  }
+  
+  .record-evaluation-item {
+    font-size: 0.8rem;
+    gap: 0.5rem;
+  }
+  
+  .record-category-name {
+    min-width: 45px;
+  }
+  
+  .record-grade {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 22px;
+  }
+  
+  .record-stddev {
+    font-size: 0.75rem;
+  }
+}
