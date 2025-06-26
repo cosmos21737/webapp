@@ -20,17 +20,23 @@ def load_user(user_id):
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
+        student_id = request.form.get('student_id')  # 学生番号のみ
         password = request.form.get('password')
 
         if not password:
             flash('パスワードを入力してください。', 'error')
             return redirect(url_for('auth.login'))
 
+        if not student_id:
+            flash('学生番号を入力してください。', 'error')
+            return redirect(url_for('auth.login'))
+
         try:
-            user = User.query.filter_by(name=username).first()
+            # 学生番号でユーザーを検索
+            user = User.query.filter_by(student_id=student_id).first()
+            
             if not user:
-                flash('ユーザーが存在しません。', 'error')
+                flash('学生番号が存在しません。', 'error')
                 return redirect(url_for('auth.login'))
 
             if not check_password_hash(user.password_hash, password):

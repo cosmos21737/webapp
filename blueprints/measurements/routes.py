@@ -1,6 +1,6 @@
 from flask import request, redirect, url_for, render_template, flash, Response
 from flask_login import login_required, current_user
-from flask_security import roles_required, roles_accepted
+from flask_security.decorators import roles_required, roles_accepted
 from db_models import db, User, MeasurementRecord, MeasurementType, MeasurementValue
 from datetime import datetime
 
@@ -31,24 +31,27 @@ def submit_record():
     単一の測定記録の提出処理
     """
     created_by = current_user.get_id()  # 記入者（ログインしているユーザー）
-    member_name = request.form.get('member_name')  # 記録を保存する対象の部員名
-    member_grade = request.form.get('member_grade')
+    student_id = request.form.get('student_id')  # 記録を保存する対象の学生番号
     measurement_date_str = request.form.get('measurement_date')
 
-    # 部員の検索
-    user = User.query.filter_by(name=member_name, grade=member_grade).first()
+    # 部員の検索（学生番号で検索）
+    user = User.query.filter_by(student_id=student_id).first()
     if not user:
-        flash(f"学年「{member_grade}」の氏名「{member_name}」の部員が見つかりません。")
-        print(f"学年「{member_grade}」の氏名「{member_name}」の部員が見つかりません。")
+        flash(f"学生番号「{student_id}」の部員が見つかりません。")
+        print(f"学生番号「{student_id}」の部員が見つかりません。")
         return redirect(url_for('measurements.records_input'))  # エラー時は入力画面に戻すなど
         # または、return "部員が見つかりません", 404
 
     # 日付文字列を日付オブジェクトに変換
+    if not measurement_date_str:
+        flash('測定日を入力してください。', 'danger')
+        return redirect(url_for('measurements.records_input'))
+        
     try:
         measurement_date = datetime.strptime(measurement_date_str, '%Y-%m-%d').date()
     except ValueError:
         flash('無効な日付形式です。', 'danger')
-        return redirect(url_for('measurements.record_input'))
+        return redirect(url_for('measurements.records_input'))
 
     try:
         # 新しいMeasurementRecordを作成
@@ -117,7 +120,7 @@ def csv_import():
         flash('ファイルが選択されていません', 'error')
         return redirect(request.url)
 
-    if not file.filename.lower().endswith('.csv'):
+    if not file.filename or not file.filename.lower().endswith('.csv'):
         flash('CSVファイルを選択してください', 'error')
         return redirect(request.url)
 
@@ -147,29 +150,29 @@ def csv_import():
     return redirect(url_for('measurements.csv_import'))
 
 
-@measurements_bp.route('/download_csv_template')
+@measurements_bp.route('/download_csv_template_with_members')
 @login_required
 @roles_accepted("administer", "manager")
-def download_csv_template():
-    """CSVテンプレートファイルのダウンロード"""
-    # サービスレイヤーの関数からテンプレート内容を取得
-    template_content = services.generate_csv_template_content()
+def download_csv_template_with_members():
+    """全ての部員を含むCSVテンプレートファイルのダウンロード"""
+    # 全ての部員を含むテンプレート内容を取得
+    template_content = services.generate_csv_template_with_all_members()
     return Response(
         template_content,
         mimetype="text/csv",
-        headers={"Content-disposition": "attachment; filename=measurement_template.csv"}
+        headers={"Content-disposition": "attachment; filename=measurement_template_with_members.csv"}
     )
 
 
-@measurements_bp.route('/download_admin_csv_template')
+@measurements_bp.route('/download_admin_csv_template_with_members')
 @login_required
 @roles_accepted("administer")
-def download_admin_csv_template():
-    """管理者用CSVテンプレートファイルのダウンロード"""
-    # 管理者用テンプレート内容を取得
-    template_content = services.generate_admin_csv_template_content()
+def download_admin_csv_template_with_members():
+    """全ての部員を含む管理者用CSVテンプレートファイルのダウンロード"""
+    # 全ての部員を含む管理者用テンプレート内容を取得
+    template_content = services.generate_admin_csv_template_with_all_members()
     return Response(
         template_content,
         mimetype="text/csv",
-        headers={"Content-disposition": "attachment; filename=admin_measurement_template.csv"}
+        headers={"Content-disposition": "attachment; filename=admin_measurement_template_with_members.csv"}
     )

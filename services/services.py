@@ -268,7 +268,7 @@ def initialize_database(app):
 
         # 管理者連絡先を初期化
         contact = AdminContact(
-            email="support@example.com",
+            email="baseball_support@example.com",
             phone="090-1234-5678",
             note="システムに関するお問い合わせはこちらまでご連絡ください。"
         )
@@ -293,6 +293,7 @@ def register_administer():
     # 管理者ユーザーを作成
     admin_user = User(
         name="管理者",
+        student_id="admin",
         is_active=True,
         password_hash=hashed_password
     )
