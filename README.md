@@ -1,6 +1,29 @@
-# quest_1
+# Baseball Team Management System
 
+野球チームの管理システムです。メンバー管理、測定記録、チーム情報などを管理できます。
 
+## セキュリティ設定
+
+本アプリケーションは強固なシークレットキーを使用しています：
+
+### テスト用サイト設定
+
+テスト用サイトのため、以下の固定の強固なキーを使用しています：
+
+- **シークレットキー**: `baseball_team_2024_secure_key_32chars_long_for_test`
+- **パスワードソルト**: `baseball_team_2024_salt_16chars`
+
+これらのキーは固定値のため、アプリケーション再起動後もセッションが継続されます。
+
+### 本番環境での設定
+
+本番環境では環境変数を使用することを推奨します：
+
+```bash
+SECRET_KEY=your_very_secure_secret_key_here
+SECURITY_PASSWORD_SALT=your_secure_password_salt_here
+DATABASE_URL=your_database_connection_string
+```
 
 ## Getting started
 

@@ -27,8 +27,10 @@ from services.services import initialize_database
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'your_secret_key')
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_secret_key')
+
+# テスト用サイト用の強固なシークレットキー
+app.secret_key = 'baseball_team_2024_secure_key_32chars_long_for_test'
+app.config['SECRET_KEY'] = 'baseball_team_2024_secure_key_32chars_long_for_test'
 
 # Database configuration - support both PostgreSQL and SQLite
 database_url = os.environ.get('DATABASE_URL')
@@ -41,7 +43,7 @@ else:
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECURITY_REGISTERABLE'] = True
-app.config['SECURITY_PASSWORD_SALT'] = os.environ.get('SECURITY_PASSWORD_SALT', 'random_salt')
+app.config['SECURITY_PASSWORD_SALT'] = 'baseball_team_2024_salt_16chars'
 app.config['SECURITY_ROLE_TABLE'] = 'roles'
 
 def nl2br(value):

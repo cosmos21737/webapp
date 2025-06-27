@@ -3,7 +3,8 @@ import csv
 from datetime import datetime
 
 from flask import Blueprint, request, render_template, redirect, url_for, flash, Response, send_file
-from flask_security import login_required, current_user, roles_required, roles_accepted
+from flask_security import login_required, current_user
+from flask_security.decorators import roles_required, roles_accepted
 from sqlalchemy import func
 from db_models import db, User, MeasurementRecord, Role
 
@@ -16,12 +17,9 @@ from . import services
 @login_required
 @roles_accepted("administer", "coach", "director")
 def members():
-    # 現在のページネーションの行を削除またはコメントアウトし、すべてのユーザーを取得する
-    # pagination = User.query.filter(~User.roles.any(Role.name == 'administer')).order_by(sort_column).paginate(page=page, per_page=per_page)
-    # members_list = pagination.items
 
-    # すべてのメンバーを取得する (または、フロントエンドで処理できる適切なサブセット)
-    members_list = User.query.filter(~User.roles.any(Role.name == 'administer')).all()
+    # memberロールを持つユーザーのみを取得
+    members_list = services.get_members_list()
 
     return render_template('members/members.html',
                            members=members_list,
@@ -146,7 +144,7 @@ def csv_import():
         flash('ファイルが選択されていません', 'error')
         return redirect(request.url)
 
-    if not file.filename.lower().endswith('.csv'):
+    if not file.filename or not file.filename.lower().endswith('.csv'):
         flash('CSVファイルを選択してください', 'error')
         return redirect(request.url)
 
