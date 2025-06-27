@@ -108,4 +108,4 @@ if __name__ == '__main__':
         initialize_database(app)
 
     print("アプリケーションを開始します...")
-    app.run()
+    app.run(debug=True)
