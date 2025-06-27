@@ -1,5 +1,7 @@
 # Render.com デプロイガイド
 
+### 1. 準備
+
 #### GitHubリポジトリの準備
 1. 現在のコードをGitHubにプッシュ
 2. リポジトリが公開されていることを確認
@@ -24,7 +26,9 @@
 - **Plan**: `Free`
 
 #### 環境変数の設定
-Environment Variablesで以下の環境変数を設定：
+
+Environment Variablesに以下の環境変数を設定：
+
 
 ```
 FLASK_APP=app.app
