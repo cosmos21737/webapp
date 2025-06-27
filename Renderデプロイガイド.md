@@ -24,7 +24,7 @@
 - **Plan**: `Free`
 
 #### 環境変数の設定
-Render.comのダッシュボードで以下の環境変数を設定：
+Environment Variablesに以下の環境変数を設定：
 
 ```
 FLASK_APP=app.app
